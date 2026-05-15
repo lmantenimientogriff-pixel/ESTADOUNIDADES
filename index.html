@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0044)file:///C:/Users/Coco/Downloads/index_4.html -->
+<!-- saved from url=(0044)file:///C:/Users/Coco/Downloads/index_6.html -->
 <html lang="es"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -492,7 +492,7 @@ tbody td { padding: 7px 10px; font-size: 12px; white-space: nowrap; }
 <body>
 
 <!-- LOGIN OVERLAY -->
-<div id="overlay" style="display: none;">
+<div id="overlay">
   <div id="overlay-inner">
     <div id="overlay-logo">GRIFFOULIERE</div>
     <h2>Estado Operativo de Flota</h2>
@@ -505,18 +505,18 @@ tbody td { padding: 7px 10px; font-size: 12px; white-space: nowrap; }
 </div>
 
 <!-- APP -->
-<div id="app" style="display: flex;">
+<div id="app">
   <!-- TOPBAR -->
   <div id="topbar">
     <div id="topbar-left">
       <span id="badge-marca">GRIFFOULIERE</span>
       <span id="topbar-title">Estado Operativo de Flota</span>
-      <span id="topbar-rev">REV 00 · <span id="fecha-hoy">14/05/2026</span></span>
+      <span id="topbar-rev">REV 00 · <span id="fecha-hoy"></span></span>
     </div>
     <div id="topbar-right">
       <div id="user-badge">
-        <span id="user-name">Admin Sistema</span>
-        <span id="rol-pill" class="rol-admin">Admin</span>
+        <span id="user-name">—</span>
+        <span id="rol-pill" class="rol-lectura">—</span>
       </div>
       <button id="btn-salir">Salir</button>
     </div>
@@ -525,21 +525,21 @@ tbody td { padding: 7px 10px; font-size: 12px; white-space: nowrap; }
   <!-- LOADING BAR -->
   <div id="loading-bar" style="display: none;">
     <div id="loading-spinner"></div>
-    <span id="loading-msg">Cargando datos desde Google Sheets...</span>
+    <span id="loading-msg">Cargando datos...</span>
   </div>
 
   <!-- FILTROS -->
   <div id="filtros-section">
     <div id="filtros-bar">
       <!-- Dropdowns generados por JS -->
-      <div class="filtro-group" id="dd-wrap-tipo"><button class="dropdown-btn active" id="dd-btn-tipo" type="button"><span class="dd-label">Tipo</span><span class="dd-count" style="display: inline-block;">1</span><span class="dd-arrow">▼</span></button><div class="dropdown-panel" id="dd-panel-tipo"><div class="dd-search"><input type="text" placeholder="Buscar..." id="dd-search-tipo"></div><div class="dd-selall"><span data-action="all">Todos</span><span data-action="none">Ninguno</span></div><div id="dd-opts-tipo"><div class="dd-option"><input type="checkbox" value="Auto" id="cb-tipo-Auto"><label for="cb-tipo-Auto">Auto</label></div><div class="dd-option"><input type="checkbox" value="Batan" id="cb-tipo-Batan"><label for="cb-tipo-Batan">Batan</label></div><div class="dd-option"><input type="checkbox" value="Casilla" id="cb-tipo-Casilla"><label for="cb-tipo-Casilla">Casilla</label></div><div class="dd-option"><input type="checkbox" value="Chasis Atmosférico" id="cb-tipo-Chasis_Atmosférico"><label for="cb-tipo-Chasis_Atmosférico">Chasis Atmosférico</label></div><div class="dd-option"><input type="checkbox" value="Chasis Capilar" id="cb-tipo-Chasis_Capilar"><label for="cb-tipo-Chasis_Capilar">Chasis Capilar</label></div><div class="dd-option"><input type="checkbox" value="Chasis Hidro Liviana" id="cb-tipo-Chasis_Hidro_Liviana"><label for="cb-tipo-Chasis_Hidro_Liviana">Chasis Hidro Liviana</label></div><div class="dd-option"><input type="checkbox" value="Chasis Porta" id="cb-tipo-Chasis_Porta"><label for="cb-tipo-Chasis_Porta">Chasis Porta</label></div><div class="dd-option"><input type="checkbox" value="Chasis Tanque" id="cb-tipo-Chasis_Tanque"><label for="cb-tipo-Chasis_Tanque">Chasis Tanque</label></div><div class="dd-option"><input type="checkbox" value="Edilicio" id="cb-tipo-Edilicio"><label for="cb-tipo-Edilicio">Edilicio</label></div><div class="dd-option"><input type="checkbox" value="Pick up" id="cb-tipo-Pick_up"><label for="cb-tipo-Pick_up">Pick up</label></div><div class="dd-option"><input type="checkbox" value="Pileta" id="cb-tipo-Pileta"><label for="cb-tipo-Pileta">Pileta</label></div><div class="dd-option"><input type="checkbox" value="Retroescavadora" id="cb-tipo-Retroescavadora"><label for="cb-tipo-Retroescavadora">Retroescavadora</label></div><div class="dd-option"><input type="checkbox" value="Semi Tanque" id="cb-tipo-Semi_Tanque"><label for="cb-tipo-Semi_Tanque">Semi Tanque</label></div><div class="dd-option"><input type="checkbox" value="Semi Tanque Superchupa" id="cb-tipo-Semi_Tanque_Superchupa"><label for="cb-tipo-Semi_Tanque_Superchupa">Semi Tanque Superchupa</label></div><div class="dd-option"><input type="checkbox" value="Semirremolque" id="cb-tipo-Semirremolque"><label for="cb-tipo-Semirremolque">Semirremolque</label></div><div class="dd-option"><input type="checkbox" value="Semitanque Atmosférico" id="cb-tipo-Semitanque_Atmosférico"><label for="cb-tipo-Semitanque_Atmosférico">Semitanque Atmosférico</label></div><div class="dd-option"><input type="checkbox" value="Tractor" id="cb-tipo-Tractor"><label for="cb-tipo-Tractor">Tractor</label></div><div class="dd-option"><input type="checkbox" value="Tractor Atmosférico" id="cb-tipo-Tractor_Atmosférico"><label for="cb-tipo-Tractor_Atmosférico">Tractor Atmosférico</label></div><div class="dd-option"><input type="checkbox" value="Tractor Hidro Media" id="cb-tipo-Tractor_Hidro_Media"><label for="cb-tipo-Tractor_Hidro_Media">Tractor Hidro Media</label></div><div class="dd-option"><input type="checkbox" value="Tractor Hidro Pesada" id="cb-tipo-Tractor_Hidro_Pesada"><label for="cb-tipo-Tractor_Hidro_Pesada">Tractor Hidro Pesada</label></div><div class="dd-option"><input type="checkbox" value="Tractor Superchupa" id="cb-tipo-Tractor_Superchupa"><label for="cb-tipo-Tractor_Superchupa">Tractor Superchupa</label></div><div class="dd-option"><input type="checkbox" value="Vactor" id="cb-tipo-Vactor"><label for="cb-tipo-Vactor">Vactor</label></div><div class="dd-option"><input type="checkbox" value="Volcador" id="cb-tipo-Volcador"><label for="cb-tipo-Volcador">Volcador</label></div></div></div></div>
-      <div class="filtro-group" id="dd-wrap-cc"><button class="dropdown-btn" id="dd-btn-cc" type="button"><span class="dd-label">Centro Costo</span><span class="dd-count" style="display:none">0</span><span class="dd-arrow">▼</span></button><div class="dropdown-panel" id="dd-panel-cc"><div class="dd-search"><input type="text" placeholder="Buscar..." id="dd-search-cc"></div><div class="dd-selall"><span data-action="all">Todos</span><span data-action="none">Ninguno</span></div><div id="dd-opts-cc"><div class="dd-option"><input type="checkbox" value="A DEFINIR" id="cb-cc-A_DEFINIR"><label for="cb-cc-A_DEFINIR">A DEFINIR</label></div><div class="dd-option"><input type="checkbox" value="ARG-ALQUILERES-VAR" id="cb-cc-ARG-ALQUILERES-VAR"><label for="cb-cc-ARG-ALQUILERES-VAR">ARG-ALQUILERES-VAR</label></div><div class="dd-option"><input type="checkbox" value="ARG-TTELARGDISTANCIA-VAR" id="cb-cc-ARG-TTELARGDISTANCIA-VAR"><label for="cb-cc-ARG-TTELARGDISTANCIA-VAR">ARG-TTELARGDISTANCIA-VAR</label></div><div class="dd-option"><input type="checkbox" value="CUYO-COMBUSTIBLES EESS-SHELL" id="cb-cc-CUYO-COMBUSTIBLES_EESS-SHELL"><label for="cb-cc-CUYO-COMBUSTIBLES_EESS-SHELL">CUYO-COMBUSTIBLES EESS-SHELL</label></div><div class="dd-option"><input type="checkbox" value="MGUE-4900096003-LIQ/SOL-YPF" id="cb-cc-MGUE-4900096003-LIQ/SOL-YPF"><label for="cb-cc-MGUE-4900096003-LIQ/SOL-YPF">MGUE-4900096003-LIQ/SOL-YPF</label></div><div class="dd-option"><input type="checkbox" value="MGUE-TALLER MALARGUE-GRI" id="cb-cc-MGUE-TALLER_MALARGUE-GRI"><label for="cb-cc-MGUE-TALLER_MALARGUE-GRI">MGUE-TALLER MALARGUE-GRI</label></div><div class="dd-option"><input type="checkbox" value="MGUE-VEHICULOSIVIANOS-GRI" id="cb-cc-MGUE-VEHICULOSIVIANOS-GRI"><label for="cb-cc-MGUE-VEHICULOSIVIANOS-GRI">MGUE-VEHICULOSIVIANOS-GRI</label></div><div class="dd-option"><input type="checkbox" value="MZA-USADOS GRIFFOULIERE-GRI" id="cb-cc-MZA-USADOS_GRIFFOULIERE-GRI"><label for="cb-cc-MZA-USADOS_GRIFFOULIERE-GRI">MZA-USADOS GRIFFOULIERE-GRI</label></div><div class="dd-option"><input type="checkbox" value="MZAN-053-2025-LIMPIEZATK-PS" id="cb-cc-MZAN-053-2025-LIMPIEZATK-PS"><label for="cb-cc-MZAN-053-2025-LIMPIEZATK-PS">MZAN-053-2025-LIMPIEZATK-PS</label></div><div class="dd-option"><input type="checkbox" value="MZAN-4900096003-LIQUIDAS-PS" id="cb-cc-MZAN-4900096003-LIQUIDAS-PS"><label for="cb-cc-MZAN-4900096003-LIQUIDAS-PS">MZAN-4900096003-LIQUIDAS-PS</label></div><div class="dd-option"><input type="checkbox" value="MZAN-4900096003-SOLIDAS-PS" id="cb-cc-MZAN-4900096003-SOLIDAS-PS"><label for="cb-cc-MZAN-4900096003-SOLIDAS-PS">MZAN-4900096003-SOLIDAS-PS</label></div><div class="dd-option"><input type="checkbox" value="MZAN-4900114954-DESTILERIA-YPF" id="cb-cc-MZAN-4900114954-DESTILERIA-YPF"><label for="cb-cc-MZAN-4900114954-DESTILERIA-YPF">MZAN-4900114954-DESTILERIA-YPF</label></div><div class="dd-option"><input type="checkbox" value="MZAN-DMT/HERRA/RANGO/HIDRO-VAR" id="cb-cc-MZAN-DMT/HERRA/RANGO/HIDRO-VAR"><label for="cb-cc-MZAN-DMT/HERRA/RANGO/HIDRO-VAR">MZAN-DMT/HERRA/RANGO/HIDRO-VAR</label></div><div class="dd-option"><input type="checkbox" value="MZAN-DTO COMPRAS Y DEPOSITO-GRI" id="cb-cc-MZAN-DTO_COMPRAS_Y_DEPOSITO-GRI"><label for="cb-cc-MZAN-DTO_COMPRAS_Y_DEPOSITO-GRI">MZAN-DTO COMPRAS Y DEPOSITO-GRI</label></div><div class="dd-option"><input type="checkbox" value="MZAN-DTO MANTENIMIENTO-GRI" id="cb-cc-MZAN-DTO_MANTENIMIENTO-GRI"><label for="cb-cc-MZAN-DTO_MANTENIMIENTO-GRI">MZAN-DTO MANTENIMIENTO-GRI</label></div><div class="dd-option"><input type="checkbox" value="MZAN-ELROBLECOMPLEX-ELROBLE" id="cb-cc-MZAN-ELROBLECOMPLEX-ELROBLE"><label for="cb-cc-MZAN-ELROBLECOMPLEX-ELROBLE">MZAN-ELROBLECOMPLEX-ELROBLE</label></div><div class="dd-option"><input type="checkbox" value="MZAN-GASTOS COMERCIALES-GRI" id="cb-cc-MZAN-GASTOS_COMERCIALES-GRI"><label for="cb-cc-MZAN-GASTOS_COMERCIALES-GRI">MZAN-GASTOS COMERCIALES-GRI</label></div><div class="dd-option"><input type="checkbox" value="MZAN-TALLER BARRANCAS-GRI" id="cb-cc-MZAN-TALLER_BARRANCAS-GRI"><label for="cb-cc-MZAN-TALLER_BARRANCAS-GRI">MZAN-TALLER BARRANCAS-GRI</label></div><div class="dd-option"><input type="checkbox" value="MZAN-VEHICULOSIVIANOS-GRI" id="cb-cc-MZAN-VEHICULOSIVIANOS-GRI"><label for="cb-cc-MZAN-VEHICULOSIVIANOS-GRI">MZAN-VEHICULOSIVIANOS-GRI</label></div><div class="dd-option"><input type="checkbox" value="NQN-4900096002-LIQSUPCHUPA-YPF" id="cb-cc-NQN-4900096002-LIQSUPCHUPA-YPF"><label for="cb-cc-NQN-4900096002-LIQSUPCHUPA-YPF">NQN-4900096002-LIQSUPCHUPA-YPF</label></div><div class="dd-option"><input type="checkbox" value="NQN-4900100771-RDLS-YPF" id="cb-cc-NQN-4900100771-RDLS-YPF"><label for="cb-cc-NQN-4900100771-RDLS-YPF">NQN-4900100771-RDLS-YPF</label></div><div class="dd-option"><input type="checkbox" value="NQN-4900116740-ARENAS-YPF" id="cb-cc-NQN-4900116740-ARENAS-YPF"><label for="cb-cc-NQN-4900116740-ARENAS-YPF">NQN-4900116740-ARENAS-YPF</label></div><div class="dd-option"><input type="checkbox" value="NQN-9160-RDLS-PS" id="cb-cc-NQN-9160-RDLS-PS"><label for="cb-cc-NQN-9160-RDLS-PS">NQN-9160-RDLS-PS</label></div><div class="dd-option"><input type="checkbox" value="NQN-BASEAÑELO-GRI" id="cb-cc-NQN-BASEAÑELO-GRI"><label for="cb-cc-NQN-BASEAÑELO-GRI">NQN-BASEAÑELO-GRI</label></div><div class="dd-option"><input type="checkbox" value="NQN-CTOCW1009149-SHELL-CAMSTH" id="cb-cc-NQN-CTOCW1009149-SHELL-CAMSTH"><label for="cb-cc-NQN-CTOCW1009149-SHELL-CAMSTH">NQN-CTOCW1009149-SHELL-CAMSTH</label></div><div class="dd-option"><input type="checkbox" value="NQN-DMT/HERRA/RANGO/HIDRO-VAR" id="cb-cc-NQN-DMT/HERRA/RANGO/HIDRO-VAR"><label for="cb-cc-NQN-DMT/HERRA/RANGO/HIDRO-VAR">NQN-DMT/HERRA/RANGO/HIDRO-VAR</label></div><div class="dd-option"><input type="checkbox" value="NQN-TALLER AÑELO-GRI" id="cb-cc-NQN-TALLER_AÑELO-GRI"><label for="cb-cc-NQN-TALLER_AÑELO-GRI">NQN-TALLER AÑELO-GRI</label></div><div class="dd-option"><input type="checkbox" value="NQN-TRANSPORTESANDBOX-TSB" id="cb-cc-NQN-TRANSPORTESANDBOX-TSB"><label for="cb-cc-NQN-TRANSPORTESANDBOX-TSB">NQN-TRANSPORTESANDBOX-TSB</label></div><div class="dd-option"><input type="checkbox" value="NQN-VEHICULOSIVIANOS-GRI" id="cb-cc-NQN-VEHICULOSIVIANOS-GRI"><label for="cb-cc-NQN-VEHICULOSIVIANOS-GRI">NQN-VEHICULOSIVIANOS-GRI</label></div></div></div></div>
-      <div class="filtro-group" id="dd-wrap-un"><button class="dropdown-btn" id="dd-btn-un" type="button"><span class="dd-label">Unid. Negocio</span><span class="dd-count" style="display:none">0</span><span class="dd-arrow">▼</span></button><div class="dropdown-panel" id="dd-panel-un"><div class="dd-search"><input type="text" placeholder="Buscar..." id="dd-search-un"></div><div class="dd-selall"><span data-action="all">Todos</span><span data-action="none">Ninguno</span></div><div id="dd-opts-un"><div class="dd-option"><input type="checkbox" value="A DEFINIR" id="cb-un-A_DEFINIR"><label for="cb-un-A_DEFINIR">A DEFINIR</label></div><div class="dd-option"><input type="checkbox" value="AUXILIO MECANICO" id="cb-un-AUXILIO_MECANICO"><label for="cb-un-AUXILIO_MECANICO">AUXILIO MECANICO</label></div><div class="dd-option"><input type="checkbox" value="BACK UP GERENCIA" id="cb-un-BACK_UP_GERENCIA"><label for="cb-un-BACK_UP_GERENCIA">BACK UP GERENCIA</label></div><div class="dd-option"><input type="checkbox" value="CAMION SÓLIDAS [25TN - 12HS]" id="cb-un-CAMION_SÓLIDAS_[25TN_-_12HS]"><label for="cb-un-CAMION_SÓLIDAS_[25TN_-_12HS]">CAMION SÓLIDAS [25TN - 12HS]</label></div><div class="dd-option"><input type="checkbox" value="CAMIONETA BATAN" id="cb-un-CAMIONETA_BATAN"><label for="cb-un-CAMIONETA_BATAN">CAMIONETA BATAN</label></div><div class="dd-option"><input type="checkbox" value="CASILLA MALARGUE" id="cb-un-CASILLA_MALARGUE"><label for="cb-un-CASILLA_MALARGUE">CASILLA MALARGUE</label></div><div class="dd-option"><input type="checkbox" value="CASILLA MALARGUE (SUPERVISOR)" id="cb-un-CASILLA_MALARGUE_(SUPERVISOR)"><label for="cb-un-CASILLA_MALARGUE_(SUPERVISOR)">CASILLA MALARGUE (SUPERVISOR)</label></div><div class="dd-option"><input type="checkbox" value="CASILLA MZA NORTE" id="cb-un-CASILLA_MZA_NORTE"><label for="cb-un-CASILLA_MZA_NORTE">CASILLA MZA NORTE</label></div><div class="dd-option"><input type="checkbox" value="CASILLA MZA NORTE(MESA VERDE)" id="cb-un-CASILLA_MZA_NORTE(MESA_VERDE)"><label for="cb-un-CASILLA_MZA_NORTE(MESA_VERDE)">CASILLA MZA NORTE(MESA VERDE)</label></div><div class="dd-option"><input type="checkbox" value="CASILLA MZA NORTE(UGARTECHE)" id="cb-un-CASILLA_MZA_NORTE(UGARTECHE)"><label for="cb-un-CASILLA_MZA_NORTE(UGARTECHE)">CASILLA MZA NORTE(UGARTECHE)</label></div><div class="dd-option"><input type="checkbox" value="CASILLA MZA NORTE(VIZCACHERAS)" id="cb-un-CASILLA_MZA_NORTE(VIZCACHERAS)"><label for="cb-un-CASILLA_MZA_NORTE(VIZCACHERAS)">CASILLA MZA NORTE(VIZCACHERAS)</label></div><div class="dd-option"><input type="checkbox" value="CASILLA NQN (TOLEDO)" id="cb-un-CASILLA_NQN_(TOLEDO)"><label for="cb-un-CASILLA_NQN_(TOLEDO)">CASILLA NQN (TOLEDO)</label></div><div class="dd-option"><input type="checkbox" value="CHUPA/EVACUADOR [35M3 -24HS]" id="cb-un-CHUPA/EVACUADOR_[35M3_-24HS]"><label for="cb-un-CHUPA/EVACUADOR_[35M3_-24HS]">CHUPA/EVACUADOR [35M3 -24HS]</label></div><div class="dd-option"><input type="checkbox" value="COMPRAS" id="cb-un-COMPRAS"><label for="cb-un-COMPRAS">COMPRAS</label></div><div class="dd-option"><input type="checkbox" value="DTM ?100KM PILETA 70M3" id="cb-un-DTM_?100KM_PILETA_70M3"><label for="cb-un-DTM_?100KM_PILETA_70M3">DTM ?100KM PILETA 70M3</label></div><div class="dd-option"><input type="checkbox" value="GERENCIA" id="cb-un-GERENCIA"><label for="cb-un-GERENCIA">GERENCIA</label></div><div class="dd-option"><input type="checkbox" value="JEFE TALLER MZAN" id="cb-un-JEFE_TALLER_MZAN"><label for="cb-un-JEFE_TALLER_MZAN">JEFE TALLER MZAN</label></div><div class="dd-option"><input type="checkbox" value="LIQ CHUPA 9M3 24HS de LU a DO" id="cb-un-LIQ_CHUPA_9M3_24HS_de_LU_a_DO"><label for="cb-un-LIQ_CHUPA_9M3_24HS_de_LU_a_DO">LIQ CHUPA 9M3 24HS de LU a DO</label></div><div class="dd-option"><input type="checkbox" value="LIQ CHUPA EVACUADOR 35M3 12HS de LU a DO" id="cb-un-LIQ_CHUPA_EVACUADOR_35M3_12HS_de_LU_a_DO"><label for="cb-un-LIQ_CHUPA_EVACUADOR_35M3_12HS_de_LU_a_DO">LIQ CHUPA EVACUADOR 35M3 12HS de LU a DO</label></div><div class="dd-option"><input type="checkbox" value="LIQ CHUPA EVACUADOR 35M3 24HS de LU a DO" id="cb-un-LIQ_CHUPA_EVACUADOR_35M3_24HS_de_LU_a_DO"><label for="cb-un-LIQ_CHUPA_EVACUADOR_35M3_24HS_de_LU_a_DO">LIQ CHUPA EVACUADOR 35M3 24HS de LU a DO</label></div><div class="dd-option"><input type="checkbox" value="LIQ CIST.AGUA ANIM 35M3 12HS de LU a VI" id="cb-un-LIQ_CIST.AGUA_ANIM_35M3_12HS_de_LU_a_VI"><label for="cb-un-LIQ_CIST.AGUA_ANIM_35M3_12HS_de_LU_a_VI">LIQ CIST.AGUA ANIM 35M3 12HS de LU a VI</label></div><div class="dd-option"><input type="checkbox" value="LIQ CISTERNA 35M3 24HS de LU a DO" id="cb-un-LIQ_CISTERNA_35M3_24HS_de_LU_a_DO"><label for="cb-un-LIQ_CISTERNA_35M3_24HS_de_LU_a_DO">LIQ CISTERNA 35M3 24HS de LU a DO</label></div><div class="dd-option"><input type="checkbox" value="LIQ CISTERNA 9M3 12HS de LU a DO" id="cb-un-LIQ_CISTERNA_9M3_12HS_de_LU_a_DO"><label for="cb-un-LIQ_CISTERNA_9M3_12HS_de_LU_a_DO">LIQ CISTERNA 9M3 12HS de LU a DO</label></div><div class="dd-option"><input type="checkbox" value="LIQ CISTERNA 9M3 24HS de LU a DO" id="cb-un-LIQ_CISTERNA_9M3_24HS_de_LU_a_DO"><label for="cb-un-LIQ_CISTERNA_9M3_24HS_de_LU_a_DO">LIQ CISTERNA 9M3 24HS de LU a DO</label></div><div class="dd-option"><input type="checkbox" value="LIQ GASOLERO 16M2 12HS de LU a DO" id="cb-un-LIQ_GASOLERO_16M2_12HS_de_LU_a_DO"><label for="cb-un-LIQ_GASOLERO_16M2_12HS_de_LU_a_DO">LIQ GASOLERO 16M2 12HS de LU a DO</label></div><div class="dd-option"><input type="checkbox" value="LIQ GASOLERO 9M3" id="cb-un-LIQ_GASOLERO_9M3"><label for="cb-un-LIQ_GASOLERO_9M3">LIQ GASOLERO 9M3</label></div><div class="dd-option"><input type="checkbox" value="LIQ VACTOR 9M3 24HS de LU a DO" id="cb-un-LIQ_VACTOR_9M3_24HS_de_LU_a_DO"><label for="cb-un-LIQ_VACTOR_9M3_24HS_de_LU_a_DO">LIQ VACTOR 9M3 24HS de LU a DO</label></div><div class="dd-option"><input type="checkbox" value="LIQUIDAS [35M3-24HS] NQN" id="cb-un-LIQUIDAS_[35M3-24HS]_NQN"><label for="cb-un-LIQUIDAS_[35M3-24HS]_NQN">LIQUIDAS [35M3-24HS] NQN</label></div><div class="dd-option"><input type="checkbox" value="LÍQUIDAS [35m3-24h]" id="cb-un-LÍQUIDAS_[35m3-24h]"><label for="cb-un-LÍQUIDAS_[35m3-24h]">LÍQUIDAS [35m3-24h]</label></div><div class="dd-option"><input type="checkbox" value="MANTENIMIENTO" id="cb-un-MANTENIMIENTO"><label for="cb-un-MANTENIMIENTO">MANTENIMIENTO</label></div><div class="dd-option"><input type="checkbox" value="MANTENIMIENTO LARGO" id="cb-un-MANTENIMIENTO_LARGO"><label for="cb-un-MANTENIMIENTO_LARGO">MANTENIMIENTO LARGO</label></div><div class="dd-option"><input type="checkbox" value="MENDOZA (COMPRAS)" id="cb-un-MENDOZA_(COMPRAS)"><label for="cb-un-MENDOZA_(COMPRAS)">MENDOZA (COMPRAS)</label></div><div class="dd-option"><input type="checkbox" value="NESTOR ROJAS" id="cb-un-NESTOR_ROJAS"><label for="cb-un-NESTOR_ROJAS">NESTOR ROJAS</label></div><div class="dd-option"><input type="checkbox" value="PILETAS PETROLERAS" id="cb-un-PILETAS_PETROLERAS"><label for="cb-un-PILETAS_PETROLERAS">PILETAS PETROLERAS</label></div><div class="dd-option"><input type="checkbox" value="PILETERO 12HS" id="cb-un-PILETERO_12HS"><label for="cb-un-PILETERO_12HS">PILETERO 12HS</label></div><div class="dd-option"><input type="checkbox" value="PLAYO C/ SEMIREMOLQUE - RDLS - MENSUAL" id="cb-un-PLAYO_C/_SEMIREMOLQUE_-_RDLS_-_MENSUAL"><label for="cb-un-PLAYO_C/_SEMIREMOLQUE_-_RDLS_-_MENSUAL">PLAYO C/ SEMIREMOLQUE - RDLS - MENSUAL</label></div><div class="dd-option"><input type="checkbox" value="RELEVO" id="cb-un-RELEVO"><label for="cb-un-RELEVO">RELEVO</label></div><div class="dd-option"><input type="checkbox" value="RELEVO FIJO" id="cb-un-RELEVO_FIJO"><label for="cb-un-RELEVO_FIJO">RELEVO FIJO</label></div><div class="dd-option"><input type="checkbox" value="SANDBOX-COTIZACION PUNTUAL-TSB" id="cb-un-SANDBOX-COTIZACION_PUNTUAL-TSB"><label for="cb-un-SANDBOX-COTIZACION_PUNTUAL-TSB">SANDBOX-COTIZACION PUNTUAL-TSB</label></div><div class="dd-option"><input type="checkbox" value="SEGURIDAD" id="cb-un-SEGURIDAD"><label for="cb-un-SEGURIDAD">SEGURIDAD</label></div><div class="dd-option"><input type="checkbox" value="SHELL" id="cb-un-SHELL"><label for="cb-un-SHELL">SHELL</label></div><div class="dd-option"><input type="checkbox" value="SHELL (PALOMAS)" id="cb-un-SHELL_(PALOMAS)"><label for="cb-un-SHELL_(PALOMAS)">SHELL (PALOMAS)</label></div><div class="dd-option"><input type="checkbox" value="SHELL (SILLERO)" id="cb-un-SHELL_(SILLERO)"><label for="cb-un-SHELL_(SILLERO)">SHELL (SILLERO)</label></div><div class="dd-option"><input type="checkbox" value="SOL. PLAYO C/HIDRO+2 AYU 12HS de LU a DO" id="cb-un-SOL._PLAYO_C/HIDRO+2_AYU_12HS_de_LU_a_DO"><label for="cb-un-SOL._PLAYO_C/HIDRO+2_AYU_12HS_de_LU_a_DO">SOL. PLAYO C/HIDRO+2 AYU 12HS de LU a DO</label></div><div class="dd-option"><input type="checkbox" value="SOL. PLAYO C7HIDRO+2 AYU 12HS de LU a DO" id="cb-un-SOL._PLAYO_C7HIDRO+2_AYU_12HS_de_LU_a_DO"><label for="cb-un-SOL._PLAYO_C7HIDRO+2_AYU_12HS_de_LU_a_DO">SOL. PLAYO C7HIDRO+2 AYU 12HS de LU a DO</label></div><div class="dd-option"><input type="checkbox" value="SPOT CHUPA 9M3" id="cb-un-SPOT_CHUPA_9M3"><label for="cb-un-SPOT_CHUPA_9M3">SPOT CHUPA 9M3</label></div><div class="dd-option"><input type="checkbox" value="SUPER CHUPA [35m3-24h]" id="cb-un-SUPER_CHUPA_[35m3-24h]"><label for="cb-un-SUPER_CHUPA_[35m3-24h]">SUPER CHUPA [35m3-24h]</label></div><div class="dd-option"><input type="checkbox" value="SUPERVISOR" id="cb-un-SUPERVISOR"><label for="cb-un-SUPERVISOR">SUPERVISOR</label></div><div class="dd-option"><input type="checkbox" value="TRACTOR C/ HIDROGRUA RDLS - MENSUAL" id="cb-un-TRACTOR_C/_HIDROGRUA_RDLS_-_MENSUAL"><label for="cb-un-TRACTOR_C/_HIDROGRUA_RDLS_-_MENSUAL">TRACTOR C/ HIDROGRUA RDLS - MENSUAL</label></div><div class="dd-option"><input type="checkbox" value="TTE.C.LIQ. 24HS. CIST. 35M3-CF MALARGUE" id="cb-un-TTE.C.LIQ._24HS._CIST._35M3-CF_MALARGUE"><label for="cb-un-TTE.C.LIQ._24HS._CIST._35M3-CF_MALARGUE">TTE.C.LIQ. 24HS. CIST. 35M3-CF MALARGUE</label></div><div class="dd-option"><input type="checkbox" value="TTE.C.SOL. 12HS. PLAYO C/HG MGE" id="cb-un-TTE.C.SOL._12HS._PLAYO_C/HG_MGE"><label for="cb-un-TTE.C.SOL._12HS._PLAYO_C/HG_MGE">TTE.C.SOL. 12HS. PLAYO C/HG MGE</label></div><div class="dd-option"><input type="checkbox" value="VACTOR ( 8HS DE L A V)" id="cb-un-VACTOR_(_8HS_DE_L_A_V)"><label for="cb-un-VACTOR_(_8HS_DE_L_A_V)">VACTOR ( 8HS DE L A V)</label></div><div class="dd-option"><input type="checkbox" value="VOLCADOR" id="cb-un-VOLCADOR"><label for="cb-un-VOLCADOR">VOLCADOR</label></div><div class="dd-option"><input type="checkbox" value="[SPOT] PORTACONTENEDOR (12TN)" id="cb-un-[SPOT]_PORTACONTENEDOR_(12TN)"><label for="cb-un-[SPOT]_PORTACONTENEDOR_(12TN)">[SPOT] PORTACONTENEDOR (12TN)</label></div></div></div></div>
-      <div class="filtro-group" id="dd-wrap-estado"><button class="dropdown-btn active" id="dd-btn-estado" type="button"><span class="dd-label">Estado</span><span class="dd-count" style="display: inline-block;">7</span><span class="dd-arrow">▼</span></button><div class="dropdown-panel" id="dd-panel-estado"><div class="dd-search"><input type="text" placeholder="Buscar..." id="dd-search-estado"></div><div class="dd-selall"><span data-action="all">Todos</span><span data-action="none">Ninguno</span></div><div id="dd-opts-estado"><div class="dd-option"><input type="checkbox" value="BACK UP - DISPONIBLE" id="cb-estado-BACK_UP_-_DISPONIBLE"><label for="cb-estado-BACK_UP_-_DISPONIBLE">BACK UP - DISPONIBLE</label></div><div class="dd-option"><input type="checkbox" value="MANTENIMIENTO" id="cb-estado-MANTENIMIENTO"><label for="cb-estado-MANTENIMIENTO">MANTENIMIENTO</label></div><div class="dd-option"><input type="checkbox" value="MANTENIMIENTO - DEVOLUCION" id="cb-estado-MANTENIMIENTO_-_DEVOLUCION"><label for="cb-estado-MANTENIMIENTO_-_DEVOLUCION">MANTENIMIENTO - DEVOLUCION</label></div><div class="dd-option"><input type="checkbox" value="MANTENIMIENTO LARGO" id="cb-estado-MANTENIMIENTO_LARGO"><label for="cb-estado-MANTENIMIENTO_LARGO">MANTENIMIENTO LARGO</label></div><div class="dd-option"><input type="checkbox" value="MODIFICACION" id="cb-estado-MODIFICACION"><label for="cb-estado-MODIFICACION">MODIFICACION</label></div><div class="dd-option"><input type="checkbox" value="OPERATIVA" id="cb-estado-OPERATIVA"><label for="cb-estado-OPERATIVA">OPERATIVA</label></div><div class="dd-option"><input type="checkbox" value="VENTA" id="cb-estado-VENTA"><label for="cb-estado-VENTA">VENTA</label></div></div></div></div>
-      <div class="filtro-group" id="dd-wrap-grupo"><button class="dropdown-btn" id="dd-btn-grupo" type="button"><span class="dd-label">Grupo</span><span class="dd-count" style="display:none">0</span><span class="dd-arrow">▼</span></button><div class="dropdown-panel" id="dd-panel-grupo"><div class="dd-search"><input type="text" placeholder="Buscar..." id="dd-search-grupo"></div><div class="dd-selall"><span data-action="all">Todos</span><span data-action="none">Ninguno</span></div><div id="dd-opts-grupo"><div class="dd-option"><input type="checkbox" value="PROPIO" id="cb-grupo-PROPIO"><label for="cb-grupo-PROPIO">PROPIO</label></div><div class="dd-option"><input type="checkbox" value="SUBCONTRATADO" id="cb-grupo-SUBCONTRATADO"><label for="cb-grupo-SUBCONTRATADO">SUBCONTRATADO</label></div><div class="dd-option"><input type="checkbox" value="SUBCONTRATADO C/CHOFER" id="cb-grupo-SUBCONTRATADO_C/CHOFER"><label for="cb-grupo-SUBCONTRATADO_C/CHOFER">SUBCONTRATADO C/CHOFER</label></div></div></div></div>
-      <div class="filtro-group" id="dd-wrap-taller"><button class="dropdown-btn" id="dd-btn-taller" type="button"><span class="dd-label">Taller</span><span class="dd-count" style="display:none">0</span><span class="dd-arrow">▼</span></button><div class="dropdown-panel" id="dd-panel-taller"><div class="dd-search"><input type="text" placeholder="Buscar..." id="dd-search-taller"></div><div class="dd-selall"><span data-action="all">Todos</span><span data-action="none">Ninguno</span></div><div id="dd-opts-taller"><div class="dd-option"><input type="checkbox" value="APEX" id="cb-taller-APEX"><label for="cb-taller-APEX">APEX</label></div><div class="dd-option"><input type="checkbox" value="BARONE" id="cb-taller-BARONE"><label for="cb-taller-BARONE">BARONE</label></div><div class="dd-option"><input type="checkbox" value="BASE AÑELO" id="cb-taller-BASE_AÑELO"><label for="cb-taller-BASE_AÑELO">BASE AÑELO</label></div><div class="dd-option"><input type="checkbox" value="BASE BARRANCAS" id="cb-taller-BASE_BARRANCAS"><label for="cb-taller-BASE_BARRANCAS">BASE BARRANCAS</label></div><div class="dd-option"><input type="checkbox" value="BULL TRAILER" id="cb-taller-BULL_TRAILER"><label for="cb-taller-BULL_TRAILER">BULL TRAILER</label></div><div class="dd-option"><input type="checkbox" value="Base Barrancas" id="cb-taller-Base_Barrancas"><label for="cb-taller-Base_Barrancas">Base Barrancas</label></div><div class="dd-option"><input type="checkbox" value="CABACARCOS" id="cb-taller-CABACARCOS"><label for="cb-taller-CABACARCOS">CABACARCOS</label></div><div class="dd-option"><input type="checkbox" value="CABARCO" id="cb-taller-CABARCO"><label for="cb-taller-CABARCO">CABARCO</label></div><div class="dd-option"><input type="checkbox" value="FERREYRA" id="cb-taller-FERREYRA"><label for="cb-taller-FERREYRA">FERREYRA</label></div><div class="dd-option"><input type="checkbox" value="FICAMEN/ INSTECMEC" id="cb-taller-FICAMEN/_INSTECMEC"><label for="cb-taller-FICAMEN/_INSTECMEC">FICAMEN/ INSTECMEC</label></div><div class="dd-option"><input type="checkbox" value="FIORASI" id="cb-taller-FIORASI"><label for="cb-taller-FIORASI">FIORASI</label></div><div class="dd-option"><input type="checkbox" value="INSTECMEC MZA" id="cb-taller-INSTECMEC_MZA"><label for="cb-taller-INSTECMEC_MZA">INSTECMEC MZA</label></div><div class="dd-option"><input type="checkbox" value="ORTEGA" id="cb-taller-ORTEGA"><label for="cb-taller-ORTEGA">ORTEGA</label></div><div class="dd-option"><input type="checkbox" value="SANTUCCI/ FICAMEN" id="cb-taller-SANTUCCI/_FICAMEN"><label for="cb-taller-SANTUCCI/_FICAMEN">SANTUCCI/ FICAMEN</label></div><div class="dd-option"><input type="checkbox" value="TALLER AÑELO" id="cb-taller-TALLER_AÑELO"><label for="cb-taller-TALLER_AÑELO">TALLER AÑELO</label></div><div class="dd-option"><input type="checkbox" value="TALLER AÑELO / INSTECMEC" id="cb-taller-TALLER_AÑELO_/_INSTECMEC"><label for="cb-taller-TALLER_AÑELO_/_INSTECMEC">TALLER AÑELO / INSTECMEC</label></div><div class="dd-option"><input type="checkbox" value="TALLER AÑEO" id="cb-taller-TALLER_AÑEO"><label for="cb-taller-TALLER_AÑEO">TALLER AÑEO</label></div><div class="dd-option"><input type="checkbox" value="TALLER BASE AÑELO" id="cb-taller-TALLER_BASE_AÑELO"><label for="cb-taller-TALLER_BASE_AÑELO">TALLER BASE AÑELO</label></div><div class="dd-option"><input type="checkbox" value="VAPORIZADOS TAURO" id="cb-taller-VAPORIZADOS_TAURO"><label for="cb-taller-VAPORIZADOS_TAURO">VAPORIZADOS TAURO</label></div><div class="dd-option"><input type="checkbox" value="VOLVO" id="cb-taller-VOLVO"><label for="cb-taller-VOLVO">VOLVO</label></div><div class="dd-option"><input type="checkbox" value="taller añelo" id="cb-taller-taller_añelo"><label for="cb-taller-taller_añelo">taller añelo</label></div><div class="dd-option"><input type="checkbox" value="taller base añelo" id="cb-taller-taller_base_añelo"><label for="cb-taller-taller_base_añelo">taller base añelo</label></div></div></div></div>
-      <div class="filtro-group" id="dd-wrap-tipomant"><button class="dropdown-btn" id="dd-btn-tipomant" type="button"><span class="dd-label">Tipo Mant.</span><span class="dd-count" style="display:none">0</span><span class="dd-arrow">▼</span></button><div class="dropdown-panel" id="dd-panel-tipomant"><div class="dd-search"><input type="text" placeholder="Buscar..." id="dd-search-tipomant"></div><div class="dd-selall"><span data-action="all">Todos</span><span data-action="none">Ninguno</span></div><div id="dd-opts-tipomant"><div class="dd-option"><input type="checkbox" value="Correctivo" id="cb-tipomant-Correctivo"><label for="cb-tipomant-Correctivo">Correctivo</label></div><div class="dd-option"><input type="checkbox" value="Preventivo" id="cb-tipomant-Preventivo"><label for="cb-tipomant-Preventivo">Preventivo</label></div></div></div></div>
-      <div class="filtro-group" id="dd-wrap-duracion"><button class="dropdown-btn" id="dd-btn-duracion" type="button"><span class="dd-label">Duración</span><span class="dd-count" style="display:none">0</span><span class="dd-arrow">▼</span></button><div class="dropdown-panel" id="dd-panel-duracion"><div class="dd-search"><input type="text" placeholder="Buscar..." id="dd-search-duracion"></div><div class="dd-selall"><span data-action="all">Todos</span><span data-action="none">Ninguno</span></div><div id="dd-opts-duracion"><div class="dd-option"><input type="checkbox" value="MANT.CORTO" id="cb-duracion-MANT.CORTO"><label for="cb-duracion-MANT.CORTO">MANT.CORTO</label></div><div class="dd-option"><input type="checkbox" value="MANT.MEDIANO" id="cb-duracion-MANT.MEDIANO"><label for="cb-duracion-MANT.MEDIANO">MANT.MEDIANO</label></div><div class="dd-option"><input type="checkbox" value="MANT.LARGO" id="cb-duracion-MANT.LARGO"><label for="cb-duracion-MANT.LARGO">MANT.LARGO</label></div></div></div></div>
+      <div class="filtro-group" id="dd-wrap-tipo"></div>
+      <div class="filtro-group" id="dd-wrap-cc"></div>
+      <div class="filtro-group" id="dd-wrap-un"></div>
+      <div class="filtro-group" id="dd-wrap-estado"></div>
+      <div class="filtro-group" id="dd-wrap-grupo"></div>
+      <div class="filtro-group" id="dd-wrap-taller"></div>
+      <div class="filtro-group" id="dd-wrap-tipomant"></div>
+      <div class="filtro-group" id="dd-wrap-duracion"></div>
       <div class="filtro-group">
         <input type="text" id="f-interno" placeholder="🔍 Interno">
       </div>
@@ -548,7 +548,7 @@ tbody td { padding: 7px 10px; font-size: 12px; white-space: nowrap; }
       </div>
       <button id="btn-limpiar">✕ Limpiar</button>
     </div>
-    <div class="filtro-tags" id="active-tags"><div class="filtro-tag"><span style="opacity:0.6;font-size:10px">Tipo:</span> Pick up <span>×</span></div><div class="filtro-tag"><span style="opacity:0.6;font-size:10px">Estado:</span> MANTENIMIENTO <span>×</span></div><div class="filtro-tag"><span style="opacity:0.6;font-size:10px">Estado:</span> BACK UP - DISPONIBLE <span>×</span></div><div class="filtro-tag"><span style="opacity:0.6;font-size:10px">Estado:</span> MANTENIMIENTO - DEVOLUCION <span>×</span></div><div class="filtro-tag"><span style="opacity:0.6;font-size:10px">Estado:</span> MANTENIMIENTO LARGO <span>×</span></div><div class="filtro-tag"><span style="opacity:0.6;font-size:10px">Estado:</span> MODIFICACION <span>×</span></div><div class="filtro-tag"><span style="opacity:0.6;font-size:10px">Estado:</span> OPERATIVA <span>×</span></div><div class="filtro-tag"><span style="opacity:0.6;font-size:10px">Estado:</span> VENTA <span>×</span></div></div>
+    <div class="filtro-tags" id="active-tags"></div>
   </div>
 
   <!-- KPIs -->
@@ -556,55 +556,55 @@ tbody td { padding: 7px 10px; font-size: 12px; white-space: nowrap; }
     <div class="kpi-row">
       <div class="kpi-card kpi-total">
         <div class="kpi-label">Total Flota</div>
-        <div class="kpi-value" id="kpi-total">59</div>
+        <div class="kpi-value" id="kpi-total">—</div>
         <div class="kpi-sub-label">unidades</div>
       </div>
       <div class="kpi-card kpi-op">
         <div class="kpi-label">Operativas</div>
-        <div class="kpi-value" id="kpi-op">54</div>
+        <div class="kpi-value" id="kpi-op">—</div>
         <div class="kpi-sub-label">en servicio</div>
       </div>
       <div class="kpi-card kpi-mant">
         <div class="kpi-label">En Mantenimiento</div>
-        <div class="kpi-value" id="kpi-mant">3</div>
+        <div class="kpi-value" id="kpi-mant">—</div>
         <div class="kpi-sub-label">MANT + LARGO + SIN CHOFER</div>
       </div>
       <div class="kpi-card kpi-backup">
         <div class="kpi-label">Back Up</div>
-        <div class="kpi-value" id="kpi-backup">0</div>
+        <div class="kpi-value" id="kpi-backup">—</div>
         <div class="kpi-sub-label">disponibles</div>
       </div>
       <div class="kpi-card kpi-venta">
         <div class="kpi-label">En Venta</div>
-        <div class="kpi-value" id="kpi-venta">2</div>
+        <div class="kpi-value" id="kpi-venta">—</div>
         <div class="kpi-sub-label">unidades</div>
       </div>
     </div>
     <div class="kpi-row">
       <div class="kpi-card kpi-disp">
         <div class="kpi-label">% Disponibilidad</div>
-        <div class="kpi-value" id="kpi-disp">92%</div>
+        <div class="kpi-value" id="kpi-disp">—</div>
         <div class="kpi-sub-label">(OPER + BACKUP) / TOTAL</div>
-        <div class="kpi-progress"><div class="kpi-progress-fill" id="kpi-disp-bar" style="width: 92%;"></div></div>
+        <div class="kpi-progress"><div class="kpi-progress-fill" id="kpi-disp-bar" style="width:0%"></div></div>
       </div>
       <div class="kpi-card kpi-propios">
         <div class="kpi-label">Propios Operativos</div>
-        <div class="kpi-value" id="kpi-propios">25</div>
+        <div class="kpi-value" id="kpi-propios">—</div>
         <div class="kpi-sub-label">grupo PROPIO</div>
       </div>
       <div class="kpi-card kpi-sub">
         <div class="kpi-label">Subcontratados Op.</div>
-        <div class="kpi-value" id="kpi-sub">29</div>
+        <div class="kpi-value" id="kpi-sub">—</div>
         <div class="kpi-sub-label">SUBCONTRATADO</div>
       </div>
       <div class="kpi-card kpi-largo">
         <div class="kpi-label">Mant. Largo</div>
-        <div class="kpi-value" id="kpi-largo">3</div>
+        <div class="kpi-value" id="kpi-largo">—</div>
         <div class="kpi-sub-label">LARGO o &gt;15 días</div>
       </div>
       <div class="kpi-card kpi-devol">
         <div class="kpi-label">Mant. Devolución</div>
-        <div class="kpi-value" id="kpi-devol">0</div>
+        <div class="kpi-value" id="kpi-devol">—</div>
         <div class="kpi-sub-label">MANTENIMIENTO - DEVOLUCION</div>
       </div>
     </div>
@@ -613,53 +613,53 @@ tbody td { padding: 7px 10px; font-size: 12px; white-space: nowrap; }
   <!-- TABS -->
   <div id="tabs-section">
     <div id="tabs-nav">
-      <button class="tab-btn" data-tab="graficos">📊 Gráficos</button>
-      <button class="tab-btn active" data-tab="detalle">📋 Detalle Flota</button>
+      <button class="tab-btn active" data-tab="graficos">📊 Gráficos</button>
+      <button class="tab-btn" data-tab="detalle">📋 Detalle Flota</button>
       <button class="tab-btn" data-tab="mantenimiento">🔧 Mantenimiento</button>
-      <button class="tab-btn tab-admin" data-tab="log" style="display: inline-block;">📜 Log de Cambios</button>
-      <button class="tab-btn tab-admin" data-tab="usuarios" style="display: inline-block;">👤 Usuarios</button>
+      <button class="tab-btn tab-admin" data-tab="log">📜 Log de Cambios</button>
+      <button class="tab-btn tab-admin" data-tab="usuarios">👤 Usuarios</button>
     </div>
     <div id="tabs-content">
 
       <!-- TAB GRAFICOS -->
-      <div class="tab-pane" id="tab-graficos">
+      <div class="tab-pane active" id="tab-graficos">
         <div id="graficos-grid">
           <div class="chart-card">
             <h4>Distribución por Estado</h4>
-            <canvas id="ch-estado" style="box-sizing: border-box; display: block; height: 220px; width: 375px;" width="375" height="220"></canvas>
+            <canvas id="ch-estado"></canvas>
           </div>
           <div class="chart-card">
             <h4>Top 8 Tipos de Unidad</h4>
-            <canvas id="ch-tipo" style="box-sizing: border-box; display: block; height: 187px; width: 375px;" width="375" height="187"></canvas>
+            <canvas id="ch-tipo"></canvas>
           </div>
           <div class="chart-card">
             <h4>Propio vs Subcontratado</h4>
-            <canvas id="ch-grupo" style="box-sizing: border-box; display: block; height: 220px; width: 375px;" width="375" height="220"></canvas>
+            <canvas id="ch-grupo"></canvas>
           </div>
           <div class="chart-card">
             <h4>En Mantenimiento por Taller</h4>
-            <canvas id="ch-taller" style="box-sizing: border-box; display: block; height: 187px; width: 375px;" width="375" height="187"></canvas>
+            <canvas id="ch-taller"></canvas>
           </div>
           <div class="chart-card">
             <h4>Por Centro de Costo</h4>
-            <canvas id="ch-cc" style="box-sizing: border-box; display: block; height: 187px; width: 375px;" width="375" height="187"></canvas>
+            <canvas id="ch-cc"></canvas>
           </div>
           <div class="chart-card">
             <h4>Vencimiento / Días en Mantenimiento</h4>
-            <canvas id="ch-venc" style="box-sizing: border-box; display: block; height: 187px; width: 375px;" width="375" height="187"></canvas>
+            <canvas id="ch-venc"></canvas>
           </div>
         </div>
       </div>
 
       <!-- TAB DETALLE -->
-      <div class="tab-pane active" id="tab-detalle">
+      <div class="tab-pane" id="tab-detalle">
         <div class="tabla-actions">
-          <span id="tabla-count">59 unidades</span>
+          <span id="tabla-count"></span>
           <button class="btn-export" id="btn-xlsx">⬇ Excel</button>
           <button class="btn-export" id="btn-pdf">⬇ PDF</button>
         </div>
         <div class="scroll-wrapper">
-          <div class="scroll-top" id="scroll-top"><div class="scroll-top-inner" id="scroll-inner" style="width: 1936px;"></div></div>
+          <div class="scroll-top" id="scroll-top"><div class="scroll-top-inner" id="scroll-inner"></div></div>
           <div class="tabla-outer" id="tabla-outer">
             <table id="tabla-detalle">
               <thead>
@@ -669,7 +669,7 @@ tbody td { padding: 7px 10px; font-size: 12px; white-space: nowrap; }
                   <th data-col="tipo">Tipo<span class="sort-icon"></span></th>
                   <th data-col="centroCosto">Centro Costo<span class="sort-icon"></span></th>
                   <th data-col="unNegocio">Unidad Negocio<span class="sort-icon"></span></th>
-                  <th data-col="estado" class="asc">Estado<span class="sort-icon"></span></th>
+                  <th data-col="estado">Estado<span class="sort-icon"></span></th>
                   <th data-col="grupo">Grupo<span class="sort-icon"></span></th>
                   <th data-col="diasTrabajo">Días Trab.<span class="sort-icon"></span></th>
                   <th data-col="diasMant">Días Mant.<span class="sort-icon"></span></th>
@@ -681,951 +681,7 @@ tbody td { padding: 7px 10px; font-size: 12px; white-space: nowrap; }
                   <th data-col="semiTractor">Semi/Tractor<span class="sort-icon"></span></th>
                 </tr>
               </thead>
-              <tbody id="tabla-body"><tr>
-      <td>P-2061-S</td>
-      <td>AD789OE</td>
-      <td>Pick up</td>
-      <td>NQN-VEHICULOSIVIANOS-GRI</td>
-      <td>RELEVO</td>
-      <td><span class="estado-pill pill-MANTENIMIENTO popup-estado" data-interno="P-2061-S" data-patente="AD789OE" style="cursor:pointer">MANTENIMIENTO</span></td>
-      <td>SUBCONTRATADO</td>
-      <td>2</td>
-      <td>24</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-2061-S" data-patente="AD789OE" data-campo="tipoTaller" data-valor="BASE AÑELO">BASE AÑELO</span></td>
-      <td><span class="editable-field" data-interno="P-2061-S" data-patente="AD789OE" data-campo="nombreTaller" data-valor="BASE AÑELO">BASE AÑELO</span></td>
-      <td><span class="editable-field" data-interno="P-2061-S" data-patente="AD789OE" data-campo="nOT" data-valor="36864">36864</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-2061-S" data-patente="AD789OE" data-campo="estadoRep" data-valor="EN CURSO">EN CURSO</span></td>
-      <td><span class="editable-field" data-interno="P-2061-S" data-patente="AD789OE" data-campo="motivoDemora" data-valor="SE AUTORIZO LA REPARACION EL 06/05 EL CIGUEÑAL QUEDA EN 0,10.">SE AUTORIZO LA REPARACION EL 06/05 EL CIGUEÑAL QUEDA EN 0,10.</span></td>
-      <td><span class="editable-field" data-interno="P-2061-S" data-patente="AD789OE" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-1021-P</td>
-      <td>AC835BS</td>
-      <td>Pick up</td>
-      <td>MZAN-VEHICULOSIVIANOS-GRI</td>
-      <td>RELEVO</td>
-      <td><span class="estado-pill pill-MANTENIMIENTO-LARGO popup-estado" data-interno="P-1021-P" data-patente="AC835BS" style="cursor:pointer">MANTENIMIENTO LARGO</span></td>
-      <td>PROPIO</td>
-      <td>141</td>
-      <td>36</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-1021-P" data-patente="AC835BS" data-campo="tipoTaller" data-valor="BASE BARRANCAS">BASE BARRANCAS</span></td>
-      <td><span class="editable-field" data-interno="P-1021-P" data-patente="AC835BS" data-campo="nombreTaller" data-valor="BASE BARRANCAS">BASE BARRANCAS</span></td>
-      <td><span class="editable-field" data-interno="P-1021-P" data-patente="AC835BS" data-campo="nOT" data-valor="36567/ 37232">36567/ 37232</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-1021-P" data-patente="AC835BS" data-campo="estadoRep" data-valor="PENDIENTE">PENDIENTE</span></td>
-      <td><span class="editable-field" data-interno="P-1021-P" data-patente="AC835BS" data-campo="motivoDemora" data-valor="verificar cigueñales en base y reemplazar cojinetes.">verificar cigueñales en base y reemplazar cojinetes.</span></td>
-      <td><span class="editable-field" data-interno="P-1021-P" data-patente="AC835BS" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-2122-S</td>
-      <td>AE071TR</td>
-      <td>Pick up</td>
-      <td>MZAN-VEHICULOSIVIANOS-GRI</td>
-      <td>RELEVO FIJO</td>
-      <td><span class="estado-pill pill-MANTENIMIENTO-LARGO popup-estado" data-interno="P-2122-S" data-patente="AE071TR" style="cursor:pointer">MANTENIMIENTO LARGO</span></td>
-      <td>SUBCONTRATADO</td>
-      <td>0</td>
-      <td>257</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-2122-S" data-patente="AE071TR" data-campo="tipoTaller" data-valor="BASE BARRANCAS">BASE BARRANCAS</span></td>
-      <td><span class="editable-field" data-interno="P-2122-S" data-patente="AE071TR" data-campo="nombreTaller" data-valor="BASE BARRANCAS">BASE BARRANCAS</span></td>
-      <td><span class="editable-field" data-interno="P-2122-S" data-patente="AE071TR" data-campo="nOT" data-valor="22655">22655</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-2122-S" data-patente="AE071TR" data-campo="estadoRep" data-valor="ESPERA TERCERO">ESPERA TERCERO</span></td>
-      <td><span class="editable-field" data-interno="P-2122-S" data-patente="AE071TR" data-campo="motivoDemora" data-valor="SE RECIBE VISITA DE CHAPISTA DE JC LORENZO">SE RECIBE VISITA DE CHAPISTA DE JC LORENZO</span></td>
-      <td><span class="editable-field" data-interno="P-2122-S" data-patente="AE071TR" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-0015-P</td>
-      <td>NUG858</td>
-      <td>Pick up</td>
-      <td>NQN-VEHICULOSIVIANOS-GRI</td>
-      <td>RELEVO</td>
-      <td><span class="estado-pill pill-OPERATIVA popup-estado" data-interno="P-0015-P" data-patente="NUG858" style="cursor:pointer">OPERATIVA</span></td>
-      <td>PROPIO</td>
-      <td>—</td>
-      <td>—</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-0015-P" data-patente="NUG858" data-campo="tipoTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-0015-P" data-patente="NUG858" data-campo="nombreTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-0015-P" data-patente="NUG858" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-0015-P" data-patente="NUG858" data-campo="estadoRep" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-0015-P" data-patente="NUG858" data-campo="motivoDemora" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-0015-P" data-patente="NUG858" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-0271-P</td>
-      <td>NOX721</td>
-      <td>Pick up</td>
-      <td>MZA-USADOS GRIFFOULIERE-GRI</td>
-      <td>A DEFINIR</td>
-      <td><span class="estado-pill pill-OPERATIVA popup-estado" data-interno="P-0271-P" data-patente="NOX721" style="cursor:pointer">OPERATIVA</span></td>
-      <td>PROPIO</td>
-      <td>28</td>
-      <td>—</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-0271-P" data-patente="NOX721" data-campo="tipoTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-0271-P" data-patente="NOX721" data-campo="nombreTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-0271-P" data-patente="NOX721" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-0271-P" data-patente="NOX721" data-campo="estadoRep" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-0271-P" data-patente="NOX721" data-campo="motivoDemora" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-0271-P" data-patente="NOX721" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-0286-P</td>
-      <td>NOX722</td>
-      <td>Pick up</td>
-      <td>MZA-USADOS GRIFFOULIERE-GRI</td>
-      <td>A DEFINIR</td>
-      <td><span class="estado-pill pill-OPERATIVA popup-estado" data-interno="P-0286-P" data-patente="NOX722" style="cursor:pointer">OPERATIVA</span></td>
-      <td>SUBCONTRATADO</td>
-      <td>389</td>
-      <td>—</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-0286-P" data-patente="NOX722" data-campo="tipoTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-0286-P" data-patente="NOX722" data-campo="nombreTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-0286-P" data-patente="NOX722" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-0286-P" data-patente="NOX722" data-campo="estadoRep" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-0286-P" data-patente="NOX722" data-campo="motivoDemora" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-0286-P" data-patente="NOX722" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-0375-S</td>
-      <td>AB790RO</td>
-      <td>Pick up</td>
-      <td>MZAN-VEHICULOSIVIANOS-GRI</td>
-      <td>MANTENIMIENTO LARGO</td>
-      <td><span class="estado-pill pill-OPERATIVA popup-estado" data-interno="P-0375-S" data-patente="AB790RO" style="cursor:pointer">OPERATIVA</span></td>
-      <td>PROPIO</td>
-      <td>664788</td>
-      <td>—</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-0375-S" data-patente="AB790RO" data-campo="tipoTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-0375-S" data-patente="AB790RO" data-campo="nombreTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-0375-S" data-patente="AB790RO" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-0375-S" data-patente="AB790RO" data-campo="estadoRep" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-0375-S" data-patente="AB790RO" data-campo="motivoDemora" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-0375-S" data-patente="AB790RO" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-0382-P</td>
-      <td>AC993UE</td>
-      <td>Pick up</td>
-      <td>NQN-VEHICULOSIVIANOS-GRI</td>
-      <td>RELEVO</td>
-      <td><span class="estado-pill pill-OPERATIVA popup-estado" data-interno="P-0382-P" data-patente="AC993UE" style="cursor:pointer">OPERATIVA</span></td>
-      <td>PROPIO</td>
-      <td>35</td>
-      <td>—</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-0382-P" data-patente="AC993UE" data-campo="tipoTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-0382-P" data-patente="AC993UE" data-campo="nombreTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-0382-P" data-patente="AC993UE" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-0382-P" data-patente="AC993UE" data-campo="estadoRep" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-0382-P" data-patente="AC993UE" data-campo="motivoDemora" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-0382-P" data-patente="AC993UE" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-1023-P</td>
-      <td>AC899LS</td>
-      <td>Pick up</td>
-      <td>MGUE-VEHICULOSIVIANOS-GRI</td>
-      <td>AUXILIO MECANICO</td>
-      <td><span class="estado-pill pill-OPERATIVA popup-estado" data-interno="P-1023-P" data-patente="AC899LS" style="cursor:pointer">OPERATIVA</span></td>
-      <td>PROPIO</td>
-      <td>111</td>
-      <td>—</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-1023-P" data-patente="AC899LS" data-campo="tipoTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1023-P" data-patente="AC899LS" data-campo="nombreTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1023-P" data-patente="AC899LS" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-1023-P" data-patente="AC899LS" data-campo="estadoRep" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1023-P" data-patente="AC899LS" data-campo="motivoDemora" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1023-P" data-patente="AC899LS" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-1024-P</td>
-      <td>AD553NU</td>
-      <td>Pick up</td>
-      <td>NQN-VEHICULOSIVIANOS-GRI</td>
-      <td>AUXILIO MECANICO</td>
-      <td><span class="estado-pill pill-OPERATIVA popup-estado" data-interno="P-1024-P" data-patente="AD553NU" style="cursor:pointer">OPERATIVA</span></td>
-      <td>PROPIO</td>
-      <td>—</td>
-      <td>—</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-1024-P" data-patente="AD553NU" data-campo="tipoTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1024-P" data-patente="AD553NU" data-campo="nombreTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1024-P" data-patente="AD553NU" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-1024-P" data-patente="AD553NU" data-campo="estadoRep" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1024-P" data-patente="AD553NU" data-campo="motivoDemora" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1024-P" data-patente="AD553NU" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-1026-P</td>
-      <td>AB201GK</td>
-      <td>Pick up</td>
-      <td>MZAN-VEHICULOSIVIANOS-GRI</td>
-      <td>GERENCIA</td>
-      <td><span class="estado-pill pill-OPERATIVA popup-estado" data-interno="P-1026-P" data-patente="AB201GK" style="cursor:pointer">OPERATIVA</span></td>
-      <td>PROPIO</td>
-      <td>—</td>
-      <td>—</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-1026-P" data-patente="AB201GK" data-campo="tipoTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1026-P" data-patente="AB201GK" data-campo="nombreTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1026-P" data-patente="AB201GK" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-1026-P" data-patente="AB201GK" data-campo="estadoRep" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1026-P" data-patente="AB201GK" data-campo="motivoDemora" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1026-P" data-patente="AB201GK" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-1027-P</td>
-      <td>AE009FT</td>
-      <td>Pick up</td>
-      <td>MZAN-VEHICULOSIVIANOS-GRI</td>
-      <td>AUXILIO MECANICO</td>
-      <td><span class="estado-pill pill-OPERATIVA popup-estado" data-interno="P-1027-P" data-patente="AE009FT" style="cursor:pointer">OPERATIVA</span></td>
-      <td>PROPIO</td>
-      <td>—</td>
-      <td>—</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-1027-P" data-patente="AE009FT" data-campo="tipoTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1027-P" data-patente="AE009FT" data-campo="nombreTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1027-P" data-patente="AE009FT" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-1027-P" data-patente="AE009FT" data-campo="estadoRep" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1027-P" data-patente="AE009FT" data-campo="motivoDemora" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1027-P" data-patente="AE009FT" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-1028-P</td>
-      <td>AE344GS</td>
-      <td>Pick up</td>
-      <td>NQN-VEHICULOSIVIANOS-GRI</td>
-      <td>RELEVO</td>
-      <td><span class="estado-pill pill-OPERATIVA popup-estado" data-interno="P-1028-P" data-patente="AE344GS" style="cursor:pointer">OPERATIVA</span></td>
-      <td>PROPIO</td>
-      <td>353</td>
-      <td>—</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-1028-P" data-patente="AE344GS" data-campo="tipoTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1028-P" data-patente="AE344GS" data-campo="nombreTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1028-P" data-patente="AE344GS" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-1028-P" data-patente="AE344GS" data-campo="estadoRep" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1028-P" data-patente="AE344GS" data-campo="motivoDemora" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1028-P" data-patente="AE344GS" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-1029-P</td>
-      <td>AE353ZS</td>
-      <td>Pick up</td>
-      <td>MZAN-VEHICULOSIVIANOS-GRI</td>
-      <td>GERENCIA</td>
-      <td><span class="estado-pill pill-OPERATIVA popup-estado" data-interno="P-1029-P" data-patente="AE353ZS" style="cursor:pointer">OPERATIVA</span></td>
-      <td>PROPIO</td>
-      <td>—</td>
-      <td>—</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-1029-P" data-patente="AE353ZS" data-campo="tipoTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1029-P" data-patente="AE353ZS" data-campo="nombreTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1029-P" data-patente="AE353ZS" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-1029-P" data-patente="AE353ZS" data-campo="estadoRep" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1029-P" data-patente="AE353ZS" data-campo="motivoDemora" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1029-P" data-patente="AE353ZS" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-1030-P</td>
-      <td>AF334BI</td>
-      <td>Pick up</td>
-      <td>NQN-VEHICULOSIVIANOS-GRI</td>
-      <td>NESTOR ROJAS</td>
-      <td><span class="estado-pill pill-OPERATIVA popup-estado" data-interno="P-1030-P" data-patente="AF334BI" style="cursor:pointer">OPERATIVA</span></td>
-      <td>PROPIO</td>
-      <td>35</td>
-      <td>—</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-1030-P" data-patente="AF334BI" data-campo="tipoTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1030-P" data-patente="AF334BI" data-campo="nombreTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1030-P" data-patente="AF334BI" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-1030-P" data-patente="AF334BI" data-campo="estadoRep" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1030-P" data-patente="AF334BI" data-campo="motivoDemora" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1030-P" data-patente="AF334BI" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-1031-P</td>
-      <td>AF697TF</td>
-      <td>Pick up</td>
-      <td>MZAN-VEHICULOSIVIANOS-GRI</td>
-      <td>RELEVO</td>
-      <td><span class="estado-pill pill-OPERATIVA popup-estado" data-interno="P-1031-P" data-patente="AF697TF" style="cursor:pointer">OPERATIVA</span></td>
-      <td>PROPIO</td>
-      <td>—</td>
-      <td>—</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-1031-P" data-patente="AF697TF" data-campo="tipoTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1031-P" data-patente="AF697TF" data-campo="nombreTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1031-P" data-patente="AF697TF" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-1031-P" data-patente="AF697TF" data-campo="estadoRep" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1031-P" data-patente="AF697TF" data-campo="motivoDemora" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1031-P" data-patente="AF697TF" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-1032-P</td>
-      <td>AF903IS</td>
-      <td>Pick up</td>
-      <td>NQN-VEHICULOSIVIANOS-GRI</td>
-      <td>RELEVO</td>
-      <td><span class="estado-pill pill-OPERATIVA popup-estado" data-interno="P-1032-P" data-patente="AF903IS" style="cursor:pointer">OPERATIVA</span></td>
-      <td>PROPIO</td>
-      <td>23</td>
-      <td>—</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-1032-P" data-patente="AF903IS" data-campo="tipoTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1032-P" data-patente="AF903IS" data-campo="nombreTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1032-P" data-patente="AF903IS" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-1032-P" data-patente="AF903IS" data-campo="estadoRep" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1032-P" data-patente="AF903IS" data-campo="motivoDemora" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1032-P" data-patente="AF903IS" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-1034-P</td>
-      <td>AG200YD</td>
-      <td>Pick up</td>
-      <td>MGUE-VEHICULOSIVIANOS-GRI</td>
-      <td>SEGURIDAD</td>
-      <td><span class="estado-pill pill-OPERATIVA popup-estado" data-interno="P-1034-P" data-patente="AG200YD" style="cursor:pointer">OPERATIVA</span></td>
-      <td>PROPIO</td>
-      <td>—</td>
-      <td>—</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-1034-P" data-patente="AG200YD" data-campo="tipoTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1034-P" data-patente="AG200YD" data-campo="nombreTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1034-P" data-patente="AG200YD" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-1034-P" data-patente="AG200YD" data-campo="estadoRep" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1034-P" data-patente="AG200YD" data-campo="motivoDemora" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1034-P" data-patente="AG200YD" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-1035-P</td>
-      <td>AG200YK</td>
-      <td>Pick up</td>
-      <td>NQN-VEHICULOSIVIANOS-GRI</td>
-      <td>MANTENIMIENTO</td>
-      <td><span class="estado-pill pill-OPERATIVA popup-estado" data-interno="P-1035-P" data-patente="AG200YK" style="cursor:pointer">OPERATIVA</span></td>
-      <td>PROPIO</td>
-      <td>202</td>
-      <td>—</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-1035-P" data-patente="AG200YK" data-campo="tipoTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1035-P" data-patente="AG200YK" data-campo="nombreTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1035-P" data-patente="AG200YK" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-1035-P" data-patente="AG200YK" data-campo="estadoRep" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1035-P" data-patente="AG200YK" data-campo="motivoDemora" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1035-P" data-patente="AG200YK" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-1036-P</td>
-      <td>AG200YE</td>
-      <td>Pick up</td>
-      <td>NQN-VEHICULOSIVIANOS-GRI</td>
-      <td>RELEVO</td>
-      <td><span class="estado-pill pill-OPERATIVA popup-estado" data-interno="P-1036-P" data-patente="AG200YE" style="cursor:pointer">OPERATIVA</span></td>
-      <td>PROPIO</td>
-      <td>652</td>
-      <td>—</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-1036-P" data-patente="AG200YE" data-campo="tipoTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1036-P" data-patente="AG200YE" data-campo="nombreTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1036-P" data-patente="AG200YE" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-1036-P" data-patente="AG200YE" data-campo="estadoRep" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1036-P" data-patente="AG200YE" data-campo="motivoDemora" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1036-P" data-patente="AG200YE" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-1037-P</td>
-      <td>AG200YJ</td>
-      <td>Pick up</td>
-      <td>ARG-ALQUILERES-VAR</td>
-      <td>A DEFINIR</td>
-      <td><span class="estado-pill pill-OPERATIVA popup-estado" data-interno="P-1037-P" data-patente="AG200YJ" style="cursor:pointer">OPERATIVA</span></td>
-      <td>PROPIO</td>
-      <td>—</td>
-      <td>—</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-1037-P" data-patente="AG200YJ" data-campo="tipoTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1037-P" data-patente="AG200YJ" data-campo="nombreTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1037-P" data-patente="AG200YJ" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-1037-P" data-patente="AG200YJ" data-campo="estadoRep" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1037-P" data-patente="AG200YJ" data-campo="motivoDemora" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1037-P" data-patente="AG200YJ" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-1039-P</td>
-      <td>AG604ED</td>
-      <td>Pick up</td>
-      <td>MGUE-4900096003-LIQ/SOL-YPF</td>
-      <td>TTE.C.SOL. 12HS. PLAYO C/HG MGE</td>
-      <td><span class="estado-pill pill-OPERATIVA popup-estado" data-interno="P-1039-P" data-patente="AG604ED" style="cursor:pointer">OPERATIVA</span></td>
-      <td>PROPIO</td>
-      <td>—</td>
-      <td>—</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-1039-P" data-patente="AG604ED" data-campo="tipoTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1039-P" data-patente="AG604ED" data-campo="nombreTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1039-P" data-patente="AG604ED" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-1039-P" data-patente="AG604ED" data-campo="estadoRep" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1039-P" data-patente="AG604ED" data-campo="motivoDemora" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1039-P" data-patente="AG604ED" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-1040-P</td>
-      <td>AG604EF</td>
-      <td>Pick up</td>
-      <td>MZAN-VEHICULOSIVIANOS-GRI</td>
-      <td>JEFE TALLER MZAN</td>
-      <td><span class="estado-pill pill-OPERATIVA popup-estado" data-interno="P-1040-P" data-patente="AG604EF" style="cursor:pointer">OPERATIVA</span></td>
-      <td>SUBCONTRATADO</td>
-      <td>784</td>
-      <td>—</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-1040-P" data-patente="AG604EF" data-campo="tipoTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1040-P" data-patente="AG604EF" data-campo="nombreTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1040-P" data-patente="AG604EF" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-1040-P" data-patente="AG604EF" data-campo="estadoRep" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1040-P" data-patente="AG604EF" data-campo="motivoDemora" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1040-P" data-patente="AG604EF" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-1041-S</td>
-      <td>AG619RR</td>
-      <td>Pick up</td>
-      <td>NQN-VEHICULOSIVIANOS-GRI</td>
-      <td>GERENCIA</td>
-      <td><span class="estado-pill pill-OPERATIVA popup-estado" data-interno="P-1041-S" data-patente="AG619RR" style="cursor:pointer">OPERATIVA</span></td>
-      <td>PROPIO</td>
-      <td>—</td>
-      <td>—</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-1041-S" data-patente="AG619RR" data-campo="tipoTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1041-S" data-patente="AG619RR" data-campo="nombreTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1041-S" data-patente="AG619RR" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-1041-S" data-patente="AG619RR" data-campo="estadoRep" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1041-S" data-patente="AG619RR" data-campo="motivoDemora" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1041-S" data-patente="AG619RR" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-1042-P</td>
-      <td>AG780FL</td>
-      <td>Pick up</td>
-      <td>MZAN-VEHICULOSIVIANOS-GRI</td>
-      <td>GERENCIA</td>
-      <td><span class="estado-pill pill-OPERATIVA popup-estado" data-interno="P-1042-P" data-patente="AG780FL" style="cursor:pointer">OPERATIVA</span></td>
-      <td>PROPIO</td>
-      <td>—</td>
-      <td>—</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-1042-P" data-patente="AG780FL" data-campo="tipoTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1042-P" data-patente="AG780FL" data-campo="nombreTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1042-P" data-patente="AG780FL" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-1042-P" data-patente="AG780FL" data-campo="estadoRep" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1042-P" data-patente="AG780FL" data-campo="motivoDemora" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1042-P" data-patente="AG780FL" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-1044-P</td>
-      <td>AG861ID</td>
-      <td>Pick up</td>
-      <td>NQN-VEHICULOSIVIANOS-GRI</td>
-      <td>SUPERVISOR</td>
-      <td><span class="estado-pill pill-OPERATIVA popup-estado" data-interno="P-1044-P" data-patente="AG861ID" style="cursor:pointer">OPERATIVA</span></td>
-      <td>PROPIO</td>
-      <td>802</td>
-      <td>—</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-1044-P" data-patente="AG861ID" data-campo="tipoTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1044-P" data-patente="AG861ID" data-campo="nombreTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1044-P" data-patente="AG861ID" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-1044-P" data-patente="AG861ID" data-campo="estadoRep" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1044-P" data-patente="AG861ID" data-campo="motivoDemora" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1044-P" data-patente="AG861ID" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-1045-P</td>
-      <td>AG948NN</td>
-      <td>Pick up</td>
-      <td>MGUE-VEHICULOSIVIANOS-GRI</td>
-      <td>SUPERVISOR</td>
-      <td><span class="estado-pill pill-OPERATIVA popup-estado" data-interno="P-1045-P" data-patente="AG948NN" style="cursor:pointer">OPERATIVA</span></td>
-      <td>PROPIO</td>
-      <td>—</td>
-      <td>—</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-1045-P" data-patente="AG948NN" data-campo="tipoTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1045-P" data-patente="AG948NN" data-campo="nombreTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1045-P" data-patente="AG948NN" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-1045-P" data-patente="AG948NN" data-campo="estadoRep" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1045-P" data-patente="AG948NN" data-campo="motivoDemora" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1045-P" data-patente="AG948NN" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-1046-P</td>
-      <td>AG948NO</td>
-      <td>Pick up</td>
-      <td>MZAN-VEHICULOSIVIANOS-GRI</td>
-      <td>SHELL</td>
-      <td><span class="estado-pill pill-OPERATIVA popup-estado" data-interno="P-1046-P" data-patente="AG948NO" style="cursor:pointer">OPERATIVA</span></td>
-      <td>SUBCONTRATADO</td>
-      <td>133</td>
-      <td>—</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-1046-P" data-patente="AG948NO" data-campo="tipoTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1046-P" data-patente="AG948NO" data-campo="nombreTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1046-P" data-patente="AG948NO" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-1046-P" data-patente="AG948NO" data-campo="estadoRep" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1046-P" data-patente="AG948NO" data-campo="motivoDemora" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1046-P" data-patente="AG948NO" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-1047-P</td>
-      <td>AG970YR</td>
-      <td>Pick up</td>
-      <td>MZAN-VEHICULOSIVIANOS-GRI</td>
-      <td>GERENCIA</td>
-      <td><span class="estado-pill pill-OPERATIVA popup-estado" data-interno="P-1047-P" data-patente="AG970YR" style="cursor:pointer">OPERATIVA</span></td>
-      <td>SUBCONTRATADO</td>
-      <td>—</td>
-      <td>—</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-1047-P" data-patente="AG970YR" data-campo="tipoTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1047-P" data-patente="AG970YR" data-campo="nombreTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1047-P" data-patente="AG970YR" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-1047-P" data-patente="AG970YR" data-campo="estadoRep" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1047-P" data-patente="AG970YR" data-campo="motivoDemora" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1047-P" data-patente="AG970YR" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-1048-P</td>
-      <td>AG877VK</td>
-      <td>Pick up</td>
-      <td>MZAN-VEHICULOSIVIANOS-GRI</td>
-      <td>GERENCIA</td>
-      <td><span class="estado-pill pill-OPERATIVA popup-estado" data-interno="P-1048-P" data-patente="AG877VK" style="cursor:pointer">OPERATIVA</span></td>
-      <td>PROPIO</td>
-      <td>—</td>
-      <td>—</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-1048-P" data-patente="AG877VK" data-campo="tipoTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1048-P" data-patente="AG877VK" data-campo="nombreTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1048-P" data-patente="AG877VK" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-1048-P" data-patente="AG877VK" data-campo="estadoRep" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1048-P" data-patente="AG877VK" data-campo="motivoDemora" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1048-P" data-patente="AG877VK" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-1050-P</td>
-      <td>AH153WQ</td>
-      <td>Pick up</td>
-      <td>MZAN-4900096003-LIQUIDAS-PS</td>
-      <td>SUPERVISOR</td>
-      <td><span class="estado-pill pill-OPERATIVA popup-estado" data-interno="P-1050-P" data-patente="AH153WQ" style="cursor:pointer">OPERATIVA</span></td>
-      <td>PROPIO</td>
-      <td>—</td>
-      <td>—</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-1050-P" data-patente="AH153WQ" data-campo="tipoTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1050-P" data-patente="AH153WQ" data-campo="nombreTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1050-P" data-patente="AH153WQ" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-1050-P" data-patente="AH153WQ" data-campo="estadoRep" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1050-P" data-patente="AH153WQ" data-campo="motivoDemora" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1050-P" data-patente="AH153WQ" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-1050-P</td>
-      <td>AH153WQ</td>
-      <td>Pick up</td>
-      <td>MZAN-4900096003-LIQUIDAS-PS</td>
-      <td>SUPERVISOR</td>
-      <td><span class="estado-pill pill-OPERATIVA popup-estado" data-interno="P-1050-P" data-patente="AH153WQ" style="cursor:pointer">OPERATIVA</span></td>
-      <td>SUBCONTRATADO</td>
-      <td>—</td>
-      <td>—</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-1050-P" data-patente="AH153WQ" data-campo="tipoTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1050-P" data-patente="AH153WQ" data-campo="nombreTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1050-P" data-patente="AH153WQ" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-1050-P" data-patente="AH153WQ" data-campo="estadoRep" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1050-P" data-patente="AH153WQ" data-campo="motivoDemora" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-1050-P" data-patente="AH153WQ" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-2001-S</td>
-      <td>AC301QO</td>
-      <td>Pick up</td>
-      <td>NQN-VEHICULOSIVIANOS-GRI</td>
-      <td>RELEVO</td>
-      <td><span class="estado-pill pill-OPERATIVA popup-estado" data-interno="P-2001-S" data-patente="AC301QO" style="cursor:pointer">OPERATIVA</span></td>
-      <td>SUBCONTRATADO</td>
-      <td>62</td>
-      <td>—</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-2001-S" data-patente="AC301QO" data-campo="tipoTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2001-S" data-patente="AC301QO" data-campo="nombreTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2001-S" data-patente="AC301QO" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-2001-S" data-patente="AC301QO" data-campo="estadoRep" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2001-S" data-patente="AC301QO" data-campo="motivoDemora" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2001-S" data-patente="AC301QO" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-2013-S</td>
-      <td>AD442UL</td>
-      <td>Pick up</td>
-      <td>MZAN-VEHICULOSIVIANOS-GRI</td>
-      <td>RELEVO FIJO</td>
-      <td><span class="estado-pill pill-OPERATIVA popup-estado" data-interno="P-2013-S" data-patente="AD442UL" style="cursor:pointer">OPERATIVA</span></td>
-      <td>SUBCONTRATADO</td>
-      <td>281</td>
-      <td>—</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-2013-S" data-patente="AD442UL" data-campo="tipoTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2013-S" data-patente="AD442UL" data-campo="nombreTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2013-S" data-patente="AD442UL" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-2013-S" data-patente="AD442UL" data-campo="estadoRep" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2013-S" data-patente="AD442UL" data-campo="motivoDemora" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2013-S" data-patente="AD442UL" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-2014-S</td>
-      <td>AD442UN</td>
-      <td>Pick up</td>
-      <td>NQN-VEHICULOSIVIANOS-GRI</td>
-      <td>RELEVO</td>
-      <td><span class="estado-pill pill-OPERATIVA popup-estado" data-interno="P-2014-S" data-patente="AD442UN" style="cursor:pointer">OPERATIVA</span></td>
-      <td>SUBCONTRATADO</td>
-      <td>—</td>
-      <td>—</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-2014-S" data-patente="AD442UN" data-campo="tipoTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2014-S" data-patente="AD442UN" data-campo="nombreTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2014-S" data-patente="AD442UN" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-2014-S" data-patente="AD442UN" data-campo="estadoRep" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2014-S" data-patente="AD442UN" data-campo="motivoDemora" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2014-S" data-patente="AD442UN" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-2038-S</td>
-      <td>AD576OB</td>
-      <td>Pick up</td>
-      <td>MGUE-VEHICULOSIVIANOS-GRI</td>
-      <td>RELEVO</td>
-      <td><span class="estado-pill pill-OPERATIVA popup-estado" data-interno="P-2038-S" data-patente="AD576OB" style="cursor:pointer">OPERATIVA</span></td>
-      <td>SUBCONTRATADO</td>
-      <td>771</td>
-      <td>—</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-2038-S" data-patente="AD576OB" data-campo="tipoTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2038-S" data-patente="AD576OB" data-campo="nombreTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2038-S" data-patente="AD576OB" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-2038-S" data-patente="AD576OB" data-campo="estadoRep" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2038-S" data-patente="AD576OB" data-campo="motivoDemora" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2038-S" data-patente="AD576OB" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-2039-S</td>
-      <td>AD576OC</td>
-      <td>Pick up</td>
-      <td>NQN-VEHICULOSIVIANOS-GRI</td>
-      <td>RELEVO</td>
-      <td><span class="estado-pill pill-OPERATIVA popup-estado" data-interno="P-2039-S" data-patente="AD576OC" style="cursor:pointer">OPERATIVA</span></td>
-      <td>SUBCONTRATADO</td>
-      <td>109</td>
-      <td>—</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-2039-S" data-patente="AD576OC" data-campo="tipoTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2039-S" data-patente="AD576OC" data-campo="nombreTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2039-S" data-patente="AD576OC" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-2039-S" data-patente="AD576OC" data-campo="estadoRep" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2039-S" data-patente="AD576OC" data-campo="motivoDemora" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2039-S" data-patente="AD576OC" data-campo="semiTractor" data-valor="-">-</span></td>
-    </tr><tr>
-      <td>P-2040-S</td>
-      <td>AD616GE</td>
-      <td>Pick up</td>
-      <td>MGUE-VEHICULOSIVIANOS-GRI</td>
-      <td>TTE.C.SOL. 12HS. PLAYO C/HG MGE</td>
-      <td><span class="estado-pill pill-OPERATIVA popup-estado" data-interno="P-2040-S" data-patente="AD616GE" style="cursor:pointer">OPERATIVA</span></td>
-      <td>SUBCONTRATADO</td>
-      <td>177</td>
-      <td>—</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-2040-S" data-patente="AD616GE" data-campo="tipoTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2040-S" data-patente="AD616GE" data-campo="nombreTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2040-S" data-patente="AD616GE" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-2040-S" data-patente="AD616GE" data-campo="estadoRep" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2040-S" data-patente="AD616GE" data-campo="motivoDemora" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2040-S" data-patente="AD616GE" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-2080-S</td>
-      <td>LYI363</td>
-      <td>Pick up</td>
-      <td>MZAN-VEHICULOSIVIANOS-GRI</td>
-      <td>JEFE TALLER MZAN</td>
-      <td><span class="estado-pill pill-OPERATIVA popup-estado" data-interno="P-2080-S" data-patente="LYI363" style="cursor:pointer">OPERATIVA</span></td>
-      <td>SUBCONTRATADO</td>
-      <td>357</td>
-      <td>—</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-2080-S" data-patente="LYI363" data-campo="tipoTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2080-S" data-patente="LYI363" data-campo="nombreTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2080-S" data-patente="LYI363" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-2080-S" data-patente="LYI363" data-campo="estadoRep" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2080-S" data-patente="LYI363" data-campo="motivoDemora" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2080-S" data-patente="LYI363" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-2091-S</td>
-      <td>AE011HO</td>
-      <td>Pick up</td>
-      <td>MGUE-VEHICULOSIVIANOS-GRI</td>
-      <td>RELEVO</td>
-      <td><span class="estado-pill pill-OPERATIVA popup-estado" data-interno="P-2091-S" data-patente="AE011HO" style="cursor:pointer">OPERATIVA</span></td>
-      <td>SUBCONTRATADO</td>
-      <td>—</td>
-      <td>—</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-2091-S" data-patente="AE011HO" data-campo="tipoTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2091-S" data-patente="AE011HO" data-campo="nombreTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2091-S" data-patente="AE011HO" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-2091-S" data-patente="AE011HO" data-campo="estadoRep" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2091-S" data-patente="AE011HO" data-campo="motivoDemora" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2091-S" data-patente="AE011HO" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-2092-S</td>
-      <td>AE011HU</td>
-      <td>Pick up</td>
-      <td>MGUE-VEHICULOSIVIANOS-GRI</td>
-      <td>TTE.C.SOL. 12HS. PLAYO C/HG MGE</td>
-      <td><span class="estado-pill pill-OPERATIVA popup-estado" data-interno="P-2092-S" data-patente="AE011HU" style="cursor:pointer">OPERATIVA</span></td>
-      <td>SUBCONTRATADO</td>
-      <td>824</td>
-      <td>—</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-2092-S" data-patente="AE011HU" data-campo="tipoTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2092-S" data-patente="AE011HU" data-campo="nombreTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2092-S" data-patente="AE011HU" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-2092-S" data-patente="AE011HU" data-campo="estadoRep" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2092-S" data-patente="AE011HU" data-campo="motivoDemora" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2092-S" data-patente="AE011HU" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-2093-S</td>
-      <td>AD991KJ</td>
-      <td>Pick up</td>
-      <td>MGUE-VEHICULOSIVIANOS-GRI</td>
-      <td>CAMIONETA BATAN</td>
-      <td><span class="estado-pill pill-OPERATIVA popup-estado" data-interno="P-2093-S" data-patente="AD991KJ" style="cursor:pointer">OPERATIVA</span></td>
-      <td>SUBCONTRATADO</td>
-      <td>—</td>
-      <td>—</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-2093-S" data-patente="AD991KJ" data-campo="tipoTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2093-S" data-patente="AD991KJ" data-campo="nombreTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2093-S" data-patente="AD991KJ" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-2093-S" data-patente="AD991KJ" data-campo="estadoRep" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2093-S" data-patente="AD991KJ" data-campo="motivoDemora" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2093-S" data-patente="AD991KJ" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-2123-S</td>
-      <td>AE251ES</td>
-      <td>Pick up</td>
-      <td>ARG-ALQUILERES-VAR</td>
-      <td>RELEVO</td>
-      <td><span class="estado-pill pill-OPERATIVA popup-estado" data-interno="P-2123-S" data-patente="AE251ES" style="cursor:pointer">OPERATIVA</span></td>
-      <td>SUBCONTRATADO</td>
-      <td>191</td>
-      <td>—</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-2123-S" data-patente="AE251ES" data-campo="tipoTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2123-S" data-patente="AE251ES" data-campo="nombreTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2123-S" data-patente="AE251ES" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-2123-S" data-patente="AE251ES" data-campo="estadoRep" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2123-S" data-patente="AE251ES" data-campo="motivoDemora" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2123-S" data-patente="AE251ES" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-2136-S</td>
-      <td>AE395PW</td>
-      <td>Pick up</td>
-      <td>MZAN-VEHICULOSIVIANOS-GRI</td>
-      <td>RELEVO</td>
-      <td><span class="estado-pill pill-OPERATIVA popup-estado" data-interno="P-2136-S" data-patente="AE395PW" style="cursor:pointer">OPERATIVA</span></td>
-      <td>SUBCONTRATADO</td>
-      <td>48</td>
-      <td>—</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-2136-S" data-patente="AE395PW" data-campo="tipoTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2136-S" data-patente="AE395PW" data-campo="nombreTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2136-S" data-patente="AE395PW" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-2136-S" data-patente="AE395PW" data-campo="estadoRep" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2136-S" data-patente="AE395PW" data-campo="motivoDemora" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2136-S" data-patente="AE395PW" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-2137-S</td>
-      <td>AE395PT</td>
-      <td>Pick up</td>
-      <td>MZAN-VEHICULOSIVIANOS-GRI</td>
-      <td>RELEVO</td>
-      <td><span class="estado-pill pill-OPERATIVA popup-estado" data-interno="P-2137-S" data-patente="AE395PT" style="cursor:pointer">OPERATIVA</span></td>
-      <td>SUBCONTRATADO</td>
-      <td>395</td>
-      <td>—</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-2137-S" data-patente="AE395PT" data-campo="tipoTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2137-S" data-patente="AE395PT" data-campo="nombreTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2137-S" data-patente="AE395PT" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-2137-S" data-patente="AE395PT" data-campo="estadoRep" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2137-S" data-patente="AE395PT" data-campo="motivoDemora" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2137-S" data-patente="AE395PT" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-2165-S</td>
-      <td>AE554FI</td>
-      <td>Pick up</td>
-      <td>NQN-VEHICULOSIVIANOS-GRI</td>
-      <td>RELEVO</td>
-      <td><span class="estado-pill pill-OPERATIVA popup-estado" data-interno="P-2165-S" data-patente="AE554FI" style="cursor:pointer">OPERATIVA</span></td>
-      <td>SUBCONTRATADO</td>
-      <td>—</td>
-      <td>—</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-2165-S" data-patente="AE554FI" data-campo="tipoTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2165-S" data-patente="AE554FI" data-campo="nombreTaller" data-valor="BASE AÑELO">BASE AÑELO</span></td>
-      <td><span class="editable-field" data-interno="P-2165-S" data-patente="AE554FI" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-2165-S" data-patente="AE554FI" data-campo="estadoRep" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2165-S" data-patente="AE554FI" data-campo="motivoDemora" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2165-S" data-patente="AE554FI" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-2166-S</td>
-      <td>AE878JP</td>
-      <td>Pick up</td>
-      <td>MGUE-VEHICULOSIVIANOS-GRI</td>
-      <td>RELEVO</td>
-      <td><span class="estado-pill pill-OPERATIVA popup-estado" data-interno="P-2166-S" data-patente="AE878JP" style="cursor:pointer">OPERATIVA</span></td>
-      <td>SUBCONTRATADO</td>
-      <td>290</td>
-      <td>—</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-2166-S" data-patente="AE878JP" data-campo="tipoTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2166-S" data-patente="AE878JP" data-campo="nombreTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2166-S" data-patente="AE878JP" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-2166-S" data-patente="AE878JP" data-campo="estadoRep" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2166-S" data-patente="AE878JP" data-campo="motivoDemora" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2166-S" data-patente="AE878JP" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-2167-S</td>
-      <td>AE878JN</td>
-      <td>Pick up</td>
-      <td>NQN-VEHICULOSIVIANOS-GRI</td>
-      <td>RELEVO</td>
-      <td><span class="estado-pill pill-OPERATIVA popup-estado" data-interno="P-2167-S" data-patente="AE878JN" style="cursor:pointer">OPERATIVA</span></td>
-      <td>SUBCONTRATADO</td>
-      <td>13</td>
-      <td>—</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-2167-S" data-patente="AE878JN" data-campo="tipoTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2167-S" data-patente="AE878JN" data-campo="nombreTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2167-S" data-patente="AE878JN" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-2167-S" data-patente="AE878JN" data-campo="estadoRep" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2167-S" data-patente="AE878JN" data-campo="motivoDemora" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2167-S" data-patente="AE878JN" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-2197-S</td>
-      <td>AF418ZQ</td>
-      <td>Pick up</td>
-      <td>NQN-VEHICULOSIVIANOS-GRI</td>
-      <td>RELEVO</td>
-      <td><span class="estado-pill pill-OPERATIVA popup-estado" data-interno="P-2197-S" data-patente="AF418ZQ" style="cursor:pointer">OPERATIVA</span></td>
-      <td>SUBCONTRATADO</td>
-      <td>118</td>
-      <td>—</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-2197-S" data-patente="AF418ZQ" data-campo="tipoTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2197-S" data-patente="AF418ZQ" data-campo="nombreTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2197-S" data-patente="AF418ZQ" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-2197-S" data-patente="AF418ZQ" data-campo="estadoRep" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2197-S" data-patente="AF418ZQ" data-campo="motivoDemora" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2197-S" data-patente="AF418ZQ" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-2198-S</td>
-      <td>AF418ZR</td>
-      <td>Pick up</td>
-      <td>NQN-VEHICULOSIVIANOS-GRI</td>
-      <td>RELEVO</td>
-      <td><span class="estado-pill pill-OPERATIVA popup-estado" data-interno="P-2198-S" data-patente="AF418ZR" style="cursor:pointer">OPERATIVA</span></td>
-      <td>SUBCONTRATADO</td>
-      <td>36</td>
-      <td>—</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-2198-S" data-patente="AF418ZR" data-campo="tipoTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2198-S" data-patente="AF418ZR" data-campo="nombreTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2198-S" data-patente="AF418ZR" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-2198-S" data-patente="AF418ZR" data-campo="estadoRep" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2198-S" data-patente="AF418ZR" data-campo="motivoDemora" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2198-S" data-patente="AF418ZR" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-2199-S</td>
-      <td>AF418ZS</td>
-      <td>Pick up</td>
-      <td>NQN-VEHICULOSIVIANOS-GRI</td>
-      <td>RELEVO</td>
-      <td><span class="estado-pill pill-OPERATIVA popup-estado" data-interno="P-2199-S" data-patente="AF418ZS" style="cursor:pointer">OPERATIVA</span></td>
-      <td>SUBCONTRATADO</td>
-      <td>34</td>
-      <td>—</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-2199-S" data-patente="AF418ZS" data-campo="tipoTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2199-S" data-patente="AF418ZS" data-campo="nombreTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2199-S" data-patente="AF418ZS" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-2199-S" data-patente="AF418ZS" data-campo="estadoRep" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2199-S" data-patente="AF418ZS" data-campo="motivoDemora" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2199-S" data-patente="AF418ZS" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-2203-S</td>
-      <td>AF829OK</td>
-      <td>Pick up</td>
-      <td>NQN-VEHICULOSIVIANOS-GRI</td>
-      <td>RELEVO</td>
-      <td><span class="estado-pill pill-OPERATIVA popup-estado" data-interno="P-2203-S" data-patente="AF829OK" style="cursor:pointer">OPERATIVA</span></td>
-      <td>SUBCONTRATADO</td>
-      <td>43</td>
-      <td>—</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-2203-S" data-patente="AF829OK" data-campo="tipoTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2203-S" data-patente="AF829OK" data-campo="nombreTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2203-S" data-patente="AF829OK" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-2203-S" data-patente="AF829OK" data-campo="estadoRep" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2203-S" data-patente="AF829OK" data-campo="motivoDemora" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2203-S" data-patente="AF829OK" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-2204-S</td>
-      <td>AF829OL</td>
-      <td>Pick up</td>
-      <td>NQN-VEHICULOSIVIANOS-GRI</td>
-      <td>RELEVO</td>
-      <td><span class="estado-pill pill-OPERATIVA popup-estado" data-interno="P-2204-S" data-patente="AF829OL" style="cursor:pointer">OPERATIVA</span></td>
-      <td>SUBCONTRATADO</td>
-      <td>111</td>
-      <td>—</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-2204-S" data-patente="AF829OL" data-campo="tipoTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2204-S" data-patente="AF829OL" data-campo="nombreTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2204-S" data-patente="AF829OL" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-2204-S" data-patente="AF829OL" data-campo="estadoRep" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2204-S" data-patente="AF829OL" data-campo="motivoDemora" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2204-S" data-patente="AF829OL" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-2205-S</td>
-      <td>AF829OM</td>
-      <td>Pick up</td>
-      <td>ARG-ALQUILERES-VAR</td>
-      <td>A DEFINIR</td>
-      <td><span class="estado-pill pill-OPERATIVA popup-estado" data-interno="P-2205-S" data-patente="AF829OM" style="cursor:pointer">OPERATIVA</span></td>
-      <td>SUBCONTRATADO</td>
-      <td>—</td>
-      <td>—</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-2205-S" data-patente="AF829OM" data-campo="tipoTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2205-S" data-patente="AF829OM" data-campo="nombreTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2205-S" data-patente="AF829OM" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-2205-S" data-patente="AF829OM" data-campo="estadoRep" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2205-S" data-patente="AF829OM" data-campo="motivoDemora" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2205-S" data-patente="AF829OM" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-2207-S</td>
-      <td>AG955JG</td>
-      <td>Pick up</td>
-      <td>MZAN-VEHICULOSIVIANOS-GRI</td>
-      <td>SEGURIDAD</td>
-      <td><span class="estado-pill pill-OPERATIVA popup-estado" data-interno="P-2207-S" data-patente="AG955JG" style="cursor:pointer">OPERATIVA</span></td>
-      <td>SUBCONTRATADO</td>
-      <td>49</td>
-      <td>—</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-2207-S" data-patente="AG955JG" data-campo="tipoTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2207-S" data-patente="AG955JG" data-campo="nombreTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2207-S" data-patente="AG955JG" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-2207-S" data-patente="AG955JG" data-campo="estadoRep" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2207-S" data-patente="AG955JG" data-campo="motivoDemora" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2207-S" data-patente="AG955JG" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-2210-S</td>
-      <td>AG973HY</td>
-      <td>Pick up</td>
-      <td>NQN-VEHICULOSIVIANOS-GRI</td>
-      <td>SUPERVISOR</td>
-      <td><span class="estado-pill pill-OPERATIVA popup-estado" data-interno="P-2210-S" data-patente="AG973HY" style="cursor:pointer">OPERATIVA</span></td>
-      <td>SUBCONTRATADO</td>
-      <td>—</td>
-      <td>—</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-2210-S" data-patente="AG973HY" data-campo="tipoTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2210-S" data-patente="AG973HY" data-campo="nombreTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2210-S" data-patente="AG973HY" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-2210-S" data-patente="AG973HY" data-campo="estadoRep" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2210-S" data-patente="AG973HY" data-campo="motivoDemora" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2210-S" data-patente="AG973HY" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-2237-S</td>
-      <td>AG481YS</td>
-      <td>Pick up</td>
-      <td>NQN-VEHICULOSIVIANOS-GRI</td>
-      <td>SEGURIDAD</td>
-      <td><span class="estado-pill pill-OPERATIVA popup-estado" data-interno="P-2237-S" data-patente="AG481YS" style="cursor:pointer">OPERATIVA</span></td>
-      <td>PROPIO</td>
-      <td>—</td>
-      <td>—</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-2237-S" data-patente="AG481YS" data-campo="tipoTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2237-S" data-patente="AG481YS" data-campo="nombreTaller" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2237-S" data-patente="AG481YS" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-2237-S" data-patente="AG481YS" data-campo="estadoRep" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2237-S" data-patente="AG481YS" data-campo="motivoDemora" data-valor="">—</span></td>
-      <td><span class="editable-field" data-interno="P-2237-S" data-patente="AG481YS" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-0018-P</td>
-      <td>AA496HM</td>
-      <td>Pick up</td>
-      <td>MZAN-VEHICULOSIVIANOS-GRI</td>
-      <td>RELEVO</td>
-      <td><span class="estado-pill pill-VENTA popup-estado" data-interno="P-0018-P" data-patente="AA496HM" style="cursor:pointer">VENTA</span></td>
-      <td>PROPIO</td>
-      <td>327</td>
-      <td>29</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-0018-P" data-patente="AA496HM" data-campo="tipoTaller" data-valor="BASE BARRANCAS">BASE BARRANCAS</span></td>
-      <td><span class="editable-field" data-interno="P-0018-P" data-patente="AA496HM" data-campo="nombreTaller" data-valor="BASE BARRANCAS">BASE BARRANCAS</span></td>
-      <td><span class="editable-field" data-interno="P-0018-P" data-patente="AA496HM" data-campo="nOT" data-valor="">—</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-0018-P" data-patente="AA496HM" data-campo="estadoRep" data-valor="PENDIENTE">PENDIENTE</span></td>
-      <td><span class="editable-field" data-interno="P-0018-P" data-patente="AA496HM" data-campo="motivoDemora" data-valor="EVALUACION DE REPARACION DE MOTOR">EVALUACION DE REPARACION DE MOTOR</span></td>
-      <td><span class="editable-field" data-interno="P-0018-P" data-patente="AA496HM" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr><tr>
-      <td>P-0264-P</td>
-      <td>LXS119</td>
-      <td>Pick up</td>
-      <td>MZAN-VEHICULOSIVIANOS-GRI</td>
-      <td>COMPRAS</td>
-      <td><span class="estado-pill pill-VENTA popup-estado" data-interno="P-0264-P" data-patente="LXS119" style="cursor:pointer">VENTA</span></td>
-      <td>PROPIO</td>
-      <td>376</td>
-      <td>230</td>
-      <td><span class="editable-field popup-trigger" data-interno="P-0264-P" data-patente="LXS119" data-campo="tipoTaller" data-valor="BASE BARRANCAS">BASE BARRANCAS</span></td>
-      <td><span class="editable-field" data-interno="P-0264-P" data-patente="LXS119" data-campo="nombreTaller" data-valor="BASE BARRANCAS">BASE BARRANCAS</span></td>
-      <td><span class="editable-field" data-interno="P-0264-P" data-patente="LXS119" data-campo="nOT" data-valor="29022">29022</span></td>
-      <td><span class="editable-field popup-trigger" data-interno="P-0264-P" data-patente="LXS119" data-campo="estadoRep" data-valor="PENDIENTE">PENDIENTE</span></td>
-      <td><span class="editable-field" data-interno="P-0264-P" data-patente="LXS119" data-campo="motivoDemora" data-valor="SE DEFIINE VENTA">SE DEFIINE VENTA</span></td>
-      <td><span class="editable-field" data-interno="P-0264-P" data-patente="LXS119" data-campo="semiTractor" data-valor="">—</span></td>
-    </tr></tbody>
+              <tbody id="tabla-body"></tbody>
             </table>
           </div>
         </div>
@@ -1633,34 +689,7 @@ tbody td { padding: 7px 10px; font-size: 12px; white-space: nowrap; }
 
       <!-- TAB MANTENIMIENTO -->
       <div class="tab-pane" id="tab-mantenimiento">
-        <div id="mant-groups"><div class="mant-group"><div class="mant-group-header"><span>BASE BARRANCAS</span><span class="mant-group-badge">2</span></div><div class="mant-group-body"><div class="mant-row mant-header-row"><span>Interno</span><span>Patente</span><span>Tipo</span><span>Días</span><span>Estado Rep.</span><span>Motivo Demora</span><span>N° OT</span><span>Estado</span></div><div class="mant-row">
-        <span>P-1021-P</span>
-        <span>AC835BS</span>
-        <span>Pick up</span>
-        <span><span class="dias-badge dias-crit">36d</span></span>
-        <span><span class="editable-field popup-trigger" data-interno="P-1021-P" data-patente="AC835BS" data-campo="estadoRep" data-valor="PENDIENTE">PENDIENTE</span></span>
-        <span><span class="editable-field" data-interno="P-1021-P" data-patente="AC835BS" data-campo="motivoDemora" data-valor="verificar cigueñales en base y reemplazar cojinetes.">verificar cigueñales en base y reemplazar cojinetes.</span></span>
-        <span><span class="editable-field" data-interno="P-1021-P" data-patente="AC835BS" data-campo="nOT" data-valor="36567/ 37232">36567/ 37232</span></span>
-        <span><span class="estado-pill pill-MANTENIMIENTO-LARGO">MANTENIMIENTO LARGO</span></span>
-      </div><div class="mant-row">
-        <span>P-2122-S</span>
-        <span>AE071TR</span>
-        <span>Pick up</span>
-        <span><span class="dias-badge dias-crit">257d</span></span>
-        <span><span class="editable-field popup-trigger" data-interno="P-2122-S" data-patente="AE071TR" data-campo="estadoRep" data-valor="ESPERA TERCERO">ESPERA TERCERO</span></span>
-        <span><span class="editable-field" data-interno="P-2122-S" data-patente="AE071TR" data-campo="motivoDemora" data-valor="SE RECIBE VISITA DE CHAPISTA DE JC LORENZO">SE RECIBE VISITA DE CHAPISTA DE JC LORENZO</span></span>
-        <span><span class="editable-field" data-interno="P-2122-S" data-patente="AE071TR" data-campo="nOT" data-valor="22655">22655</span></span>
-        <span><span class="estado-pill pill-MANTENIMIENTO-LARGO">MANTENIMIENTO LARGO</span></span>
-      </div></div></div><div class="mant-group"><div class="mant-group-header"><span>BASE AÑELO</span><span class="mant-group-badge">1</span></div><div class="mant-group-body"><div class="mant-row mant-header-row"><span>Interno</span><span>Patente</span><span>Tipo</span><span>Días</span><span>Estado Rep.</span><span>Motivo Demora</span><span>N° OT</span><span>Estado</span></div><div class="mant-row">
-        <span>P-2061-S</span>
-        <span>AD789OE</span>
-        <span>Pick up</span>
-        <span><span class="dias-badge dias-warn">24d</span></span>
-        <span><span class="editable-field popup-trigger" data-interno="P-2061-S" data-patente="AD789OE" data-campo="estadoRep" data-valor="EN CURSO">EN CURSO</span></span>
-        <span><span class="editable-field" data-interno="P-2061-S" data-patente="AD789OE" data-campo="motivoDemora" data-valor="SE AUTORIZO LA REPARACION EL 06/05 EL CIGUEÑAL QUEDA EN 0,10.">SE AUTORIZO LA REPARACION EL 06/05 EL CIGUEÑAL QUEDA EN 0,10.</span></span>
-        <span><span class="editable-field" data-interno="P-2061-S" data-patente="AD789OE" data-campo="nOT" data-valor="36864">36864</span></span>
-        <span><span class="estado-pill pill-MANTENIMIENTO">MANTENIMIENTO</span></span>
-      </div></div></div></div>
+        <div id="mant-groups"></div>
       </div>
 
       <!-- TAB LOG -->
