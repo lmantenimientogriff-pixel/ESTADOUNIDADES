@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Estado Operativo de Flota — Griffouliere</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://unpkg.com/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 :root {
   --rojo: #C00000;
@@ -994,9 +994,9 @@ async function cargarDatos() {
     aplicarFiltros();
     poblarFiltros();
     renderKPIs(FILTRADOS);
-    renderGraficos(FILTRADOS);
     renderTablaDetalle(FILTRADOS);
     renderMantenimiento(FILTRADOS);
+    setTimeout(() => renderGraficos(FILTRADOS), 200);
   } catch (err) {
     setLoading(false);
     toast('Error al cargar datos. Verificá la URL del Apps Script.', 'err');
@@ -1278,32 +1278,30 @@ function renderKPIs(datos) {
   const propios    = datos.filter(d => d.grupo === 'PROPIO' && d.estado === 'OPERATIVA').length;
   const sub        = datos.filter(d => (d.grupo === 'SUBCONTRATADO' || d.grupo === 'SUBCONTRATADO C/CHOFER') && d.estado === 'OPERATIVA').length;
 
-  document.getElementById('kpi-total').textContent     = total;
-  document.getElementById('kpi-op').textContent        = op;
-  document.getElementById('kpi-mant').textContent      = mant;
-  document.getElementById('kpi-largo').textContent     = mantLargo;
-  document.getElementById('kpi-sinchofer').textContent = sinChofer;
-  document.getElementById('kpi-backup').textContent    = backup;
-  document.getElementById('kpi-venta').textContent     = venta;
-  document.getElementById('kpi-devol').textContent     = devol;
-  document.getElementById('kpi-disp').textContent      = disp + '%';
-  document.getElementById('kpi-disp-bar').style.width  = disp + '%';
-  // Mini valores dentro de la tarjeta grande
-  const opMini = document.getElementById('kpi-op-mini');
-  const buMini = document.getElementById('kpi-backup-mini');
-  if (opMini) opMini.textContent = op;
-  if (buMini) buMini.textContent = backup;
-  // Color barra según objetivo
+  const setKPI = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  setKPI('kpi-total',     total);
+  setKPI('kpi-op',        op);
+  setKPI('kpi-mant',      mant);
+  setKPI('kpi-largo',     mantLargo);
+  setKPI('kpi-sinchofer', sinChofer);
+  setKPI('kpi-backup',    backup);
+  setKPI('kpi-venta',     venta);
+  setKPI('kpi-devol',     devol);
+  setKPI('kpi-propios',   propios);
+  setKPI('kpi-sub',       sub);
+  setKPI('kpi-disp',      disp + '%');
+  setKPI('kpi-op-mini',   op);
+  setKPI('kpi-backup-mini', backup);
   const barEl = document.getElementById('kpi-disp-bar');
-  barEl.style.background = disp >= 95 ? 'var(--op)' : disp >= 85 ? 'var(--mant)' : 'var(--rojo)';
-  // Badge objetivo
+  if (barEl) {
+    barEl.style.width = disp + '%';
+    barEl.style.background = disp >= 95 ? 'var(--op)' : disp >= 85 ? 'var(--mant)' : 'var(--rojo)';
+  }
   const badge = document.getElementById('kpi-obj-badge');
   if (badge) {
     badge.textContent = disp >= 95 ? '✓ Objetivo 95%' : '✗ Obj: 95%';
     badge.className = 'kpi-objetivo-badge ' + (disp >= 95 ? 'obj-ok' : 'obj-mal');
   }
-  document.getElementById('kpi-propios').textContent   = propios;
-  document.getElementById('kpi-sub').textContent       = sub;
 }
 
 // ════════════════════════════════════════════════════════════
@@ -1320,6 +1318,10 @@ function topN(datos, campo, n) {
 }
 
 function renderGraficos(datos) {
+  if (typeof Chart === 'undefined') {
+    setTimeout(() => renderGraficos(datos), 300);
+    return;
+  }
   // 1. Donut estados
   destroyChart('estado');
   const estadoCounts = {};
@@ -1795,7 +1797,7 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     if (this.dataset.tab === 'log') cargarLog();
     if (this.dataset.tab === 'usuarios') cargarUsuariosTab();
     if (this.dataset.tab === 'graficos') {
-      setTimeout(() => renderGraficos(FILTRADOS), 50);
+      setTimeout(() => renderGraficos(FILTRADOS), 150);
     }
   });
 });
