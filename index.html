@@ -137,6 +137,17 @@ body {
 .kpi-row {
   display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;
 }
+/* Grid principal: disponibilidad ocupa 2 filas a la izquierda, 4 cols a la derecha */
+.kpi-grid-main {
+  display: grid;
+  grid-template-columns: 1.6fr repeat(4, 1fr);
+  grid-template-rows: auto auto;
+  gap: 10px;
+}
+.kpi-disp-span {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+}
 .kpi-card {
   background: white; border-radius: 8px;
   padding: 14px 16px;
@@ -153,10 +164,31 @@ body {
 .kpi-backup::before { background: var(--backup); }
 .kpi-venta::before { background: var(--venta); }
 .kpi-disp::before { background: var(--op); }
+.kpi-disp-big {
+  position: relative; overflow: hidden;
+}
+.kpi-disp-big .kpi-objetivo {
+  font-size: 11px; color: var(--gris-text); margin-top: 2px;
+  display: flex; align-items: center; gap: 6px;
+}
+.kpi-objetivo-badge {
+  font-size: 10px; font-weight: 700; padding: 1px 7px;
+  border-radius: 8px; 
+}
+.obj-ok  { background: #d1fae5; color: #065f46; }
+.obj-mal { background: #fee2e2; color: #991b1b; }
+.kpi-progress-wrap { margin-top: 8px; }
+.kpi-progress-label {
+  display: flex; justify-content: space-between;
+  font-size: 10px; color: var(--gris-text); margin-bottom: 3px;
+}
+.kpi-progress-label span:last-child { color: var(--rojo); font-weight: 700; }
 .kpi-propios::before { background: #374151; }
 .kpi-sub::before { background: #6366f1; }
 .kpi-largo::before { background: var(--mant-largo); }
 .kpi-devol::before { background: var(--devol); }
+.kpi-sin-chofer::before { background: var(--sin-chofer); }
+.kpi-modif::before { background: var(--modif); }
 
 .kpi-label { font-size: 11px; color: var(--gris-text); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
 .kpi-value { font-size: 28px; font-weight: 700; color: var(--negro); line-height: 1.1; margin-top: 4px; }
@@ -485,7 +517,12 @@ tbody td { padding: 7px 10px; font-size: 12px; white-space: nowrap; }
 /* ── RESPONSIVE ── */
 @media (max-width: 1200px) {
   .kpi-row { grid-template-columns: repeat(3, 1fr); }
+  .kpi-grid-main { grid-template-columns: 1.6fr repeat(2, 1fr); }
   #graficos-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 900px) {
+  .kpi-grid-main { grid-template-columns: 1fr 1fr; }
+  .kpi-disp-span { grid-column: 1 / span 2; grid-row: 1; }
 }
 </style>
 </head>
@@ -553,7 +590,43 @@ tbody td { padding: 7px 10px; font-size: 12px; white-space: nowrap; }
 
   <!-- KPIs -->
   <div id="kpi-section">
-    <div class="kpi-row">
+    <div class="kpi-grid-main">
+
+      <!-- COL 1, filas 1+2: % Disponibilidad (doble alto) -->
+      <div class="kpi-card kpi-disp kpi-disp-big kpi-disp-span">
+        <div class="kpi-label">% Disponibilidad</div>
+        <div class="kpi-value" id="kpi-disp" style="font-size:42px">—</div>
+        <div class="kpi-objetivo">
+          <span>(OPER + BACKUP) / TOTAL</span>
+          <span class="kpi-objetivo-badge obj-mal" id="kpi-obj-badge">Obj: 95%</span>
+        </div>
+        <div class="kpi-progress-wrap" style="margin-top:16px">
+          <div class="kpi-progress-label">
+            <span>0%</span>
+            <span>Objetivo 95%</span>
+          </div>
+          <div class="kpi-progress" style="height:12px; margin-top:4px; position:relative;">
+            <div class="kpi-progress-fill" id="kpi-disp-bar" style="width:0%"></div>
+            <div style="position:absolute;left:95%;top:-3px;bottom:-3px;width:2px;background:rgba(0,0,0,0.25);border-radius:2px"></div>
+          </div>
+        </div>
+        <div style="margin-top:14px; padding-top:12px; border-top:1px solid var(--gris-borde);">
+          <div style="font-size:11px;color:var(--gris-text);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Operativas + Back Up</div>
+          <div style="display:flex;gap:10px;align-items:center">
+            <div>
+              <div style="font-size:11px;color:var(--gris-text)">Operativas</div>
+              <div style="font-size:20px;font-weight:700;color:var(--op)" id="kpi-op-mini">—</div>
+            </div>
+            <div style="font-size:18px;color:#ccc">+</div>
+            <div>
+              <div style="font-size:11px;color:var(--gris-text)">Back Up</div>
+              <div style="font-size:20px;font-weight:700;color:var(--backup)" id="kpi-backup-mini">—</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FILA 1 — cols 2-5: Total + Operativas + Back Up + En Venta -->
       <div class="kpi-card kpi-total">
         <div class="kpi-label">Total Flota</div>
         <div class="kpi-value" id="kpi-total">—</div>
@@ -564,49 +637,39 @@ tbody td { padding: 7px 10px; font-size: 12px; white-space: nowrap; }
         <div class="kpi-value" id="kpi-op">—</div>
         <div class="kpi-sub-label">en servicio</div>
       </div>
-      <div class="kpi-card kpi-mant">
-        <div class="kpi-label">En Mantenimiento</div>
-        <div class="kpi-value" id="kpi-mant">—</div>
-        <div class="kpi-sub-label">MANT + LARGO + SIN CHOFER</div>
-      </div>
       <div class="kpi-card kpi-backup">
-        <div class="kpi-label">Back Up</div>
+        <div class="kpi-label">Back Up - Disponible</div>
         <div class="kpi-value" id="kpi-backup">—</div>
-        <div class="kpi-sub-label">disponibles</div>
+        <div class="kpi-sub-label">BACK UP - DISPONIBLE</div>
       </div>
       <div class="kpi-card kpi-venta">
         <div class="kpi-label">En Venta</div>
         <div class="kpi-value" id="kpi-venta">—</div>
         <div class="kpi-sub-label">unidades</div>
       </div>
-    </div>
-    <div class="kpi-row">
-      <div class="kpi-card kpi-disp">
-        <div class="kpi-label">% Disponibilidad</div>
-        <div class="kpi-value" id="kpi-disp">—</div>
-        <div class="kpi-sub-label">(OPER + BACKUP) / TOTAL</div>
-        <div class="kpi-progress"><div class="kpi-progress-fill" id="kpi-disp-bar" style="width:0%"></div></div>
-      </div>
-      <div class="kpi-card kpi-propios">
-        <div class="kpi-label">Propios Operativos</div>
-        <div class="kpi-value" id="kpi-propios">—</div>
-        <div class="kpi-sub-label">grupo PROPIO</div>
-      </div>
-      <div class="kpi-card kpi-sub">
-        <div class="kpi-label">Subcontratados Op.</div>
-        <div class="kpi-value" id="kpi-sub">—</div>
-        <div class="kpi-sub-label">SUBCONTRATADO</div>
+
+      <!-- FILA 2 — cols 2-5: estados de mantenimiento -->
+      <div class="kpi-card kpi-mant">
+        <div class="kpi-label">Mantenimiento</div>
+        <div class="kpi-value" id="kpi-mant">—</div>
+        <div class="kpi-sub-label">estado MANTENIMIENTO</div>
       </div>
       <div class="kpi-card kpi-largo">
         <div class="kpi-label">Mant. Largo</div>
         <div class="kpi-value" id="kpi-largo">—</div>
-        <div class="kpi-sub-label">LARGO o &gt;15 días</div>
+        <div class="kpi-sub-label">MANTENIMIENTO LARGO</div>
+      </div>
+      <div class="kpi-card kpi-sin-chofer">
+        <div class="kpi-label">Sin Chofer</div>
+        <div class="kpi-value" id="kpi-sinchofer">—</div>
+        <div class="kpi-sub-label">MANT - SIN CHOFER</div>
       </div>
       <div class="kpi-card kpi-devol">
         <div class="kpi-label">Mant. Devolución</div>
         <div class="kpi-value" id="kpi-devol">—</div>
         <div class="kpi-sub-label">MANTENIMIENTO - DEVOLUCION</div>
       </div>
+
     </div>
   </div>
 
@@ -1201,28 +1264,46 @@ document.getElementById('btn-limpiar').addEventListener('click', () => {
 // KPIs
 // ════════════════════════════════════════════════════════════
 function renderKPIs(datos) {
-  const total   = datos.length;
-  const op      = datos.filter(d => d.estado === 'OPERATIVA').length;
-  const mant    = datos.filter(d => ['MANTENIMIENTO','MANTENIMIENTO LARGO','MANT - SIN CHOFER'].includes(d.estado)).length;
-  const backup  = datos.filter(d => d.estado === 'BACK UP - DISPONIBLE').length;
-  const venta   = datos.filter(d => d.estado === 'VENTA').length;
-  const disp    = total ? Math.round((op + backup) / total * 100) : 0;
-  const propios = datos.filter(d => d.grupo === 'PROPIO' && d.estado === 'OPERATIVA').length;
-  const sub     = datos.filter(d => (d.grupo === 'SUBCONTRATADO' || d.grupo === 'SUBCONTRATADO C/CHOFER') && d.estado === 'OPERATIVA').length;
-  const largo   = datos.filter(d => d.estado === 'MANTENIMIENTO LARGO' || (parseInt(d.diasMant) > 15 && MANT_ESTADOS.includes(d.estado))).length;
-  const devol   = datos.filter(d => d.estado === 'MANTENIMIENTO - DEVOLUCION').length;
+  const total      = datos.length;
+  const op         = datos.filter(d => d.estado === 'OPERATIVA').length;
+  const mant       = datos.filter(d => d.estado === 'MANTENIMIENTO').length;
+  const mantLargo  = datos.filter(d => d.estado === 'MANTENIMIENTO LARGO').length;
+  const sinChofer  = datos.filter(d => d.estado === 'MANT - SIN CHOFER').length;
+  const backup     = datos.filter(d => d.estado === 'BACK UP - DISPONIBLE').length;
+  const venta      = datos.filter(d => d.estado === 'VENTA').length;
+  const devol      = datos.filter(d => d.estado === 'MANTENIMIENTO - DEVOLUCION').length;
+  const modif      = datos.filter(d => d.estado === 'MODIFICACION').length;
+  const parada     = mant + mantLargo + sinChofer + devol;
+  const disp       = total ? Math.round((op + backup) / total * 100) : 0;
+  const propios    = datos.filter(d => d.grupo === 'PROPIO' && d.estado === 'OPERATIVA').length;
+  const sub        = datos.filter(d => (d.grupo === 'SUBCONTRATADO' || d.grupo === 'SUBCONTRATADO C/CHOFER') && d.estado === 'OPERATIVA').length;
 
-  document.getElementById('kpi-total').textContent  = total;
-  document.getElementById('kpi-op').textContent     = op;
-  document.getElementById('kpi-mant').textContent   = mant;
-  document.getElementById('kpi-backup').textContent = backup;
-  document.getElementById('kpi-venta').textContent  = venta;
-  document.getElementById('kpi-disp').textContent   = disp + '%';
-  document.getElementById('kpi-disp-bar').style.width = disp + '%';
-  document.getElementById('kpi-propios').textContent = propios;
-  document.getElementById('kpi-sub').textContent    = sub;
-  document.getElementById('kpi-largo').textContent  = largo;
-  document.getElementById('kpi-devol').textContent  = devol;
+  document.getElementById('kpi-total').textContent     = total;
+  document.getElementById('kpi-op').textContent        = op;
+  document.getElementById('kpi-mant').textContent      = mant;
+  document.getElementById('kpi-largo').textContent     = mantLargo;
+  document.getElementById('kpi-sinchofer').textContent = sinChofer;
+  document.getElementById('kpi-backup').textContent    = backup;
+  document.getElementById('kpi-venta').textContent     = venta;
+  document.getElementById('kpi-devol').textContent     = devol;
+  document.getElementById('kpi-disp').textContent      = disp + '%';
+  document.getElementById('kpi-disp-bar').style.width  = disp + '%';
+  // Mini valores dentro de la tarjeta grande
+  const opMini = document.getElementById('kpi-op-mini');
+  const buMini = document.getElementById('kpi-backup-mini');
+  if (opMini) opMini.textContent = op;
+  if (buMini) buMini.textContent = backup;
+  // Color barra según objetivo
+  const barEl = document.getElementById('kpi-disp-bar');
+  barEl.style.background = disp >= 95 ? 'var(--op)' : disp >= 85 ? 'var(--mant)' : 'var(--rojo)';
+  // Badge objetivo
+  const badge = document.getElementById('kpi-obj-badge');
+  if (badge) {
+    badge.textContent = disp >= 95 ? '✓ Objetivo 95%' : '✗ Obj: 95%';
+    badge.className = 'kpi-objetivo-badge ' + (disp >= 95 ? 'obj-ok' : 'obj-mal');
+  }
+  document.getElementById('kpi-propios').textContent   = propios;
+  document.getElementById('kpi-sub').textContent       = sub;
 }
 
 // ════════════════════════════════════════════════════════════
