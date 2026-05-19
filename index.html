@@ -135,6 +135,7 @@ body {
 .rol-admin { background: var(--rojo); color: white; }
 .rol-operador { background: #378ADD; color: white; }
 .rol-lectura { background: #555; color: white; }
+.rol-propietario { background: #7c3aed; color: white; }
 #btn-salir {
   background: none; border: 1px solid #555; color: #aaa;
   padding: 4px 12px; border-radius: 4px; cursor: pointer;
@@ -617,6 +618,221 @@ tbody td { padding: 7px 10px; font-size: 12px; white-space: nowrap; }
   .kpi-grid-main { grid-template-columns: 1fr 1fr; }
   .kpi-disp-span { grid-column: 1 / span 2; grid-row: 1; }
 }
+
+/* ══════════════════════════════════════
+   MOBILE
+══════════════════════════════════════ */
+@media (max-width: 768px) {
+  /* Topbar */
+  #topbar { padding: 0 12px; height: 48px; }
+  #topbar-rev { display: none; }
+  #topbar-title { font-size: 13px; }
+  #badge-marca { font-size: 9px; padding: 2px 6px; letter-spacing: 2px; }
+  #btn-refresh { display: none; }
+  #user-badge span:first-child { display: none; }
+
+  /* KPIs */
+  #kpi-section { padding: 10px 10px 0; }
+  .kpi-grid-main { grid-template-columns: 1fr 1fr; grid-template-rows: auto; }
+  .kpi-disp-span { grid-column: 1 / span 2; grid-row: 1; }
+  .kpi-disp-big .kpi-value { font-size: 30px !important; }
+  .kpi-row { grid-template-columns: repeat(2, 1fr); margin-top: 8px; }
+  .kpi-card { padding: 10px 12px; }
+  .kpi-value { font-size: 22px; }
+  .kpi-label { font-size: 10px; }
+  .kpi-sub-label { font-size: 10px; }
+
+  /* Filtros — fila horizontal con scroll */
+  #filtros-section { padding: 8px 10px 0; }
+  #filtros-bar {
+    gap: 6px; padding: 8px 10px;
+    overflow-x: auto; flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+  }
+  .dropdown-btn { min-width: 85px; font-size: 10px; padding: 5px 8px; flex-shrink: 0; }
+  .filtro-group input[type=text] { width: 100px; font-size: 11px; }
+  #btn-limpiar { flex-shrink: 0; font-size: 11px; padding: 5px 10px; }
+  .filtro-tags { padding: 4px 10px; }
+  .filtro-tag { font-size: 10px; }
+  .dropdown-panel { min-width: 200px; }
+
+  /* Tabs */
+  #tabs-section { padding: 8px 10px 0; }
+  #tabs-nav {
+    overflow-x: auto; -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap; gap: 0; scrollbar-width: none;
+  }
+  #tabs-nav::-webkit-scrollbar { display: none; }
+  .tab-btn { padding: 8px 12px; font-size: 11px; white-space: nowrap; }
+
+  /* Ocultar tab gráficos en mobile */
+  [data-tab="graficos"] { display: none !important; }
+
+  /* Tab content */
+  #tabs-content { border-radius: 0 0 6px 6px; }
+  .tab-pane { padding: 12px 10px; }
+
+  /* Tabla desktop — ocultar en mobile */
+  .tabla-desktop { display: none !important; }
+  .scroll-wrapper { display: none !important; }
+  .tabla-actions { display: none !important; }
+
+  /* Tarjetas mobile */
+  #tabla-mobile { display: flex !important; }
+
+  /* Mantenimiento */
+  .mant-row { grid-template-columns: 80px 90px 1fr; }
+
+  /* Popups */
+  #confirm-box { min-width: 90vw; padding: 20px; }
+  #popup-box { min-width: 85vw; }
+
+  /* Loading */
+  #loading-bar { padding: 6px 12px; font-size: 11px; }
+}
+
+@media (max-width: 480px) {
+  .kpi-grid-main { grid-template-columns: 1fr 1fr; }
+  .kpi-row { grid-template-columns: 1fr 1fr; }
+}
+
+/* Tarjetas mobile — ocultas en desktop */
+#tabla-mobile { display: none; flex-direction: column; gap: 10px; }
+.card-unidad {
+  background: white; border-radius: 8px;
+  border: 1px solid var(--gris-borde);
+  padding: 12px 14px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+.card-unidad-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 8px; gap: 8px;
+}
+.card-interno {
+  font-size: 15px; font-weight: 700; color: var(--negro);
+}
+.card-patente {
+  font-size: 12px; color: var(--gris-text); font-weight: 600;
+}
+.card-tipo {
+  font-size: 11px; color: var(--gris-text);
+  background: var(--gris-bg); padding: 2px 8px;
+  border-radius: 8px;
+}
+.card-estado-row {
+  display: flex; align-items: center; gap: 8px;
+  flex-wrap: wrap; margin-bottom: 8px;
+}
+.card-cc {
+  font-size: 11px; color: var(--gris-text);
+  margin-bottom: 6px; line-height: 1.4;
+}
+.card-accion { margin-bottom: 8px; }
+.card-motivos {
+  border-top: 1px solid var(--gris-borde);
+  padding-top: 8px; margin-top: 4px;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.card-motivo-item {
+  font-size: 11px; color: var(--gris-text); line-height: 1.4;
+}
+.card-motivo-label {
+  font-weight: 700; color: var(--negro); text-transform: uppercase;
+  font-size: 10px; letter-spacing: 0.5px;
+}
+
+/* ══════════════════════════════════════
+   MOBILE — pantallas hasta 768px
+══════════════════════════════════════ */
+@media (max-width: 768px) {
+
+  /* Topbar compacto */
+  #topbar { padding: 0 12px; height: 48px; }
+  #topbar-rev { display: none; }
+  #topbar-title { font-size: 13px; }
+  #badge-marca { font-size: 9px; padding: 2px 6px; }
+  #btn-refresh { display: none; }
+  #user-badge span:first-child { display: none; }
+
+  /* KPIs — 2 columnas */
+  #kpi-section { padding: 10px 10px 0; }
+  .kpi-grid-main {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto;
+  }
+  .kpi-disp-span {
+    grid-column: 1 / span 2;
+    grid-row: 1;
+  }
+  .kpi-disp-big .kpi-value { font-size: 32px !important; }
+  .kpi-row { grid-template-columns: repeat(2, 1fr); margin-top: 8px; }
+  .kpi-card { padding: 10px 12px; }
+  .kpi-value { font-size: 22px; }
+  .kpi-label { font-size: 10px; }
+
+  /* Filtros — scroll horizontal compacto */
+  #filtros-section { padding: 8px 10px 0; }
+  #filtros-bar {
+    gap: 6px;
+    padding: 8px 10px;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+  }
+  .dropdown-btn { min-width: 90px; font-size: 10px; padding: 5px 8px; }
+  .filtro-group input[type=text] { width: 110px; font-size: 12px; }
+  #btn-limpiar { flex-shrink: 0; }
+  .filtro-tags { padding: 0 10px; }
+
+  /* Tabs — scroll horizontal */
+  #tabs-section { padding: 8px 10px 0; }
+  #tabs-nav {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap;
+    gap: 0;
+    scrollbar-width: none;
+  }
+  #tabs-nav::-webkit-scrollbar { display: none; }
+  .tab-btn { padding: 8px 12px; font-size: 12px; white-space: nowrap; }
+
+  /* Tabla detalle — ocultar columnas no móviles */
+  #tab-detalle .tab-pane,
+  #tab-detalle { padding: 10px; }
+
+  /* Ocultar columnas en mobile — mostrar solo las esenciales */
+  .col-hide-mobile { display: none !important; }
+
+  /* Tabla mobile más compacta */
+  table { min-width: unset; width: 100%; }
+  thead th { padding: 7px 8px; font-size: 10px; }
+  tbody td { padding: 6px 8px; font-size: 12px; }
+
+  /* Estado pill más pequeño */
+  .estado-pill { font-size: 10px; padding: 2px 6px; }
+  .descuento-pill { font-size: 10px; padding: 2px 6px; }
+  .btn-baja, .btn-alta { font-size: 10px; padding: 3px 7px; }
+
+  /* Scroll tabla */
+  .tabla-outer { max-height: 60vh; }
+  .scroll-top { display: none; }
+
+  /* Tab graficos oculto en mobile — demasiado chico */
+  [data-tab="graficos"] { display: none !important; }
+
+  /* Popup confirm más grande en mobile */
+  #confirm-box { min-width: 90vw; padding: 20px; }
+  #popup-box { min-width: 85vw; }
+
+  /* Loading bar */
+  #loading-bar { padding: 6px 12px; font-size: 11px; }
+}
+
+@media (max-width: 480px) {
+  .kpi-grid-main { grid-template-columns: 1fr 1fr; }
+  .kpi-row { grid-template-columns: 1fr 1fr; }
+  #topbar-title { font-size: 12px; }
+}
 </style>
 </head>
 <body>
@@ -815,7 +1031,9 @@ tbody td { padding: 7px 10px; font-size: 12px; white-space: nowrap; }
           <button class="btn-export" id="btn-xlsx">⬇ Excel</button>
           <button class="btn-export" id="btn-pdf">⬇ PDF</button>
         </div>
-        <div class="scroll-wrapper">
+        <!-- Vista mobile: tarjetas -->
+        <div id="tabla-mobile"></div>
+        <div class="scroll-wrapper tabla-desktop">
           <div class="scroll-top" id="scroll-top"><div class="scroll-top-inner" id="scroll-inner"></div></div>
           <div class="tabla-outer" id="tabla-outer">
             <table id="tabla-detalle">
@@ -847,6 +1065,7 @@ tbody td { padding: 7px 10px; font-size: 12px; white-space: nowrap; }
             </table>
           </div>
         </div>
+        </div><!-- /tabla-desktop -->
       </div>
 
       <!-- TAB MANTENIMIENTO -->
@@ -986,6 +1205,16 @@ const USUARIOS_FALLBACK = [
   { nombre:'Admin Sistema', usuario:'admin', password:'griff2024', rol:'Admin', empresa:'Transgriff' }
 ];
 
+// Usuario Propietario — hardcodeado, nunca se lee ni escribe desde el Sheet
+// Solo modificable directamente en este archivo
+const USUARIO_PROPIETARIO = {
+  nombre: 'Franco Caneva',
+  usuario: 'franco.caneva',
+  password: 'FC_Griff_2024!',
+  rol: 'Propietario',
+  empresa: 'Griffouliere'
+};
+
 // ════════════════════════════════════════════════════════════
 // ESTADO GLOBAL
 // ════════════════════════════════════════════════════════════
@@ -1066,10 +1295,16 @@ async function intentarLogin() {
   errEl.textContent = '';
   if (!u || !p) { errEl.textContent = 'Completá usuario y contraseña.'; return; }
 
-  const found = USUARIOS.find(x =>
-    (x.usuario || x['Usuario (login)'] || x['usuario']) === u &&
-    (x.password || x['Contraseña'] || x['contraseña']) === p
-  );
+  // Verificar primero si es el Propietario (hardcodeado, no viene del Sheet)
+  let found = null;
+  if (u === USUARIO_PROPIETARIO.usuario && p === USUARIO_PROPIETARIO.password) {
+    found = USUARIO_PROPIETARIO;
+  } else {
+    found = USUARIOS.find(x =>
+      (x.usuario || x['Usuario (login)'] || x['usuario']) === u &&
+      (x.password || x['Contraseña'] || x['contraseña']) === p
+    );
+  }
   if (!found) { errEl.textContent = 'Usuario o contraseña incorrectos.'; return; }
 
   SESSION = {
@@ -1085,7 +1320,7 @@ async function intentarLogin() {
   rolPill.textContent = SESSION.rol;
   rolPill.className = `rol-${SESSION.rol.toLowerCase()}`;
 
-  if (SESSION.rol === 'Admin') {
+  if (SESSION.rol === 'Admin' || SESSION.rol === 'Propietario') {
     document.querySelectorAll('.tab-admin').forEach(t => t.style.display = 'inline-block');
   }
 
@@ -1536,6 +1771,84 @@ function renderGraficos(datos) {
 // ════════════════════════════════════════════════════════════
 // TABLA DETALLE
 // ════════════════════════════════════════════════════════════
+
+// ════════════════════════════════════════════════════════════
+// VISTA MOBILE — tarjetas de unidades
+// ════════════════════════════════════════════════════════════
+function esMobile() {
+  return window.innerWidth <= 768;
+}
+
+function renderTarjetasMobile(datos) {
+  const cont = document.getElementById('tabla-mobile');
+  if (!cont) return;
+  cont.innerHTML = '';
+
+  const puedoEditar = SESSION && (SESSION.rol === 'Admin' || SESSION.rol === 'Operador' || SESSION.rol === 'Propietario');
+
+  if (!datos.length) {
+    cont.innerHTML = '<p style="color:#888;font-size:13px;padding:20px;text-align:center">Sin resultados</p>';
+    return;
+  }
+
+  datos.forEach(d => {
+    const card = document.createElement('div');
+    card.className = 'card-unidad';
+
+    // Borde izquierdo según estado
+    const color = ESTADO_COLORES[d.estado] || '#ccc';
+    card.style.borderLeft = `4px solid ${color}`;
+
+    // Pill estado
+    const estadoPillHTML = puedoEditar
+      ? `<span class="estado-pill ${estadoPillClass(d.estado)} popup-estado"
+           data-interno="${d.interno}" data-patente="${d.patente}"
+           style="cursor:pointer">${d.estado || '—'}</span>`
+      : `<span class="estado-pill ${estadoPillClass(d.estado)}">${d.estado || '—'}</span>`;
+
+    // Pill descuento
+    const descVal = (d.descuento || '').toUpperCase().trim();
+    const descCls = descVal === 'SI' ? 'descuento-si' : descVal === 'NO' ? 'descuento-no' : 'descuento-nd';
+    const descHTML = puedoEditar
+      ? `<span class="descuento-pill ${descCls} popup-descuento"
+           data-interno="${d.interno}" data-patente="${d.patente}"
+           data-valor="${descVal}" style="cursor:pointer">${descVal || '—'}</span>`
+      : `<span class="descuento-pill ${descCls}">${descVal || '—'}</span>`;
+
+    // Botón acción
+    const btnHTML = puedoEditar && d.interno ? renderBtnAccion(d) : '';
+
+    // Motivos (solo si tienen valor)
+    const motivoBaja   = d.motivoBaja   ? `<div class="card-motivo-item"><span class="card-motivo-label">Motivo baja:</span> ${d.motivoBaja}</div>` : '';
+    const motivoDemora = d.motivoDemora ? `<div class="card-motivo-item"><span class="card-motivo-label">Motivo demora:</span> ${d.motivoDemora}</div>` : '';
+    const motivosHTML  = (motivoBaja || motivoDemora)
+      ? `<div class="card-motivos">${motivoBaja}${motivoDemora}</div>` : '';
+
+    card.innerHTML = `
+      <div class="card-unidad-header">
+        <div>
+          <span class="card-interno">${d.interno || '—'}</span>
+          <span class="card-patente"> · ${d.patente || '—'}</span>
+        </div>
+        <span class="card-tipo">${d.tipo || '—'}</span>
+      </div>
+      <div class="card-cc">${d.centroCosto || '—'}</div>
+      <div class="card-estado-row">
+        ${estadoPillHTML}
+        ${descHTML}
+      </div>
+      <div class="card-accion">${btnHTML}</div>
+      ${motivosHTML}
+    `;
+
+    cont.appendChild(card);
+  });
+
+  // Rebindear eventos editables en las tarjetas
+  bindEditableEvents();
+  bindDescuentoEvents();
+}
+
 function renderTablaDetalle(datos) {
   let sorted = [...datos];
   if (SORT.col) {
@@ -1547,6 +1860,13 @@ function renderTablaDetalle(datos) {
   }
 
   document.getElementById('tabla-count').textContent = `${sorted.length} unidades`;
+
+  // En mobile renderizar tarjetas en lugar de tabla
+  if (esMobile()) {
+    renderTarjetasMobile(sorted);
+    return;
+  }
+
   const tbody = document.getElementById('tabla-body');
   tbody.innerHTML = '';
 
@@ -1972,6 +2292,13 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 // USUARIOS CRUD
 // ════════════════════════════════════════════════════════════
 async function cargarUsuariosTab() {
+  // Si es Propietario, agregar opción en el select de rol
+  const selRol = document.getElementById('u-rol');
+  if (SESSION.rol === 'Propietario' && !selRol.querySelector('option[value="Propietario"]')) {
+    const opt = document.createElement('option');
+    opt.value = 'Propietario'; opt.textContent = 'Propietario';
+    selRol.appendChild(opt);
+  }
   try {
     const r = await fetch(`${API_URL}?action=getUsuarios`, { cache: 'no-store' });
     const d = await r.json();
@@ -1983,13 +2310,20 @@ async function cargarUsuariosTab() {
 function renderUsuariosTable(lista) {
   const tbody = document.getElementById('usuarios-body');
   tbody.innerHTML = '';
+  const esPropietario = SESSION && SESSION.rol === 'Propietario';
+
   lista.forEach((u, i) => {
     const tr = document.createElement('tr');
-    const nombre = u.nombre || u['Nombre completo'] || '';
-    const login = u.usuario || u['Usuario (login)'] || '';
-    const rol = u.rol || u['Rol'] || '';
+    const nombre  = u.nombre  || u['Nombre completo'] || '';
+    const login   = u.usuario || u['Usuario (login)'] || '';
+    const rol     = u.rol     || u['Rol'] || '';
     const empresa = u.empresa || u['Empresa'] || '';
-    const obs = u.obs || u['Obs.'] || '';
+    const obs     = u.obs     || u['Obs.'] || '';
+
+    // Admin NO puede ver contraseña ni editar/eliminar al Propietario
+    const esPropRow = login === USUARIO_PROPIETARIO.usuario;
+    const puedeEditar = esPropietario || !esPropRow;
+
     tr.innerHTML = `
       <td>${i+1}</td>
       <td>${nombre}</td>
@@ -1998,8 +2332,11 @@ function renderUsuariosTable(lista) {
       <td>${empresa}</td>
       <td>${obs}</td>
       <td>
-        <button class="btn-secondary" style="font-size:11px;padding:3px 8px" onclick="editarUsuario(${i})">Editar</button>
-        <button class="btn-danger" onclick="eliminarUsuario('${login}')">Eliminar</button>
+        ${puedeEditar
+          ? `<button class="btn-secondary" style="font-size:11px;padding:3px 8px" onclick="editarUsuario(${i})">Editar</button>
+             <button class="btn-danger" onclick="eliminarUsuario('${login}')">Eliminar</button>`
+          : `<span style="font-size:11px;color:#aaa">— protegido —</span>`
+        }
       </td>
     `;
     tbody.appendChild(tr);
@@ -2019,6 +2356,10 @@ function editarUsuario(idx) {
 }
 
 async function eliminarUsuario(login) {
+  if (SESSION.rol !== 'Propietario' && login === USUARIO_PROPIETARIO.usuario) {
+    toast('No tenés permiso para eliminar al Propietario.', 'err');
+    return;
+  }
   if (!confirm(`¿Eliminar usuario "${login}"?`)) return;
   try {
     await fetch(API_URL, {
@@ -2032,11 +2373,17 @@ async function eliminarUsuario(login) {
 }
 
 document.getElementById('btn-save-usuario').addEventListener('click', async () => {
+  const loginVal = document.getElementById('u-login').value.trim();
+  // Bloquear si un Admin intenta modificar al Propietario
+  if (SESSION.rol !== 'Propietario' && loginVal === USUARIO_PROPIETARIO.usuario) {
+    toast('No tenés permiso para modificar al Propietario.', 'err');
+    return;
+  }
   const datos = {
     action: 'saveUsuario',
     n: USUARIO_EDIT_N,
     nombre: document.getElementById('u-nombre').value.trim(),
-    usuario: document.getElementById('u-login').value.trim(),
+    usuario: loginVal,
     password: document.getElementById('u-pass').value.trim(),
     rol: document.getElementById('u-rol').value,
     empresa: document.getElementById('u-empresa').value.trim(),
