@@ -4,8 +4,38 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Estado Operativo de Flota — Griffouliere</title>
-<script src="https://unpkg.com/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-<script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<!-- Chart.js y XLSX se cargan desde CDN con fallback -->
+<script>
+// Carga dinámica con múltiples fallbacks
+function loadScript(urls, callback) {
+  var url = urls.shift();
+  var s = document.createElement('script');
+  s.src = url;
+  s.onload = callback;
+  s.onerror = function() {
+    if (urls.length) loadScript(urls, callback);
+    else console.warn('No se pudo cargar librería desde ningún CDN');
+  };
+  document.head.appendChild(s);
+}
+window._libsLoaded = 0;
+function checkLibsReady() {
+  window._libsLoaded++;
+  if (window._libsLoaded >= 2) {
+    document.dispatchEvent(new Event('libsReady'));
+  }
+}
+loadScript([
+  'https://unpkg.com/chart.js@4.4.1/dist/chart.umd.min.js',
+  'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js'
+], checkLibsReady);
+loadScript([
+  'https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js',
+  'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'
+], checkLibsReady);
+</script>
 <style>
 :root {
   --rojo: #C00000;
@@ -112,6 +142,14 @@ body {
   transition: all 0.2s;
 }
 #btn-salir:hover { border-color: var(--rojo); color: var(--rojo); }
+#btn-refresh {
+  background: none; border: 1px solid #555; color: #aaa;
+  padding: 4px 12px; border-radius: 4px; cursor: pointer;
+  font-size: 12px; font-family: var(--font);
+  transition: all 0.2s;
+}
+#btn-refresh:hover { border-color: #1D9E75; color: #1D9E75; }
+#btn-refresh.spinning { animation: spin 0.8s linear infinite; }
 
 /* ── LOADING ── */
 #loading-bar {
@@ -327,6 +365,50 @@ body {
   display: flex; align-items: center; gap: 5px; transition: all 0.2s;
 }
 .btn-export:hover { border-color: var(--rojo); color: var(--rojo); }
+
+/* Botones baja/alta */
+.btn-baja {
+  padding: 4px 10px; background: #fee2e2; color: #991b1b;
+  border: 1px solid #fca5a5; border-radius: 5px; font-size: 11px;
+  font-weight: 700; cursor: pointer; font-family: var(--font);
+  white-space: nowrap; transition: all 0.2s;
+}
+.btn-baja:hover { background: #991b1b; color: white; }
+.btn-alta {
+  padding: 4px 10px; background: #d1fae5; color: #065f46;
+  border: 1px solid #6ee7b7; border-radius: 5px; font-size: 11px;
+  font-weight: 700; cursor: pointer; font-family: var(--font);
+  white-space: nowrap; transition: all 0.2s;
+}
+.btn-alta:hover { background: #065f46; color: white; }
+
+/* Popup confirmación baja/alta */
+#confirm-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+  z-index: 600; display: none; align-items: center; justify-content: center;
+}
+#confirm-box {
+  background: white; border-radius: 10px; padding: 28px 32px;
+  min-width: 340px; max-width: 460px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.2);
+}
+#confirm-box h4 { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+#confirm-box p { font-size: 13px; color: var(--gris-text); margin-bottom: 16px; line-height: 1.5; }
+.confirm-interno { font-weight: 700; color: var(--negro); }
+.confirm-fecha-wrap { margin-bottom: 16px; }
+.confirm-fecha-wrap label { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--gris-text); display: block; margin-bottom: 4px; }
+.confirm-fecha-wrap input[type=date] {
+  width: 100%; padding: 8px 10px; border: 1.5px solid var(--gris-borde);
+  border-radius: 6px; font-size: 13px; font-family: var(--font); outline: none;
+}
+.confirm-fecha-wrap input[type=date]:focus { border-color: var(--rojo); }
+.confirm-actions { display: flex; gap: 10px; justify-content: flex-end; }
+.confirm-ok-baja { padding: 8px 20px; background: var(--rojo); color: white; border: none; border-radius: 6px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: var(--font); }
+.confirm-ok-baja:hover { background: var(--rojo-dark); }
+.confirm-ok-alta { padding: 8px 20px; background: #065f46; color: white; border: none; border-radius: 6px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: var(--font); }
+.confirm-ok-alta:hover { background: #047857; }
+.confirm-cancel { padding: 8px 16px; background: white; color: var(--gris-text); border: 1.5px solid var(--gris-borde); border-radius: 6px; font-size: 13px; cursor: pointer; font-family: var(--font); }
+.confirm-cancel:hover { border-color: var(--rojo); color: var(--rojo); }
 #tabla-count { font-size: 12px; color: var(--gris-text); align-self: center; margin-right: auto; }
 
 .scroll-wrapper { position: relative; }
@@ -377,6 +459,17 @@ tbody td { padding: 7px 10px; font-size: 12px; white-space: nowrap; }
 }
 .editable-field:hover { background: #fff3f3; border-bottom-color: var(--rojo); }
 .edit-disabled { cursor: default; border-bottom: none; }
+
+/* Pills descuento SI/NO */
+.descuento-pill {
+  display: inline-block; padding: 2px 10px; border-radius: 10px;
+  font-size: 11px; font-weight: 700; cursor: pointer; white-space: nowrap;
+  transition: opacity 0.2s;
+}
+.descuento-pill:hover { opacity: 0.8; }
+.descuento-si  { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+.descuento-no  { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+.descuento-nd  { background: #f3f4f6; color: #6b7280; border: 1px solid #e5e7eb; }
 .editable-input {
   border: 1.5px solid var(--rojo); padding: 3px 6px;
   border-radius: 4px; font-size: 12px; font-family: var(--font);
@@ -555,6 +648,7 @@ tbody td { padding: 7px 10px; font-size: 12px; white-space: nowrap; }
         <span id="user-name">—</span>
         <span id="rol-pill" class="rol-lectura">—</span>
       </div>
+      <button id="btn-refresh" title="Actualizar datos">↺ Actualizar</button>
       <button id="btn-salir">Salir</button>
     </div>
   </div>
@@ -597,7 +691,7 @@ tbody td { padding: 7px 10px; font-size: 12px; white-space: nowrap; }
         <div class="kpi-label">% Disponibilidad</div>
         <div class="kpi-value" id="kpi-disp" style="font-size:42px">—</div>
         <div class="kpi-objetivo">
-          <span>(OPER + BACKUP) / TOTAL</span>
+          <span>(OPER + BACKUP) / (TOTAL - VENTA)</span>
           <span class="kpi-objetivo-badge obj-mal" id="kpi-obj-badge">Obj: 95%</span>
         </div>
         <div class="kpi-progress-wrap" style="margin-top:16px">
@@ -733,6 +827,11 @@ tbody td { padding: 7px 10px; font-size: 12px; white-space: nowrap; }
                   <th data-col="centroCosto">Centro Costo<span class="sort-icon"></span></th>
                   <th data-col="unNegocio">Unidad Negocio<span class="sort-icon"></span></th>
                   <th data-col="estado">Estado<span class="sort-icon"></span></th>
+                  <th data-col="descuento">Descuento<span class="sort-icon"></span></th>
+                  <th>Acción</th>
+                  <th data-col="fUltimaAlta">Últ. Alta<span class="sort-icon"></span></th>
+                  <th data-col="fBaja">F. Baja<span class="sort-icon"></span></th>
+                  <th data-col="fNuevaAlta">F. Nueva Alta<span class="sort-icon"></span></th>
                   <th data-col="grupo">Grupo<span class="sort-icon"></span></th>
                   <th data-col="diasTrabajo">Días Trab.<span class="sort-icon"></span></th>
                   <th data-col="diasMant">Días Mant.<span class="sort-icon"></span></th>
@@ -822,6 +921,22 @@ tbody td { padding: 7px 10px; font-size: 12px; white-space: nowrap; }
         </div>
       </div>
 
+    </div>
+  </div>
+</div>
+
+<!-- POPUP CONFIRMACION BAJA/ALTA -->
+<div id="confirm-overlay">
+  <div id="confirm-box">
+    <h4 id="confirm-title">Confirmar acción</h4>
+    <p id="confirm-msg"></p>
+    <div class="confirm-fecha-wrap">
+      <label id="confirm-fecha-label">Fecha</label>
+      <input type="date" id="confirm-fecha">
+    </div>
+    <div class="confirm-actions">
+      <button class="confirm-cancel" id="confirm-cancel-btn">Cancelar</button>
+      <button id="confirm-ok-btn" class="confirm-ok-baja">Confirmar</button>
     </div>
   </div>
 </div>
@@ -1274,7 +1389,9 @@ function renderKPIs(datos) {
   const devol      = datos.filter(d => d.estado === 'MANTENIMIENTO - DEVOLUCION').length;
   const modif      = datos.filter(d => d.estado === 'MODIFICACION').length;
   const parada     = mant + mantLargo + sinChofer + devol;
-  const disp       = total ? Math.round((op + backup) / total * 100) : 0;
+  // Disponibilidad: excluye unidades en VENTA del denominador
+  const totalActivo = total - venta;
+  const disp        = totalActivo ? Math.round((op + backup) / totalActivo * 100) : 0;
   const propios    = datos.filter(d => d.grupo === 'PROPIO' && d.estado === 'OPERATIVA').length;
   const sub        = datos.filter(d => (d.grupo === 'SUBCONTRATADO' || d.grupo === 'SUBCONTRATADO C/CHOFER') && d.estado === 'OPERATIVA').length;
 
@@ -1319,7 +1436,8 @@ function topN(datos, campo, n) {
 
 function renderGraficos(datos) {
   if (typeof Chart === 'undefined') {
-    setTimeout(() => renderGraficos(datos), 300);
+    console.log('Chart.js aún no cargó, reintentando en 500ms...');
+    setTimeout(() => renderGraficos(datos), 500);
     return;
   }
   // 1. Donut estados
@@ -1455,6 +1573,11 @@ function renderTablaDetalle(datos) {
       <td>${d.centroCosto || '—'}</td>
       <td>${d.unNegocio || '—'}</td>
       <td>${puedoEditar ? `<span class="estado-pill ${estadoPillClass(d.estado)} popup-estado" data-interno="${d.interno}" data-patente="${d.patente}" style="cursor:pointer">${d.estado || '—'}</span>` : `<span class="estado-pill ${estadoPillClass(d.estado)}">${d.estado || '—'}</span>`}</td>
+      <td>${renderDescuento(d, puedoEditar)}</td>
+      <td>${puedoEditar && d.interno ? renderBtnAccion(d) : ''}</td>
+      <td>${d.fUltimaAlta || '—'}</td>
+      <td>${d.fBaja || '—'}</td>
+      <td>${d.fNuevaAlta || '—'}</td>
       <td>${d.grupo || '—'}</td>
       <td>${d.diasTrabajo || '—'}</td>
       <td>${d.diasMant || '—'}</td>
@@ -1497,6 +1620,42 @@ document.getElementById('tabla-detalle').addEventListener('click', e => {
 // ════════════════════════════════════════════════════════════
 // EDICIÓN INLINE
 // ════════════════════════════════════════════════════════════
+
+// ════════════════════════════════════════════════════════════
+// DESCUENTO — pill SI/NO con popup
+// ════════════════════════════════════════════════════════════
+function renderDescuento(d, puedoEditar) {
+  const val = (d.descuento || '').toUpperCase().trim();
+  const cls = val === 'SI' ? 'descuento-si' : val === 'NO' ? 'descuento-no' : 'descuento-nd';
+  const label = val || '—';
+  if (!puedoEditar || !d.interno) {
+    return `<span class="descuento-pill ${cls}">${label}</span>`;
+  }
+  return `<span class="descuento-pill ${cls} popup-descuento" 
+    data-interno="${d.interno}" data-patente="${d.patente}" 
+    data-valor="${val}" style="cursor:pointer">${label}</span>`;
+}
+
+// Bind eventos descuento — se llama desde bindEditableEvents
+function bindDescuentoEvents() {
+  document.querySelectorAll('.popup-descuento').forEach(el => {
+    el.addEventListener('click', function() {
+      const interno  = this.dataset.interno;
+      const patente  = this.dataset.patente;
+      const valorAnt = this.dataset.valor;
+      const self     = this;
+
+      abrirPopup(interno, patente, 'descuento', valorAnt, ['SI','NO'], (nuevoVal) => {
+        const cls = nuevoVal === 'SI' ? 'descuento-si' : 'descuento-no';
+        self.className = `descuento-pill ${cls} popup-descuento`;
+        self.textContent = nuevoVal;
+        self.dataset.valor = nuevoVal;
+        actualizarFila(interno, 'descuento', nuevoVal);
+      });
+    });
+  });
+}
+
 function bindEditableEvents() {
   // Campos texto libre → onblur
   document.querySelectorAll('.editable-field:not(.popup-trigger)').forEach(el => {
@@ -1535,6 +1694,9 @@ function bindEditableEvents() {
       });
     });
   });
+
+  // Pills descuento
+  bindDescuentoEvents();
 
   // Popup campos con opciones
   document.querySelectorAll('.popup-trigger').forEach(el => {
@@ -1797,7 +1959,11 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     if (this.dataset.tab === 'log') cargarLog();
     if (this.dataset.tab === 'usuarios') cargarUsuariosTab();
     if (this.dataset.tab === 'graficos') {
-      setTimeout(() => renderGraficos(FILTRADOS), 150);
+      if (typeof Chart === 'undefined') {
+        document.getElementById('tab-graficos').innerHTML = '<p style="padding:30px;color:#888;font-size:13px">⏳ Cargando librería de gráficos... Hacé clic en otra pestaña y volvé.</p>';
+      } else {
+        setTimeout(() => renderGraficos(FILTRADOS), 150);
+      }
     }
   });
 });
@@ -1898,9 +2064,133 @@ function resetFormUsuario() {
   document.getElementById('form-usuarios-title').textContent = 'Nuevo Usuario';
 }
 
+
+// ════════════════════════════════════════════════════════════
+// BOTONES DAR DE BAJA / DAR DE ALTA
+// ════════════════════════════════════════════════════════════
+function renderBtnAccion(d) {
+  const esOperativa = d.estado === 'OPERATIVA';
+  const esMant = ['MANTENIMIENTO','MANTENIMIENTO LARGO','MANT - SIN CHOFER',
+                  'MANTENIMIENTO - DEVOLUCION','MODIFICACION'].includes(d.estado);
+  if (esOperativa) {
+    return `<button class="btn-baja" onclick="abrirConfirmBaja('${d.interno}','${d.patente}')">🔴 Dar de Baja</button>`;
+  }
+  if (esMant) {
+    return `<button class="btn-alta" onclick="abrirConfirmAlta('${d.interno}','${d.patente}')">🟢 Dar de Alta</button>`;
+  }
+  return '—';
+}
+
+function getFechaHoy() {
+  return new Date().toISOString().slice(0,10);
+}
+
+function abrirConfirmBaja(interno, patente) {
+  document.getElementById('confirm-title').textContent = '🔴 Dar de Baja';
+  document.getElementById('confirm-msg').innerHTML =
+    `Unidad <span class="confirm-interno">${interno}</span> (${patente})<br>
+     Se registrará como <strong>MANTENIMIENTO</strong> con la fecha de baja indicada.`;
+  document.getElementById('confirm-fecha-label').textContent = 'Fecha de Baja';
+  document.getElementById('confirm-fecha').value = getFechaHoy();
+  const btn = document.getElementById('confirm-ok-btn');
+  btn.textContent = 'Confirmar Baja';
+  btn.className = 'confirm-ok-baja';
+  btn.onclick = () => ejecutarBaja(interno, patente);
+  document.getElementById('confirm-overlay').style.display = 'flex';
+}
+
+function abrirConfirmAlta(interno, patente) {
+  document.getElementById('confirm-title').textContent = '🟢 Dar de Alta';
+  document.getElementById('confirm-msg').innerHTML =
+    `Unidad <span class="confirm-interno">${interno}</span> (${patente})<br>
+     Se copiará el registro al historial y la unidad quedará <strong>OPERATIVA</strong>.`;
+  document.getElementById('confirm-fecha-label').textContent = 'Fecha de Alta';
+  document.getElementById('confirm-fecha').value = getFechaHoy();
+  const btn = document.getElementById('confirm-ok-btn');
+  btn.textContent = 'Confirmar Alta';
+  btn.className = 'confirm-ok-alta';
+  btn.onclick = () => ejecutarAlta(interno, patente);
+  document.getElementById('confirm-overlay').style.display = 'flex';
+}
+
+document.getElementById('confirm-cancel-btn').addEventListener('click', () => {
+  document.getElementById('confirm-overlay').style.display = 'none';
+});
+
+async function ejecutarBaja(interno, patente) {
+  const fecha = document.getElementById('confirm-fecha').value;
+  if (!fecha) { toast('Seleccioná una fecha de baja.', 'err'); return; }
+  document.getElementById('confirm-overlay').style.display = 'none';
+
+  const params = new URLSearchParams({ action: 'darBaja', interno, fechaBaja: fecha });
+  try {
+    setLoading('Registrando baja...');
+    const r = await fetch(`${API_URL}?${params}`, { cache: 'no-store' });
+    const d = await r.json();
+    setLoading(false);
+    if (d.ok) {
+      toast(`✓ ${interno} dado de baja. Estado: MANTENIMIENTO`, 'ok');
+      registrarLog(interno, patente, 'estado', 'OPERATIVA', 'MANTENIMIENTO');
+      registrarLog(interno, patente, 'FECHA DE BAJA', '', fecha);
+      // Actualizar en memoria
+      actualizarFila(interno, 'estado', 'MANTENIMIENTO');
+      actualizarFila(interno, 'fBaja', fecha);
+      refrescar();
+    } else {
+      toast(`Error: ${d.error}`, 'err');
+    }
+  } catch(e) {
+    setLoading(false);
+    toast('Error de conexión.', 'err');
+  }
+}
+
+async function ejecutarAlta(interno, patente) {
+  const fecha = document.getElementById('confirm-fecha').value;
+  if (!fecha) { toast('Seleccioná una fecha de alta.', 'err'); return; }
+  document.getElementById('confirm-overlay').style.display = 'none';
+
+  const params = new URLSearchParams({ action: 'darAlta', interno, fechaAlta: fecha });
+  try {
+    setLoading('Procesando alta — copiando al historial...');
+    const r = await fetch(`${API_URL}?${params}`, { cache: 'no-store' });
+    const d = await r.json();
+    setLoading(false);
+    if (d.ok) {
+      toast(`✓ ${interno} dado de alta. Registro guardado en BD histórica.`, 'ok');
+      registrarLog(interno, patente, 'estado', 'MANTENIMIENTO', 'OPERATIVA');
+      registrarLog(interno, patente, 'Fecha de ultima alta', '', fecha);
+      // Actualizar en memoria
+      actualizarFila(interno, 'estado', 'OPERATIVA');
+      actualizarFila(interno, 'fUltimaAlta', fecha);
+      actualizarFila(interno, 'fBaja', '');
+      actualizarFila(interno, 'fNuevaAlta', '');
+      actualizarFila(interno, 'nOT', '');
+      actualizarFila(interno, 'estadoRep', '');
+      actualizarFila(interno, 'motivoDemora', '');
+      actualizarFila(interno, 'nombreTaller', '');
+      refrescar();
+    } else {
+      toast(`Error: ${d.error}`, 'err');
+    }
+  } catch(e) {
+    setLoading(false);
+    toast('Error de conexión.', 'err');
+  }
+}
 // ════════════════════════════════════════════════════════════
 // SALIR
 // ════════════════════════════════════════════════════════════
+document.getElementById('btn-refresh').addEventListener('click', async () => {
+  const btn = document.getElementById('btn-refresh');
+  btn.classList.add('spinning');
+  btn.disabled = true;
+  await cargarDatos();
+  btn.classList.remove('spinning');
+  btn.disabled = false;
+  toast('✓ Datos actualizados', 'ok');
+});
+
 document.getElementById('btn-salir').addEventListener('click', () => {
   SESSION = null;
   DATOS = []; FILTRADOS = [];
@@ -1917,6 +2207,13 @@ document.getElementById('btn-salir').addEventListener('click', () => {
 document.addEventListener('DOMContentLoaded', async () => {
   setLoading(false);
   await cargarUsuarios();
+});
+
+// Cuando las libs cargan, renderizar gráficos si ya hay datos
+document.addEventListener('libsReady', () => {
+  if (FILTRADOS && FILTRADOS.length > 0) {
+    setTimeout(() => renderGraficos(FILTRADOS), 100);
+  }
 });
 </script>
 </body>
