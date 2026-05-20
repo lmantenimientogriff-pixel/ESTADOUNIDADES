@@ -350,7 +350,7 @@ body {
 .tab-btn.active { color: var(--rojo); border-bottom-color: var(--rojo); background: white; }
 .tab-admin { display: none; }
 
-#tabs-content { background: white; border: 1px solid var(--gris-borde); border-top: none; border-radius: 0 0 8px 8px; min-height: 400px; }
+#tabs-content { background: white; border: 1px solid var(--gris-borde); border-top: none; border-radius: 0 0 8px 8px; min-height: 200px; }
 .tab-pane { display: none; padding: 20px; }
 .tab-pane.active { display: block; }
 
@@ -694,10 +694,12 @@ tbody td { padding: 7px 10px; font-size: 12px; white-space: nowrap; }
   #tabs-content { border-radius: 0 0 6px 6px; }
   .tab-pane { padding: 12px 10px; }
 
-  /* Tabla desktop — ocultar en mobile */
-  .tabla-desktop { display: none !important; }
-  .scroll-wrapper { display: none !important; }
-  .tabla-actions { display: none !important; }
+  /* Tabla desktop — ocultar solo en tab detalle */
+  #tab-detalle .tabla-desktop { display: none !important; height: 0 !important; overflow: hidden !important; }
+  #tab-detalle .scroll-wrapper { display: none !important; height: 0 !important; }
+  #tab-detalle .tabla-actions { display: none !important; }
+  /* Eliminar padding del tab-pane en mobile para otras pestañas */
+  #tab-mantenimiento, #tab-log, #tab-usuarios { padding: 12px 10px; }
 
   /* Tarjetas mobile */
   #tabla-mobile { display: flex !important; }
