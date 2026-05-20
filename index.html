@@ -238,29 +238,34 @@ body {
 /* ── FILTROS ── */
 #filtros-section {
   padding: 12px 20px 0;
+  position: relative;
 }
 #filtros-bar {
   background: white; border: 1px solid var(--gris-borde);
   border-radius: 8px; padding: 10px 14px;
   display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
 }
-.filtro-group { display: flex; flex-direction: column; position: relative; }
+.filtro-group { 
+  display: flex; flex-direction: column; 
+  position: static; /* NO relative — panel usa fixed */
+}
 .filtro-group input[type=text] {
-  padding: 6px 10px; border: 1.5px solid var(--gris-borde);
+  padding: 7px 10px; border: 1.5px solid var(--gris-borde);
   border-radius: 6px; font-size: 12px; font-family: var(--font);
   outline: none; transition: border-color 0.2s;
-  background: white; width: 140px;
+  background: white; width: 130px;
 }
 .filtro-group input[type=text]:focus { border-color: var(--rojo); }
 
 /* Botón dropdown */
 .dropdown-btn {
   display: flex; align-items: center; gap: 6px;
-  padding: 6px 10px; background: white;
+  padding: 7px 10px; background: white;
   border: 1.5px solid var(--gris-borde); border-radius: 6px;
-  font-size: 12px; font-family: var(--font); cursor: pointer;
-  white-space: nowrap; transition: all 0.2s; min-width: 110px;
+  font-size: 11px; font-family: var(--font); cursor: pointer;
+  white-space: nowrap; transition: all 0.2s; min-width: 100px;
   justify-content: space-between; color: var(--negro);
+  height: 34px;
 }
 .dropdown-btn:hover { border-color: var(--rojo); }
 .dropdown-btn.active { border-color: var(--rojo); background: #fff5f5; color: var(--rojo); }
@@ -268,54 +273,60 @@ body {
 .dropdown-btn .dd-count {
   background: var(--rojo); color: white;
   font-size: 10px; font-weight: 700;
-  padding: 1px 6px; border-radius: 8px; min-width: 18px; text-align: center;
+  padding: 1px 5px; border-radius: 8px; min-width: 16px; text-align: center;
 }
-.dropdown-btn .dd-arrow { font-size: 9px; opacity: 0.5; margin-left: 2px; }
+.dropdown-btn .dd-arrow { font-size: 9px; opacity: 0.5; margin-left: 2px; transition: transform 0.2s; }
+.dropdown-btn.open .dd-arrow { transform: rotate(180deg); }
 
-/* Panel dropdown */
+/* Panel dropdown — usa position:fixed para no ser cortado por ningún padre */
 .dropdown-panel {
-  display: none; position: absolute; top: calc(100% + 4px); left: 0;
+  display: none;
+  position: fixed;
   background: white; border: 1.5px solid var(--gris-borde);
-  border-radius: 8px; box-shadow: 0 6px 24px rgba(0,0,0,0.12);
-  z-index: 200; min-width: 200px; max-width: 280px;
-  max-height: 260px; overflow-y: auto;
+  border-radius: 8px; box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  z-index: 9999; min-width: 220px; max-width: 300px;
+  max-height: 300px; overflow-y: auto;
   padding: 6px 0;
 }
 .dropdown-panel.open { display: block; }
 .dd-search {
-  padding: 6px 10px; border-bottom: 1px solid var(--gris-borde);
-  margin-bottom: 4px;
+  padding: 8px 10px; border-bottom: 1px solid var(--gris-borde);
+  margin-bottom: 2px; position: sticky; top: 0; background: white; z-index: 1;
 }
 .dd-search input {
-  width: 100%; padding: 5px 8px; border: 1.5px solid var(--gris-borde);
+  width: 100%; padding: 6px 8px; border: 1.5px solid var(--gris-borde);
   border-radius: 5px; font-size: 12px; font-family: var(--font); outline: none;
 }
 .dd-search input:focus { border-color: var(--rojo); }
 .dd-option {
   display: flex; align-items: center; gap: 8px;
-  padding: 6px 12px; cursor: pointer; font-size: 12px;
-  transition: background 0.1s;
+  padding: 8px 12px; cursor: pointer; font-size: 12px;
+  transition: background 0.1s; min-height: 36px;
 }
 .dd-option:hover { background: #fef9f9; }
-.dd-option input[type=checkbox] { accent-color: var(--rojo); cursor: pointer; width: 14px; height: 14px; flex-shrink: 0; }
-.dd-option label { cursor: pointer; flex: 1; }
+.dd-option input[type=checkbox] { 
+  accent-color: var(--rojo); cursor: pointer; 
+  width: 16px; height: 16px; flex-shrink: 0; 
+}
+.dd-option label { cursor: pointer; flex: 1; line-height: 1.3; }
 .dd-selall {
-  padding: 5px 12px; font-size: 11px; color: var(--rojo);
+  padding: 6px 12px; font-size: 11px; color: var(--rojo);
   cursor: pointer; font-weight: 700; border-bottom: 1px solid var(--gris-borde);
   margin-bottom: 2px; display: flex; gap: 10px;
+  position: sticky; top: 52px; background: white; z-index: 1;
 }
 .dd-selall span:hover { text-decoration: underline; }
 
-.filtro-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; min-height: 0; }
+.filtro-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
 .filtro-tag {
   background: #fff0f0; border: 1px solid #ffc5c5;
-  color: var(--rojo); font-size: 11px; padding: 2px 8px;
+  color: var(--rojo); font-size: 11px; padding: 3px 8px;
   border-radius: 10px; cursor: pointer;
   display: flex; align-items: center; gap: 4px;
 }
 .filtro-tag:hover { background: var(--rojo); color: white; }
 #btn-limpiar {
-  padding: 6px 14px; background: white;
+  padding: 7px 14px; background: white; height: 34px;
   border: 1.5px solid var(--gris-borde); border-radius: 6px;
   font-size: 12px; cursor: pointer; font-family: var(--font);
   color: var(--gris-text); transition: all 0.2s;
@@ -642,19 +653,30 @@ tbody td { padding: 7px 10px; font-size: 12px; white-space: nowrap; }
   .kpi-label { font-size: 10px; }
   .kpi-sub-label { font-size: 10px; }
 
-  /* Filtros — fila horizontal con scroll */
+  /* Filtros mobile */
   #filtros-section { padding: 8px 10px 0; }
   #filtros-bar {
     gap: 6px; padding: 8px 10px;
     overflow-x: auto; flex-wrap: nowrap;
     -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
   }
-  .dropdown-btn { min-width: 85px; font-size: 10px; padding: 5px 8px; flex-shrink: 0; }
-  .filtro-group input[type=text] { width: 100px; font-size: 11px; }
-  #btn-limpiar { flex-shrink: 0; font-size: 11px; padding: 5px 10px; }
+  #filtros-bar::-webkit-scrollbar { display: none; }
+  .filtro-group { flex-shrink: 0; }
+  .dropdown-btn { 
+    min-width: 80px; font-size: 10px; padding: 6px 8px; 
+    flex-shrink: 0; height: 32px;
+  }
+  .filtro-group input[type=text] { width: 100px; font-size: 11px; height: 32px; }
+  #btn-limpiar { flex-shrink: 0; font-size: 11px; padding: 5px 10px; height: 32px; }
   .filtro-tags { padding: 4px 10px; }
   .filtro-tag { font-size: 10px; }
-  .dropdown-panel { min-width: 200px; }
+  /* Panel dropdown en mobile — ancho casi completo */
+  .dropdown-panel { 
+    min-width: 85vw !important; 
+    max-width: 95vw !important;
+    max-height: 50vh !important;
+  }
 
   /* Tabs */
   #tabs-section { padding: 8px 10px 0; }
@@ -1472,17 +1494,37 @@ function crearDropdown(cfg, opciones) {
   panel.appendChild(optsDiv);
 
   wrap.appendChild(btn);
-  wrap.appendChild(panel);
+  // Panel va al body para evitar ser cortado por overflow:hidden de cualquier padre
+  document.body.appendChild(panel);
 
-  // Toggle panel
+  // Toggle panel — posicionar con fixed usando getBoundingClientRect
   btn.addEventListener('click', e => {
     e.stopPropagation();
     const isOpen = panel.classList.contains('open');
     cerrarTodosDropdowns();
     if (!isOpen) {
+      // Calcular posición del botón en la pantalla
+      const rect = btn.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const spaceAbove = rect.top;
+      
+      panel.style.left = Math.min(rect.left, window.innerWidth - 230) + 'px';
+      
+      // Abrir arriba si no hay espacio abajo
+      if (spaceBelow < 320 && spaceAbove > spaceBelow) {
+        panel.style.bottom = (window.innerHeight - rect.top + 4) + 'px';
+        panel.style.top = 'auto';
+      } else {
+        panel.style.top = (rect.bottom + 4) + 'px';
+        panel.style.bottom = 'auto';
+      }
+      
       panel.classList.add('open');
-      btn.querySelector('.dd-arrow').textContent = '▲';
-      document.getElementById(`dd-search-${cfg.id}`).focus();
+      btn.classList.add('open');
+      setTimeout(() => {
+        const si = document.getElementById(`dd-search-${cfg.id}`);
+        if (si) si.focus();
+      }, 50);
     }
   });
 
@@ -1512,7 +1554,7 @@ function actualizarBtnEstado(id) {
 
 function cerrarTodosDropdowns() {
   document.querySelectorAll('.dropdown-panel').forEach(p => p.classList.remove('open'));
-  document.querySelectorAll('.dd-arrow').forEach(a => a.textContent = '▼');
+  document.querySelectorAll('.dropdown-btn').forEach(b => b.classList.remove('open'));
 }
 
 // Cerrar al click fuera
@@ -2585,8 +2627,17 @@ document.getElementById('btn-salir').addEventListener('click', () => {
 // ════════════════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', async () => {
   setLoading(false);
+  // Ping silencioso para despertar el Apps Script mientras carga usuarios
+  fetch(`${API_URL}?action=ping`, { cache: 'no-store' }).catch(() => {});
   await cargarUsuarios();
 });
+
+// Mantener el Apps Script caliente — ping cada 8 minutos
+setInterval(() => {
+  if (SESSION) {
+    fetch(`${API_URL}?action=ping`, { cache: 'no-store' }).catch(() => {});
+  }
+}, 8 * 60 * 1000);
 
 // Cuando las libs cargan, renderizar gráficos si ya hay datos
 document.addEventListener('libsReady', () => {
