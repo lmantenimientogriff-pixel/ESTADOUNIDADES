@@ -2088,25 +2088,32 @@ document.getElementById('popup-overlay').addEventListener('click', e => {
 // GUARDAR CAMPO EN SHEET
 // ════════════════════════════════════════════════════════════
 async function guardarCampo(interno, patente, campo, valorAnterior, nuevoValor) {
+  // 1. Actualizar memoria y UI inmediatamente — no esperar al servidor
+  actualizarFila(interno, campo, nuevoValor);
+  toast(`✓ ${campo}: ${nuevoValor}`, 'ok');
+
+  // 2. Mandar al Sheet en background sin bloquear
   const params = new URLSearchParams({
     action: 'update',
     interno: interno,
     campo: campo,
     valor: nuevoValor
   });
-  try {
-    const r = await fetch(`${API_URL}?${params.toString()}`, { cache: 'no-store' });
-    const d = await r.json();
-    if (d.ok) {
-      toast(`✓ ${campo} actualizado: ${nuevoValor}`, 'ok');
-      registrarLog(interno, patente, campo, valorAnterior, nuevoValor);
-    } else {
-      toast(`Error al guardar: ${d.error || 'desconocido'}`, 'err');
-    }
-  } catch (err) {
-    toast('Error de conexión con el servidor.', 'err');
-    console.error(err);
-  }
+  fetch(`${API_URL}?${params.toString()}`, { cache: 'no-store' })
+    .then(r => r.json())
+    .then(d => {
+      if (!d.ok) {
+        // Revertir si falló
+        actualizarFila(interno, campo, valorAnterior);
+        toast(`Error al guardar — revertido: ${d.error || 'desconocido'}`, 'err');
+      } else {
+        registrarLog(interno, patente, campo, valorAnterior, nuevoValor);
+      }
+    })
+    .catch(() => {
+      actualizarFila(interno, campo, valorAnterior);
+      toast('Error de conexión — cambio revertido.', 'err');
+    });
 }
 
 // ════════════════════════════════════════════════════════════
@@ -2469,27 +2476,34 @@ async function ejecutarBaja(interno, patente) {
   if (!fecha) { toast('Seleccioná una fecha de baja.', 'err'); return; }
   document.getElementById('confirm-overlay').style.display = 'none';
 
+  // 1. Actualizar UI inmediatamente
+  actualizarFila(interno, 'estado', 'MANTENIMIENTO');
+  actualizarFila(interno, 'fBaja', fecha);
+  refrescar();
+  toast(`✓ ${interno} → MANTENIMIENTO`, 'ok');
+
+  // 2. Sincronizar con Sheet en background
   const params = new URLSearchParams({ action: 'darBaja', interno, fechaBaja: fecha });
-  try {
-    setLoading('Registrando baja...');
-    const r = await fetch(`${API_URL}?${params}`, { cache: 'no-store' });
-    const d = await r.json();
-    setLoading(false);
-    if (d.ok) {
-      toast(`✓ ${interno} dado de baja. Estado: MANTENIMIENTO`, 'ok');
-      registrarLog(interno, patente, 'estado', 'OPERATIVA', 'MANTENIMIENTO');
-      registrarLog(interno, patente, 'FECHA DE BAJA', '', fecha);
-      // Actualizar en memoria
-      actualizarFila(interno, 'estado', 'MANTENIMIENTO');
-      actualizarFila(interno, 'fBaja', fecha);
+  fetch(`${API_URL}?${params}`, { cache: 'no-store' })
+    .then(r => r.json())
+    .then(d => {
+      if (d.ok) {
+        registrarLog(interno, patente, 'estado', 'OPERATIVA', 'MANTENIMIENTO');
+        registrarLog(interno, patente, 'FECHA DE BAJA', '', fecha);
+      } else {
+        // Revertir
+        actualizarFila(interno, 'estado', 'OPERATIVA');
+        actualizarFila(interno, 'fBaja', '');
+        refrescar();
+        toast(`Error al guardar baja: ${d.error}`, 'err');
+      }
+    })
+    .catch(() => {
+      actualizarFila(interno, 'estado', 'OPERATIVA');
+      actualizarFila(interno, 'fBaja', '');
       refrescar();
-    } else {
-      toast(`Error: ${d.error}`, 'err');
-    }
-  } catch(e) {
-    setLoading(false);
-    toast('Error de conexión.', 'err');
-  }
+      toast('Error de conexión — baja revertida.', 'err');
+    });
 }
 
 async function ejecutarAlta(interno, patente) {
@@ -2497,33 +2511,51 @@ async function ejecutarAlta(interno, patente) {
   if (!fecha) { toast('Seleccioná una fecha de alta.', 'err'); return; }
   document.getElementById('confirm-overlay').style.display = 'none';
 
+  // Guardar estado anterior para revertir si falla
+  const idx = DATOS.findIndex(d => d.interno === interno);
+  const estadoAnterior = idx >= 0 ? {...DATOS[idx]} : null;
+
+  // 1. Actualizar UI inmediatamente
+  actualizarFila(interno, 'estado', 'OPERATIVA');
+  actualizarFila(interno, 'fUltimaAlta', fecha);
+  actualizarFila(interno, 'fBaja', '');
+  actualizarFila(interno, 'fNuevaAlta', '');
+  actualizarFila(interno, 'nOT', '');
+  actualizarFila(interno, 'estadoRep', '');
+  actualizarFila(interno, 'motivoDemora', '');
+  actualizarFila(interno, 'nombreTaller', '');
+  refrescar();
+  toast(`✓ ${interno} → OPERATIVA. Guardando historial...`, 'ok');
+
+  // 2. Sincronizar con Sheet en background
   const params = new URLSearchParams({ action: 'darAlta', interno, fechaAlta: fecha });
-  try {
-    setLoading('Procesando alta — copiando al historial...');
-    const r = await fetch(`${API_URL}?${params}`, { cache: 'no-store' });
-    const d = await r.json();
-    setLoading(false);
-    if (d.ok) {
-      toast(`✓ ${interno} dado de alta. Registro guardado en BD histórica.`, 'ok');
-      registrarLog(interno, patente, 'estado', 'MANTENIMIENTO', 'OPERATIVA');
-      registrarLog(interno, patente, 'Fecha de ultima alta', '', fecha);
-      // Actualizar en memoria
-      actualizarFila(interno, 'estado', 'OPERATIVA');
-      actualizarFila(interno, 'fUltimaAlta', fecha);
-      actualizarFila(interno, 'fBaja', '');
-      actualizarFila(interno, 'fNuevaAlta', '');
-      actualizarFila(interno, 'nOT', '');
-      actualizarFila(interno, 'estadoRep', '');
-      actualizarFila(interno, 'motivoDemora', '');
-      actualizarFila(interno, 'nombreTaller', '');
+  fetch(`${API_URL}?${params}`, { cache: 'no-store' })
+    .then(r => r.json())
+    .then(d => {
+      if (d.ok) {
+        toast(`✓ ${interno} operativa. Historial guardado.`, 'ok');
+        registrarLog(interno, patente, 'estado', 'MANTENIMIENTO', 'OPERATIVA');
+        registrarLog(interno, patente, 'Fecha de ultima alta', '', fecha);
+      } else {
+        // Revertir
+        if (estadoAnterior && idx >= 0) {
+          Object.assign(DATOS[idx], estadoAnterior);
+          const fi = FILTRADOS.findIndex(d => d.interno === interno);
+          if (fi >= 0) Object.assign(FILTRADOS[fi], estadoAnterior);
+        }
+        refrescar();
+        toast(`Error al guardar alta: ${d.error}`, 'err');
+      }
+    })
+    .catch(() => {
+      if (estadoAnterior && idx >= 0) {
+        Object.assign(DATOS[idx], estadoAnterior);
+        const fi = FILTRADOS.findIndex(d => d.interno === interno);
+        if (fi >= 0) Object.assign(FILTRADOS[fi], estadoAnterior);
+      }
       refrescar();
-    } else {
-      toast(`Error: ${d.error}`, 'err');
-    }
-  } catch(e) {
-    setLoading(false);
-    toast('Error de conexión.', 'err');
-  }
+      toast('Error de conexión — alta revertida.', 'err');
+    });
 }
 // ════════════════════════════════════════════════════════════
 // SALIR
