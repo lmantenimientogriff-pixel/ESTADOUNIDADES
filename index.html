@@ -687,8 +687,8 @@ tbody td { padding: 7px 10px; font-size: 12px; white-space: nowrap; }
   #tabs-nav::-webkit-scrollbar { display: none; }
   .tab-btn { padding: 8px 12px; font-size: 11px; white-space: nowrap; }
 
-  /* Ocultar tab gráficos en mobile */
-  [data-tab="graficos"] { display: none !important; }
+  /* Tab gráficos visible en mobile */
+  [data-tab="graficos"] { display: inline-block; }
 
   /* Tab content */
   #tabs-content { border-radius: 0 0 6px 6px; }
@@ -701,6 +701,14 @@ tbody td { padding: 7px 10px; font-size: 12px; white-space: nowrap; }
 
   /* Tarjetas mobile */
   #tabla-mobile { display: flex !important; }
+
+  /* Gráficos — una columna en mobile */
+  #graficos-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px;
+  }
+  .chart-wide { grid-column: span 1 !important; }
+  .chart-card canvas { max-height: 260px; }
 
   /* Mantenimiento */
   .mant-row { grid-template-columns: 80px 90px 1fr; }
@@ -2329,8 +2337,11 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     if (this.dataset.tab === 'usuarios') cargarUsuariosTab();
     if (this.dataset.tab === 'graficos') {
       if (typeof Chart === 'undefined') {
-        document.getElementById('tab-graficos').innerHTML = '<p style="padding:30px;color:#888;font-size:13px">⏳ Cargando librería de gráficos... Hacé clic en otra pestaña y volvé.</p>';
+        document.getElementById('tab-graficos').innerHTML = '<p style="padding:30px;color:#888;font-size:13px">⏳ Cargando librería de gráficos... intentá de nuevo en unos segundos.</p>';
+        setTimeout(() => renderGraficos(FILTRADOS), 1500);
       } else {
+        // Destruir charts previos para que se redimensionen al nuevo layout
+        Object.keys(CHARTS).forEach(k => { if(CHARTS[k]) { CHARTS[k].destroy(); delete CHARTS[k]; }});
         setTimeout(() => renderGraficos(FILTRADOS), 150);
       }
     }
