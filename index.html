@@ -136,6 +136,7 @@ body {
 .rol-operador { background: #378ADD; color: white; }
 .rol-lectura { background: #555; color: white; }
 .rol-propietario { background: #7c3aed; color: white; }
+.rol-jefe-taller { background: #0891b2; color: white; }
 #btn-salir {
   background: none; border: 1px solid #555; color: #aaa;
   padding: 4px 12px; border-radius: 4px; cursor: pointer;
@@ -1882,7 +1883,7 @@ function renderTarjetasMobile(datos) {
   if (!cont) return;
   cont.innerHTML = '';
 
-  const puedoEditar = SESSION && (SESSION.rol === 'Admin' || SESSION.rol === 'Operador' || SESSION.rol === 'Propietario');
+  const puedoEditar = SESSION && (SESSION.rol === 'Admin' || SESSION.rol === 'Operador' || SESSION.rol === 'Propietario' || SESSION.rol === 'Jefe de Taller');
 
   if (!datos.length) {
     cont.innerHTML = '<p style="color:#888;font-size:13px;padding:20px;text-align:center">Sin resultados</p>';
@@ -1966,7 +1967,7 @@ function renderDescuentoTab(datos) {
     return;
   }
 
-  const puedoEditar = SESSION && (SESSION.rol === 'Admin' || SESSION.rol === 'Operador' || SESSION.rol === 'Propietario');
+  const puedoEditar = SESSION && (SESSION.rol === 'Admin' || SESSION.rol === 'Operador' || SESSION.rol === 'Propietario' || SESSION.rol === 'Jefe de Taller');
 
   unidades.forEach((d, idx) => {
     const tr = document.createElement('tr');
@@ -2349,7 +2350,7 @@ function renderMantenimiento(datos) {
   const enMant = datos.filter(d => MANT_ESTADOS.includes(d.estado));
   const cont   = document.getElementById('mant-groups');
   cont.innerHTML = '';
-  const puedoEditar = SESSION && (SESSION.rol === 'Admin' || SESSION.rol === 'Operador' || SESSION.rol === 'Propietario');
+  const puedoEditar = SESSION && (SESSION.rol === 'Admin' || SESSION.rol === 'Operador' || SESSION.rol === 'Propietario' || SESSION.rol === 'Jefe de Taller');
 
   if (!enMant.length) {
     cont.innerHTML = '<p style="color:#888;font-size:13px;padding:20px;">No hay unidades en mantenimiento con los filtros actuales.</p>';
@@ -2677,10 +2678,14 @@ function renderBtnAccion(d) {
   const esOperativa = d.estado === 'OPERATIVA';
   const esMant = ['MANTENIMIENTO','MANTENIMIENTO LARGO','MANT - SIN CHOFER',
                   'MANTENIMIENTO - DEVOLUCION','MODIFICACION'].includes(d.estado);
-  if (esOperativa) {
+
+  const puedeAlta = SESSION && ['Admin','Propietario','Jefe de Taller'].includes(SESSION.rol);
+  const puedeBaja = SESSION && ['Admin','Propietario','Operador','Jefe de Taller'].includes(SESSION.rol);
+
+  if (esOperativa && puedeBaja) {
     return `<button class="btn-baja" onclick="abrirConfirmBaja('${d.interno}','${d.patente}')">🔴 Dar de Baja</button>`;
   }
-  if (esMant) {
+  if (esMant && puedeAlta) {
     return `<button class="btn-alta" onclick="abrirConfirmAlta('${d.interno}','${d.patente}')">🟢 Dar de Alta</button>`;
   }
   return '—';
