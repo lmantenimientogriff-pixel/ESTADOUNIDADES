@@ -1025,6 +1025,7 @@ tbody td { padding: 7px 10px; font-size: 12px; white-space: nowrap; }
       <button class="tab-btn active" data-tab="graficos">📊 Gráficos</button>
       <button class="tab-btn" data-tab="detalle">📋 Detalle Flota</button>
       <button class="tab-btn" data-tab="mantenimiento">🔧 Mantenimiento</button>
+      <button class="tab-btn" data-tab="descuento">🏷️ Descuento</button>
       <button class="tab-btn tab-admin" data-tab="log">📜 Log de Cambios</button>
       <button class="tab-btn tab-admin" data-tab="usuarios">👤 Usuarios</button>
     </div>
@@ -1109,6 +1110,33 @@ tbody td { padding: 7px 10px; font-size: 12px; white-space: nowrap; }
       <!-- TAB MANTENIMIENTO -->
       <div class="tab-pane" id="tab-mantenimiento">
         <div id="mant-groups"></div>
+      </div>
+
+      <!-- TAB DESCUENTO -->
+      <div class="tab-pane" id="tab-descuento">
+        <div class="section-title" style="display:flex;align-items:center;justify-content:space-between">
+          <span>🏷️ Unidades en Descuento</span>
+          <span id="descuento-count" style="font-size:12px;color:var(--gris-text);font-weight:400"></span>
+        </div>
+        <div id="descuento-tabla-wrap" style="overflow-x:auto;">
+          <table id="descuento-tabla" style="width:100%;border-collapse:collapse;min-width:900px;">
+            <thead>
+              <tr>
+                <th style="background:var(--negro);color:white;padding:9px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;text-align:left;">Interno</th>
+                <th style="background:var(--negro);color:white;padding:9px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;text-align:left;">Patente</th>
+                <th style="background:var(--negro);color:white;padding:9px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;text-align:left;">Tipo</th>
+                <th style="background:var(--negro);color:white;padding:9px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;text-align:left;">Centro Costo</th>
+                <th style="background:var(--negro);color:white;padding:9px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;text-align:left;">Estado</th>
+                <th style="background:var(--negro);color:white;padding:9px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;text-align:left;">Días Mant.</th>
+                <th style="background:var(--negro);color:white;padding:9px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;text-align:left;">Taller</th>
+                <th style="background:var(--negro);color:white;padding:9px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;text-align:left;">Nombre Taller</th>
+                <th style="background:var(--negro);color:white;padding:9px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;text-align:left;">Motivo Baja</th>
+                <th style="background:var(--negro);color:white;padding:9px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;text-align:left;">Motivo Demora</th>
+              </tr>
+            </thead>
+            <tbody id="descuento-body"></tbody>
+          </table>
+        </div>
       </div>
 
       <!-- TAB LOG -->
@@ -1392,6 +1420,7 @@ async function cargarDatos() {
     renderKPIs(FILTRADOS);
     renderTablaDetalle(FILTRADOS);
     renderMantenimiento(FILTRADOS);
+    renderDescuentoTab(FILTRADOS);
     setTimeout(() => renderGraficos(FILTRADOS), 200);
     // Auto-actualizar estados MANTENIMIENTO > 30 días → MANTENIMIENTO LARGO
     setTimeout(() => autoActualizarEstados(), 500);
@@ -1659,6 +1688,7 @@ function refrescar() {
   renderGraficos(FILTRADOS);
   renderTablaDetalle(FILTRADOS);
   renderMantenimiento(FILTRADOS);
+  renderDescuentoTab(FILTRADOS);
 }
 
 // Eventos texto libre
@@ -1915,6 +1945,82 @@ function renderTarjetasMobile(datos) {
   // Rebindear eventos editables en las tarjetas
   bindEditableEvents();
   bindDescuentoEvents();
+}
+
+
+// ════════════════════════════════════════════════════════════
+// TAB DESCUENTO — unidades con DESCUENTO = SI
+// ════════════════════════════════════════════════════════════
+function renderDescuentoTab(datos) {
+  const unidades = datos
+    .filter(d => (d.descuento || '').toUpperCase().trim() === 'SI')
+    .sort((a,b) => (parseInt(b.diasMant)||0) - (parseInt(a.diasMant)||0));
+
+  document.getElementById('descuento-count').textContent = unidades.length + ' unidades';
+  const tbody = document.getElementById('descuento-body');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+
+  if (!unidades.length) {
+    tbody.innerHTML = '<tr><td colspan="10" style="padding:20px;color:#888;font-size:13px;text-align:center">No hay unidades en descuento con los filtros actuales.</td></tr>';
+    return;
+  }
+
+  const puedoEditar = SESSION && (SESSION.rol === 'Admin' || SESSION.rol === 'Operador' || SESSION.rol === 'Propietario');
+
+  unidades.forEach((d, idx) => {
+    const tr = document.createElement('tr');
+    tr.style.borderBottom = '1px solid var(--gris-borde)';
+    tr.style.background = idx%2===0 ? 'white' : '#fafafa';
+    tr.onmouseover = () => tr.style.background = '#fef9f9';
+    tr.onmouseout  = () => tr.style.background = idx%2===0 ? 'white' : '#fafafa';
+
+    const dias = parseInt(d.diasMant) || 0;
+    const diasClass = dias > 30 ? 'dias-crit' : dias > 15 ? 'dias-warn' : 'dias-ok';
+
+    const td = (val, bold) => {
+      const td = document.createElement('td');
+      td.style.cssText = 'padding:8px 12px;font-size:12px;' + (bold ? 'font-weight:700;' : '') + 'word-break:break-word;white-space:normal;line-height:1.4;vertical-align:top;';
+      td.textContent = val || '—';
+      return td;
+    };
+
+    // Estado pill
+    const tdEstado = document.createElement('td');
+    tdEstado.style.cssText = 'padding:8px 12px;vertical-align:top;';
+    tdEstado.innerHTML = puedoEditar
+      ? `<span class="estado-pill ${estadoPillClass(d.estado)} popup-estado" data-interno="${d.interno}" data-patente="${d.patente}" style="cursor:pointer">${d.estado || '—'}</span>`
+      : `<span class="estado-pill ${estadoPillClass(d.estado)}">${d.estado || '—'}</span>`;
+
+    // Días badge
+    const tdDias = document.createElement('td');
+    tdDias.style.cssText = 'padding:8px 12px;vertical-align:top;';
+    tdDias.innerHTML = `<span class="dias-badge ${diasClass}">${dias}d</span>`;
+
+    // Motivo demora editable
+    const tdMotivoDemora = document.createElement('td');
+    tdMotivoDemora.style.cssText = 'padding:8px 12px;font-size:12px;word-break:break-word;white-space:normal;line-height:1.4;vertical-align:top;';
+    if (puedoEditar && d.interno) {
+      tdMotivoDemora.innerHTML = `<span class="editable-field" data-interno="${d.interno}" data-patente="${d.patente}" data-campo="motivoDemora" data-valor="${d.motivoDemora||''}">${d.motivoDemora || '—'}</span>`;
+    } else {
+      tdMotivoDemora.textContent = d.motivoDemora || '—';
+    }
+
+    tr.appendChild(td(d.interno, true));
+    tr.appendChild(td(d.patente));
+    tr.appendChild(td(d.tipo));
+    tr.appendChild(td(d.centroCosto));
+    tr.appendChild(tdEstado);
+    tr.appendChild(tdDias);
+    tr.appendChild(td(d.tipoTaller));
+    tr.appendChild(td(d.nombreTaller));
+    tr.appendChild(td(d.motivoBaja));
+    tr.appendChild(tdMotivoDemora);
+
+    tbody.appendChild(tr);
+  });
+
+  bindEditableEvents();
 }
 
 function renderTablaDetalle(datos) {
@@ -2414,6 +2520,7 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     document.getElementById('tab-' + this.dataset.tab).classList.add('active');
     if (this.dataset.tab === 'log') cargarLog();
     if (this.dataset.tab === 'usuarios') cargarUsuariosTab();
+    if (this.dataset.tab === 'descuento') renderDescuentoTab(FILTRADOS);
     if (this.dataset.tab === 'graficos') {
       if (typeof Chart === 'undefined') {
         document.getElementById('tab-graficos').innerHTML = '<p style="padding:30px;color:#888;font-size:13px">⏳ Cargando librería de gráficos... intentá de nuevo en unos segundos.</p>';
