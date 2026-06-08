@@ -1588,10 +1588,22 @@ async function cargarUsuarios() {
   }
 }
 
-document.getElementById('login-pass').addEventListener('keydown', e => {
-  if (e.key === 'Enter') intentarLogin();
+document.addEventListener('DOMContentLoaded', async () => {
+  // Eventos de login
+  document.getElementById('login-pass').addEventListener('keydown', e => {
+    if (e.key === 'Enter') intentarLogin();
+  });
+  document.getElementById('btn-login').addEventListener('click', intentarLogin);
+
+  // Ping al Apps Script para que despierte mientras carga
+  fetch(`${API_URL}?action=ping`, { cache: 'no-store' }).catch(() => {});
+  await cargarUsuarios();
 });
-document.getElementById('btn-login').addEventListener('click', intentarLogin);
+
+// Keep-alive cada 8 minutos
+setInterval(() => {
+  if (SESSION) fetch(`${API_URL}?action=ping`, { cache: 'no-store' }).catch(() => {});
+}, 8 * 60 * 1000);
 
 async function intentarLogin() {
   const u = document.getElementById('login-user').value.trim();
