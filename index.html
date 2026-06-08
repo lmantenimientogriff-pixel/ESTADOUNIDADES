@@ -611,6 +611,50 @@ tbody td { padding: 7px 10px; font-size: 12px; white-space: nowrap; }
 }
 .btn-danger:hover { background: var(--rojo); color: white; }
 
+/* Tabla permisos */
+.permisos-grid {
+  display: flex; flex-wrap: wrap; gap: 4px;
+}
+.permiso-tag {
+  font-size: 10px; padding: 2px 7px; border-radius: 8px;
+  font-weight: 600; white-space: nowrap;
+}
+.permiso-si  { background: #d1fae5; color: #065f46; }
+.permiso-no  { background: #f3f4f6; color: #9ca3af; text-decoration: line-through; }
+.rol-clickable {
+  cursor: pointer; transition: opacity 0.2s;
+}
+.rol-clickable:hover { opacity: 0.8; }
+
+/* Popup cambio de rol */
+#rol-popup-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.35);
+  z-index: 700; display: none; align-items: center; justify-content: center;
+}
+#rol-popup-box {
+  background: white; border-radius: 10px; padding: 24px 28px;
+  min-width: 300px; box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+}
+#rol-popup-box h4 { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+#rol-popup-box p  { font-size: 12px; color: var(--gris-text); margin-bottom: 14px; }
+.rol-opcion {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 12px; border-radius: 6px; cursor: pointer;
+  margin-bottom: 6px; border: 1.5px solid var(--gris-borde);
+  transition: all 0.15s;
+}
+.rol-opcion:hover { border-color: var(--rojo); background: #fff5f5; }
+.rol-opcion.selected { border-color: var(--rojo); background: #fff5f5; }
+.rol-opcion-left { display: flex; align-items: center; gap: 10px; }
+.rol-opcion-nombre { font-size: 13px; font-weight: 700; }
+.rol-opcion-desc { font-size: 11px; color: var(--gris-text); margin-top: 1px; }
+#rol-popup-cancel {
+  width: 100%; margin-top: 10px; padding: 8px;
+  background: var(--gris-bg); border: none; border-radius: 6px;
+  cursor: pointer; font-size: 12px; font-family: var(--font); color: var(--gris-text);
+}
+#rol-popup-cancel:hover { color: var(--rojo); }
+
 /* ── TOAST ── */
 #toast {
   position: fixed; bottom: 24px; right: 24px;
@@ -1232,6 +1276,16 @@ tbody td { padding: 7px 10px; font-size: 12px; white-space: nowrap; }
       <button class="confirm-cancel" id="confirm-cancel-btn">Cancelar</button>
       <button id="confirm-ok-btn" class="confirm-ok-baja">Confirmar</button>
     </div>
+  </div>
+</div>
+
+<!-- POPUP CAMBIO DE ROL -->
+<div id="rol-popup-overlay">
+  <div id="rol-popup-box">
+    <h4>Cambiar rol de usuario</h4>
+    <p id="rol-popup-usuario"></p>
+    <div id="rol-popup-opciones"></div>
+    <button id="rol-popup-cancel">Cancelar</button>
   </div>
 </div>
 
@@ -2555,32 +2609,72 @@ async function cargarUsuariosTab() {
   } catch { renderUsuariosTable(USUARIOS); }
 }
 
+// Definición de permisos por rol
+const ROL_PERMISOS = {
+  'Propietario':   { 'Ver tablero':true, 'Editar campos':true, 'Dar de Baja':true, 'Dar de Alta':true, 'Log de Cambios':true, 'Gestión Usuarios':true },
+  'Admin':         { 'Ver tablero':true, 'Editar campos':true, 'Dar de Baja':true, 'Dar de Alta':true, 'Log de Cambios':true, 'Gestión Usuarios':true },
+  'Jefe de Taller':{ 'Ver tablero':true, 'Editar campos':true, 'Dar de Baja':true, 'Dar de Alta':true, 'Log de Cambios':false,'Gestión Usuarios':false },
+  'Operador':      { 'Ver tablero':true, 'Editar campos':true, 'Dar de Baja':true, 'Dar de Alta':false,'Log de Cambios':false,'Gestión Usuarios':false },
+  'Lectura':       { 'Ver tablero':true, 'Editar campos':false,'Dar de Baja':false,'Dar de Alta':false,'Log de Cambios':false,'Gestión Usuarios':false }
+};
+
+const ROL_DESC = {
+  'Propietario':    'Acceso total al sistema',
+  'Admin':          'Gestión completa + usuarios',
+  'Jefe de Taller': 'Alta, baja y edición de unidades',
+  'Operador':       'Edición y baja de unidades',
+  'Lectura':        'Solo consulta, sin edición'
+};
+
+function renderPermisosTag(rol) {
+  const permisos = ROL_PERMISOS[rol] || {};
+  return Object.entries(permisos).map(([k,v]) =>
+    `<span class="permiso-tag ${v?'permiso-si':'permiso-no'}">${v?'✓':'✗'} ${k}</span>`
+  ).join('');
+}
+
 function renderUsuariosTable(lista) {
   const tbody = document.getElementById('usuarios-body');
   tbody.innerHTML = '';
   const esPropietario = SESSION && SESSION.rol === 'Propietario';
+  const esAdmin       = SESSION && (SESSION.rol === 'Admin' || SESSION.rol === 'Propietario');
+
+  // Actualizar encabezados de la tabla para incluir columna Permisos
+  const thead = document.querySelector('#usuarios-table thead tr');
+  if (thead && thead.children.length < 8) {
+    const th = document.createElement('th');
+    th.textContent = 'Permisos';
+    th.style.cssText = 'background:#f8f9fa;padding:8px 10px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--gris-text);border-bottom:2px solid var(--gris-borde);';
+    thead.insertBefore(th, thead.children[3]); // después de Rol
+  }
 
   lista.forEach((u, i) => {
-    const tr = document.createElement('tr');
-    const nombre  = u.nombre  || u['Nombre completo'] || '';
-    const login   = u.usuario || u['Usuario (login)'] || '';
-    const rol     = u.rol     || u['Rol'] || '';
-    const empresa = u.empresa || u['Empresa'] || '';
-    const obs     = u.obs     || u['Obs.'] || '';
-
-    // Admin NO puede ver contraseña ni editar/eliminar al Propietario
+    const tr        = document.createElement('tr');
+    const nombre    = u.nombre  || u['Nombre completo'] || '';
+    const login     = u.usuario || u['Usuario (login)'] || '';
+    const rol       = u.rol     || u['Rol'] || '';
+    const empresa   = u.empresa || u['Empresa'] || '';
+    const obs       = u.obs     || u['Obs.'] || '';
     const esPropRow = login === USUARIO_PROPIETARIO.usuario;
-    const puedeEditar = esPropietario || !esPropRow;
+    const puedeEdit = esPropietario || !esPropRow;
+
+    // Pill de rol — clickeable para cambiar si es Admin/Propietario
+    const rolPillHTML = (esAdmin && puedeEdit && login !== SESSION.usuario)
+      ? `<span class="rol-pill rol-${rol.toLowerCase().replace(' ','-')} rol-clickable"
+           onclick="abrirCambioRol('${login}','${nombre}','${rol}')"
+           title="Clic para cambiar rol">${rol}</span>`
+      : `<span class="rol-pill rol-${rol.toLowerCase().replace(' ','-')}">${rol}</span>`;
 
     tr.innerHTML = `
       <td>${i+1}</td>
-      <td>${nombre}</td>
-      <td>${login}</td>
-      <td><span class="rol-pill rol-${rol.toLowerCase()}">${rol}</span></td>
+      <td><strong>${nombre}</strong></td>
+      <td style="color:var(--gris-text)">${login}</td>
+      <td>${rolPillHTML}</td>
+      <td><div class="permisos-grid">${renderPermisosTag(rol)}</div></td>
       <td>${empresa}</td>
       <td>${obs}</td>
       <td>
-        ${puedeEditar
+        ${puedeEdit
           ? `<button class="btn-secondary" style="font-size:11px;padding:3px 8px" onclick="editarUsuario(${i})">Editar</button>
              <button class="btn-danger" onclick="eliminarUsuario('${login}')">Eliminar</button>`
           : `<span style="font-size:11px;color:#aaa">— protegido —</span>`
@@ -2862,6 +2956,84 @@ async function autoActualizarEstados() {
     await new Promise(r => setTimeout(r, 300));
   }
 }
+
+
+// ════════════════════════════════════════════════════════════
+// POPUP CAMBIO DE ROL
+// ════════════════════════════════════════════════════════════
+const ROLES_DISPONIBLES = ['Admin','Jefe de Taller','Operador','Lectura'];
+
+function abrirCambioRol(login, nombre, rolActual) {
+  document.getElementById('rol-popup-usuario').textContent = nombre + ' (' + login + ')';
+  const cont = document.getElementById('rol-popup-opciones');
+  cont.innerHTML = '';
+
+  ROLES_DISPONIBLES.forEach(rol => {
+    const div = document.createElement('div');
+    div.className = 'rol-opcion' + (rol === rolActual ? ' selected' : '');
+
+    const permisos = ROL_PERMISOS[rol] || {};
+    const permStr  = Object.entries(permisos)
+      .filter(([,v]) => v).map(([k]) => k).join(' · ');
+
+    div.innerHTML = `
+      <div class="rol-opcion-left">
+        <span class="rol-pill rol-${rol.toLowerCase().replace(' ','-')}">${rol}</span>
+        <div>
+          <div class="rol-opcion-nombre">${rol}</div>
+          <div class="rol-opcion-desc">${ROL_DESC[rol] || ''}</div>
+        </div>
+      </div>
+      <div style="font-size:10px;color:var(--gris-text);max-width:200px;text-align:right;line-height:1.4">${permStr}</div>
+    `;
+
+    div.addEventListener('click', () => {
+      if (rol !== rolActual) guardarCambioRol(login, nombre, rolActual, rol);
+      document.getElementById('rol-popup-overlay').style.display = 'none';
+    });
+
+    cont.appendChild(div);
+  });
+
+  document.getElementById('rol-popup-overlay').style.display = 'flex';
+}
+
+async function guardarCambioRol(login, nombre, rolAnterior, nuevoRol) {
+  // Buscar índice en USUARIOS
+  const idx = USUARIOS.findIndex(u =>
+    (u.usuario || u['Usuario (login)']) === login
+  );
+  if (idx >= 0) USUARIOS[idx].rol = nuevoRol;
+
+  // Guardar en Sheet
+  const datos = {
+    action: 'saveUsuario',
+    n: idx >= 0 ? (USUARIOS[idx].n || String(idx + 1)) : null,
+    nombre: nombre,
+    usuario: login,
+    password: idx >= 0 ? (USUARIOS[idx].password || USUARIOS[idx]['Contraseña'] || '') : '',
+    rol: nuevoRol,
+    empresa: idx >= 0 ? (USUARIOS[idx].empresa || '') : '',
+    obs: idx >= 0 ? (USUARIOS[idx].obs || '') : ''
+  };
+
+  fetch(API_URL, {
+    method: 'POST', mode: 'no-cors',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify(datos)
+  }).catch(() => {});
+
+  toast(`✓ Rol de ${nombre} cambiado a ${nuevoRol}`, 'ok');
+  setTimeout(cargarUsuariosTab, 800);
+}
+
+document.getElementById('rol-popup-cancel').addEventListener('click', () => {
+  document.getElementById('rol-popup-overlay').style.display = 'none';
+});
+document.getElementById('rol-popup-overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('rol-popup-overlay'))
+    document.getElementById('rol-popup-overlay').style.display = 'none';
+});
 
 // ════════════════════════════════════════════════════════════
 // SALIR
