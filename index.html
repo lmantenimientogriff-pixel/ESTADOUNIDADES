@@ -1814,6 +1814,11 @@ function refrescar() {
   renderTablaDetalle(FILTRADOS);
   renderMantenimiento(FILTRADOS);
   renderDescuentoTab(FILTRADOS);
+  // Auto-actualizar reporte si está visible
+  const tabReporte = document.getElementById('tab-reporte');
+  if (tabReporte && tabReporte.classList.contains('active')) {
+    renderReporte();
+  }
 }
 
 // Eventos texto libre
@@ -3139,86 +3144,79 @@ function getUsuarioAlta(interno) {
 async function renderReporte() {
   const preview = document.getElementById('reporte-preview');
   const info    = document.getElementById('reporte-info');
-  preview.innerHTML = '<p style="padding:20px;color:#888;font-size:13px">Cargando datos del log...</p>';
+  preview.innerHTML = '<p style="padding:20px;color:#888;font-size:13px">Cargando...</p>';
 
   await cargarLogCache();
 
-  const ahora = new Date();
+  const ahora   = new Date();
   const fechaStr = ahora.toLocaleDateString('es-AR', { weekday:'long', day:'2-digit', month:'long', year:'numeric' });
   const horaStr  = ahora.toLocaleTimeString('es-AR', { hour:'2-digit', minute:'2-digit' });
 
-  info.innerHTML = `Generado por <strong>${SESSION.nombre}</strong> · ${fechaStr} ${horaStr} · <strong>${FILTRADOS.length}</strong> unidades con filtros activos`;
+  info.innerHTML = `Generado por <strong>${SESSION.nombre}</strong> · ${fechaStr} ${horaStr} · <strong>${FILTRADOS.length}</strong> unidades`;
 
-  // Ordenar según especificación:
-  // 1. DESCUENTO=SI  2. BACK UP  3. MANTENIMIENTO (por fecha baja asc)  4. OPERATIVA (por fecha alta desc)
+  // Columnas por grupo
+  const COLS_TODOS = [
+    { label:'Interno',        key:'interno' },
+    { label:'Patente',        key:'patente' },
+    { label:'Tipo',           key:'tipo' },
+    { label:'Centro Costo',   key:'centroCosto' },
+    { label:'Unidad Negocio', key:'unNegocio' },
+    { label:'Estado',         key:'estado', pill:true },
+    { label:'F. Baja',        key:'fBaja' },
+    { label:'Días Trab.',     key:'diasTrabajo' },
+    { label:'Días Mant.',     key:'diasMant' },
+    { label:'Motivo Baja',    key:'motivoBaja' },
+    { label:'Taller',         key:'tipoTaller' },
+    { label:'Nombre Taller',  key:'nombreTaller' },
+    { label:'Motivo Demora',  key:'motivoDemora' },
+    { label:'Usuario Alta',   key:'_usuarioAlta' },
+    { label:'F. Alta',        key:'fUltimaAlta' }
+  ];
+
+  // Columnas específicas por grupo (keys visibles)
+  const COLS_BACKUP = ['interno','patente','tipo','centroCosto','unNegocio','estado','diasTrabajo','motivoBaja','_usuarioAlta','fUltimaAlta'];
+  const COLS_MANT   = ['interno','patente','tipo','centroCosto','unNegocio','estado','fBaja','diasTrabajo','diasMant','motivoBaja','tipoTaller','nombreTaller','motivoDemora','_usuarioAlta','fUltimaAlta'];
+  const COLS_OP     = ['interno','patente','tipo','centroCosto','unNegocio','estado','diasTrabajo','_usuarioAlta','fUltimaAlta'];
+
   const grupos = [
     {
-      key: 'descuento',
-      label: 'En Descuento',
-      color: '#C00000',
+      key:'descuento', label:'En Descuento', color:'#C00000',
       filtro: d => (d.descuento||'').toUpperCase().trim() === 'SI',
-      orden: (a,b) => (parseInt(b.diasMant)||0) - (parseInt(a.diasMant)||0)
+      orden:  (a,b) => (parseInt(b.diasMant)||0) - (parseInt(a.diasMant)||0),
+      cols: COLS_MANT
     },
     {
-      key: 'backup',
-      label: 'Back Up - Disponible',
-      color: '#378ADD',
+      key:'backup', label:'Back Up - Disponible', color:'#378ADD',
       filtro: d => d.estado === 'BACK UP - DISPONIBLE',
-      orden: () => 0
+      orden:  () => 0,
+      cols: COLS_BACKUP
     },
     {
-      key: 'mantenimiento',
-      label: 'En Mantenimiento',
-      color: '#EF9F27',
+      key:'mantenimiento', label:'En Mantenimiento', color:'#EF9F27',
       filtro: d => ['MANTENIMIENTO','MANTENIMIENTO LARGO','MANT - SIN CHOFER','MANTENIMIENTO - DEVOLUCION','MODIFICACION'].includes(d.estado),
       orden: (a,b) => {
-        // Ordenar por fecha de baja más próxima primero
-        const fa = parseFecha(a.fBaja);
-        const fb = parseFecha(b.fBaja);
+        const fa = parseFecha(a.fBaja), fb = parseFecha(b.fBaja);
         if (fa && fb) return fa - fb;
-        if (fa) return -1;
-        if (fb) return 1;
+        if (fa) return -1; if (fb) return 1;
         return (parseInt(b.diasMant)||0) - (parseInt(a.diasMant)||0);
-      }
+      },
+      cols: COLS_MANT
     },
     {
-      key: 'operativa',
-      label: 'Operativa / Disponible',
-      color: '#1D9E75',
+      key:'operativa', label:'Operativa / Disponible', color:'#1D9E75',
       filtro: d => d.estado === 'OPERATIVA',
       orden: (a,b) => {
-        // Ordenar por fecha de alta más nueva primero
-        const fa = parseFecha(a.fUltimaAlta);
-        const fb = parseFecha(b.fUltimaAlta);
+        const fa = parseFecha(a.fUltimaAlta), fb = parseFecha(b.fUltimaAlta);
         if (fa && fb) return fb - fa;
-        if (fb) return -1;
-        if (fa) return 1;
-        return 0;
-      }
+        if (fb) return -1; if (fa) return 1; return 0;
+      },
+      cols: COLS_OP
     }
   ];
 
-  const COLS = [
-    { label: 'Interno',       key: 'interno' },
-    { label: 'Patente',       key: 'patente' },
-    { label: 'Tipo',          key: 'tipo' },
-    { label: 'Centro Costo',  key: 'centroCosto' },
-    { label: 'Unidad Negocio',key: 'unNegocio' },
-    { label: 'Estado',        key: 'estado', pill: true },
-    { label: 'F. Baja',       key: 'fBaja' },
-    { label: 'Días Trab.',    key: 'diasTrabajo' },
-    { label: 'Días Mant.',    key: 'diasMant' },
-    { label: 'Motivo Baja',   key: 'motivoBaja' },
-    { label: 'Taller',        key: 'tipoTaller' },
-    { label: 'Nombre Taller', key: 'nombreTaller' },
-    { label: 'Motivo Demora', key: 'motivoDemora' },
-    { label: 'Usuario Alta',  key: '_usuarioAlta' },
-    { label: 'F. Alta',       key: 'fUltimaAlta' }
-  ];
+  let html = '<div id="print-area">';
 
-  let html = `<div id="print-area">`;
-
-  // Encabezado del reporte
+  // Encabezado
   html += `
     <div style="background:var(--negro);color:white;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
       <div style="display:flex;align-items:center;gap:14px">
@@ -3232,39 +3230,44 @@ async function renderReporte() {
         <div>Generado por: <strong style="color:white">${SESSION.nombre}</strong></div>
         <div style="margin-top:2px">${FILTRADOS.length} unidades</div>
       </div>
-    </div>
-  `;
+    </div>`;
 
   let hayContenido = false;
 
   grupos.forEach(grupo => {
-    let uds = FILTRADOS.filter(grupo.filtro).sort(grupo.orden);
+    const uds = FILTRADOS.filter(grupo.filtro).sort(grupo.orden);
     if (!uds.length) return;
     hayContenido = true;
+
+    // Filtrar columnas del grupo
+    const colsGrupo = COLS_TODOS.filter(c => grupo.cols.includes(c.key));
+
+    // Scroll wrapper para mantenimiento
+    const needsScroll = grupo.key === 'mantenimiento' || grupo.key === 'descuento';
+    const wrapStart = needsScroll ? '<div style="overflow-x:auto;">' : '';
+    const wrapEnd   = needsScroll ? '</div>' : '';
 
     html += `
       <div class="reporte-seccion-header" style="background:${grupo.color}">
         <span>${grupo.label}</span>
         <span style="background:rgba(0,0,0,0.2);padding:2px 10px;border-radius:10px;font-size:11px">${uds.length} unidades</span>
       </div>
-      <table class="reporte-tabla">
-        <thead><tr>${COLS.map(c => `<th>${c.label}</th>`).join('')}</tr></thead>
-        <tbody>
-    `;
+      ${wrapStart}
+      <table class="reporte-tabla" style="${needsScroll?'min-width:1100px':''}">
+        <thead><tr>${colsGrupo.map(c => `<th>${c.label}</th>`).join('')}</tr></thead>
+        <tbody>`;
 
     uds.forEach((d, idx) => {
       const bg = idx%2===0 ? 'white' : '#fafafa';
       html += `<tr style="background:${bg}">`;
-      COLS.forEach(col => {
-        let val = '';
-        if (col.key === '_usuarioAlta') {
-          val = getUsuarioAlta(d.interno);
-        } else {
-          val = d[col.key] || '—';
+      colsGrupo.forEach(col => {
+        let val = col.key === '_usuarioAlta' ? getUsuarioAlta(d.interno) : (d[col.key] || '—');
+        // Formatear fechas
+        if ((col.key === 'fBaja' || col.key === 'fUltimaAlta' || col.key === 'fNuevaAlta') && val && val !== '—') {
+          val = formatFechaReporte(val);
         }
         if (col.pill && col.key === 'estado') {
-          val = `<span class="estado-pill ${estadoPillClass(d.estado)}" style="font-size:10px">${val}</span>`;
-          html += `<td>${val}</td>`;
+          html += `<td><span class="estado-pill ${estadoPillClass(d.estado)}" style="font-size:10px">${val}</span></td>`;
         } else {
           html += `<td>${val}</td>`;
         }
@@ -3272,22 +3275,34 @@ async function renderReporte() {
       html += '</tr>';
     });
 
-    html += '</tbody></table>';
+    html += `</tbody></table>${wrapEnd}`;
   });
 
-  if (!hayContenido) {
-    html += '<div class="reporte-empty">No hay unidades con los filtros seleccionados.</div>';
-  }
-
+  if (!hayContenido) html += '<div class="reporte-empty">No hay unidades con los filtros seleccionados.</div>';
   html += '</div>';
   preview.innerHTML = html;
 }
 
+
 function parseFecha(str) {
   if (!str || str === '—') return null;
+  // Soportar DD/MM/YYYY y Date strings de JS
   const p = str.split('/');
   if (p.length === 3) return new Date(p[2], p[1]-1, p[0]);
-  return null;
+  const d = new Date(str);
+  return isNaN(d) ? null : d;
+}
+
+function formatFechaReporte(str) {
+  if (!str || str === '—') return '—';
+  let d = parseFecha(str);
+  if (!d) return str;
+  const dd   = String(d.getDate()).padStart(2,'0');
+  const mm   = String(d.getMonth()+1).padStart(2,'0');
+  const yyyy = d.getFullYear();
+  const hh   = String(d.getHours()).padStart(2,'0');
+  const min  = String(d.getMinutes()).padStart(2,'0');
+  return `${dd}/${mm}/${yyyy} ${hh}:${min}`;
 }
 
 function imprimirReporte() {
