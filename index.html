@@ -601,11 +601,27 @@ tbody td { padding: 7px 10px; font-size: 12px; white-space: nowrap; }
   font-size: 10px; font-weight: 700; text-transform: uppercase;
   letter-spacing: 0.5px; color: var(--gris-text);
   border-bottom: 1px solid var(--gris-borde); text-align: left;
-  white-space: nowrap;
+  white-space: nowrap; position: sticky; top: 0; z-index: 1;
 }
 .reporte-tabla td {
   padding: 7px 10px; font-size: 11px; border-bottom: 1px solid #f0f0f0;
   vertical-align: top; word-break: break-word; line-height: 1.4;
+  max-width: 180px;
+}
+/* Columnas de texto largo — ancho controlado */
+.reporte-tabla td:nth-child(10),  /* Motivo Baja */
+.reporte-tabla td:nth-child(13) { /* Motivo Demora */
+  max-width: 220px;
+  white-space: normal;
+  word-break: break-word;
+}
+/* Columnas cortas — no expandir */
+.reporte-tabla td:nth-child(1),  /* Interno */
+.reporte-tabla td:nth-child(2),  /* Patente */
+.reporte-tabla td:nth-child(8),  /* Días Trab */
+.reporte-tabla td:nth-child(9) { /* Días Mant */
+  white-space: nowrap;
+  max-width: 90px;
 }
 .reporte-tabla tr:hover td { background: #fef9f9; }
 .reporte-empty {
@@ -3253,7 +3269,17 @@ async function renderReporte() {
         <span style="background:rgba(0,0,0,0.2);padding:2px 10px;border-radius:10px;font-size:11px">${uds.length} unidades</span>
       </div>
       ${wrapStart}
-      <table class="reporte-tabla" style="${needsScroll?'min-width:1100px':''}">
+      <table class="reporte-tabla" style="${needsScroll?'min-width:1100px;table-layout:fixed':'table-layout:fixed'};width:100%">
+        <colgroup>${colsGrupo.map(c => {
+          const anchos = {
+            'interno':'90px','patente':'85px','tipo':'110px',
+            'centroCosto':'130px','unNegocio':'130px','estado':'120px',
+            'fBaja':'90px','diasTrabajo':'65px','diasMant':'65px',
+            'motivoBaja':'180px','tipoTaller':'70px','nombreTaller':'120px',
+            'motivoDemora':'180px','_usuarioAlta':'110px','fUltimaAlta':'90px'
+          };
+          return `<col style="width:${anchos[c.key]||'100px'}">`;
+        }).join('')}</colgroup>
         <thead><tr>${colsGrupo.map(c => `<th>${c.label}</th>`).join('')}</tr></thead>
         <tbody>`;
 
