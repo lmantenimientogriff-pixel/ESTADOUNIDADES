@@ -2171,7 +2171,7 @@ function renderTarjetasMobile(datos) {
     const descHTML = puedoEditar
       ? `<span class="descuento-pill ${descCls} popup-descuento"
            data-interno="${d.interno}" data-patente="${d.patente}"
-           data-valor="${descVal}" style="cursor:pointer">${descVal || '—'}</span>`
+           data-campo="descuento" data-valor="${descVal}" style="cursor:pointer">${descVal || '—'}</span>`
       : `<span class="descuento-pill ${descCls}">${descVal || '—'}</span>`;
 
     // Botón acción
@@ -2414,7 +2414,7 @@ function renderDescuento(d, puedoEditar) {
   }
   return `<span class="descuento-pill ${cls} popup-descuento" 
     data-interno="${d.interno}" data-patente="${d.patente}" 
-    data-valor="${val}" style="cursor:pointer">${label}</span>`;
+    data-campo="descuento" data-valor="${val}" style="cursor:pointer">${label}</span>`;
 }
 
 // bindDescuentoEvents — manejado por delegación en bindEditableEvents
@@ -3184,19 +3184,29 @@ function getUsuarioAlta(interno) {
 // ════════════════════════════════════════════════════════════
 function parseFecha(str) {
   if (!str || str === '—') return null;
-  // Soportar DD/MM/YYYY HH:MM y DD/MM/YYYY
-  const match = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+(\d{1,2}):(\d{2}))?/);
+  // Parsear DD/MM/YYYY HH:MM o DD/MM/YYYY — siempre como hora local, nunca UTC
+  const match = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:[\s,T]+(\d{1,2}):(\d{2}))?/);
   if (match) {
-    const [,d,m,y,h,min] = match;
-    return new Date(parseInt(y), parseInt(m)-1, parseInt(d), parseInt(h||0), parseInt(min||0));
+    const [,dd,mm,yyyy,hh,min] = match;
+    // new Date(y,m,d,h,min) usa hora local del browser — sin conversión UTC
+    return new Date(parseInt(yyyy), parseInt(mm)-1, parseInt(dd),
+                    parseInt(hh||0), parseInt(min||0), 0);
   }
+  // Para strings tipo "Mon Jun 08 2026 17:38:00 GMT-0300" del Sheet — tomar solo la parte local
+  const gmtMatch = str.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})|(\d{4})-(\d{2})-(\d{2})/);
+  if (!gmtMatch) return null;
   const dt = new Date(str);
   return isNaN(dt) ? null : dt;
 }
 
 function formatFechaReporte(str) {
   if (!str || str === '—') return '—';
-  let d = parseFecha(str);
+  // Si ya viene en formato DD/MM/YYYY HH:MM — devolverlo directo sin parsear
+  if (/^\d{1,2}\/\d{1,2}\/\d{4}\s+\d{1,2}:\d{2}$/.test(str.trim())) return str.trim();
+  // Si viene en formato DD/MM/YYYY solo — devolver sin hora
+  if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(str.trim())) return str.trim();
+  // Para otros formatos (fechas del Sheet con GMT) — parsear y formatear en hora local
+  const d = parseFecha(str);
   if (!d) return str;
   return String(d.getDate()).padStart(2,'0') + '/' +
          String(d.getMonth()+1).padStart(2,'0') + '/' + d.getFullYear() +
