@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Estado Operativo de Flota — Griffouliere</title>
+<!-- html2canvas para exportar imagen -->
+<script src="https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js" 
+  onerror="this.onerror=null;this.src='https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js'">
+</script>
+
 <!-- Chart.js y XLSX se cargan desde CDN con fallback -->
 <script>
 // Carga dinámica con múltiples fallbacks
@@ -585,6 +590,13 @@ tbody td { padding: 7px 10px; font-size: 12px; white-space: nowrap; }
   cursor: pointer; font-family: var(--font); display: flex; align-items: center; gap: 6px;
 }
 .btn-reporte-excel:hover { background: #167a5c; }
+.btn-reporte-img {
+  padding: 8px 18px; background: #6366f1; color: white;
+  border: none; border-radius: 6px; font-size: 13px; font-weight: 700;
+  cursor: pointer; font-family: var(--font); display: flex; align-items: center; gap: 6px;
+}
+.btn-reporte-img:hover { background: #4f46e5; }
+.btn-reporte-img:disabled { background: #a5b4fc; cursor: wait; }
 
 #reporte-preview {
   background: white; border: 1px solid var(--gris-borde);
@@ -605,9 +617,14 @@ tbody td { padding: 7px 10px; font-size: 12px; white-space: nowrap; }
 }
 .reporte-tabla td {
   padding: 7px 10px; font-size: 11px; border-bottom: 1px solid #f0f0f0;
-  vertical-align: top; word-break: break-word; line-height: 1.4;
-  max-width: 180px;
+  vertical-align: top; word-break: break-word; white-space: normal;
+  line-height: 1.4;
 }
+/* Columnas cortas — no crecer */
+.reporte-tabla th:nth-child(1), .reporte-tabla td:nth-child(1),
+.reporte-tabla th:nth-child(2), .reporte-tabla td:nth-child(2) { width: 70px; }
+.reporte-tabla th:nth-child(7), .reporte-tabla td:nth-child(7),
+.reporte-tabla th:nth-child(8), .reporte-tabla td:nth-child(8) { width: 60px; white-space: nowrap; }
 /* Columnas de texto largo — ancho controlado */
 .reporte-tabla td:nth-child(10),  /* Motivo Baja */
 .reporte-tabla td:nth-child(13) { /* Motivo Demora */
@@ -631,10 +648,60 @@ tbody td { padding: 7px 10px; font-size: 12px; white-space: nowrap; }
 
 /* Print styles */
 @media print {
+  @page { size: A4 landscape; margin: 10mm; }
   body * { visibility: hidden; }
   #print-area, #print-area * { visibility: visible; }
-  #print-area { position: absolute; left: 0; top: 0; width: 100%; }
+  #print-area {
+    position: absolute; left: 0; top: 0; width: 100%;
+    font-size: 9px;
+  }
   .no-print { display: none !important; }
+
+  /* FORZAR COLORES EN IMPRESIÓN */
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+
+  /* Tabla compacta */
+  #print-area .reporte-tabla th,
+  #print-area .reporte-tabla td {
+    padding: 4px 6px !important;
+    font-size: 8px !important;
+  }
+  #print-area .reporte-seccion-header {
+    padding: 6px 12px !important;
+    font-size: 10px !important;
+  }
+
+  /* Headers de sección con color */
+  #print-area .reporte-seccion-header { color: white !important; }
+
+  /* Encabezado negro */
+  #print-area > div:first-child {
+    background: #1a1a1a !important;
+    color: white !important;
+    padding: 10px 14px !important;
+  }
+
+  /* Pills de estado con color */
+  #print-area .estado-pill { color: white !important; }
+  #print-area .pill-OPERATIVA          { background: #1D9E75 !important; }
+  #print-area .pill-MANTENIMIENTO      { background: #EF9F27 !important; }
+  #print-area .pill-MANTENIMIENTO-LARGO{ background: #E07B39 !important; }
+  #print-area .pill-BACKUP             { background: #378ADD !important; }
+  #print-area .pill-MODIFICACION       { background: #534AB7 !important; }
+  #print-area .pill-SIN-CHOFER         { background: #D4A017 !important; color: #333 !important; }
+  #print-area .pill-DEVOLUCION         { background: #888780 !important; }
+  #print-area .pill-VENTA              { background: #C00000 !important; }
+
+  /* Filas alternadas */
+  #print-area .reporte-tabla tr:nth-child(even) td { background: #f8f8f8 !important; }
+
+  /* Header de tabla */
+  #print-area .reporte-tabla th { background: #f0f0f0 !important; color: #374151 !important; }
+
+  /* Scroll y overflow */
+  #print-area table { overflow: visible !important; min-width: unset !important; }
+  #print-area div[style*="overflow-x"] { overflow: visible !important; }
+  #print-area tr { page-break-inside: avoid; }
 }
 .log-table { width: 100%; border-collapse: collapse; min-width: 900px; }
 .log-table th {
@@ -1263,6 +1330,7 @@ tbody td { padding: 7px 10px; font-size: 12px; white-space: nowrap; }
           <div class="reporte-btns">
             <button class="btn-reporte-excel no-print" onclick="exportarReporteExcel()">⬇ Exportar Excel</button>
             <button class="btn-reporte-pdf no-print" onclick="imprimirReporte()">🖨 Exportar PDF</button>
+            <button class="btn-reporte-img no-print" onclick="exportarImagenReporte()">📸 Guardar Imagen</button>
           </div>
         </div>
         <div id="reporte-info" style="font-size:11px;color:var(--gris-text);margin-bottom:12px;"></div>
@@ -3191,7 +3259,7 @@ async function renderReporte() {
 
   // Columnas específicas por grupo (keys visibles)
   const COLS_BACKUP = ['interno','patente','tipo','centroCosto','unNegocio','estado','diasTrabajo','motivoBaja','_usuarioAlta','fUltimaAlta'];
-  const COLS_MANT   = ['interno','patente','tipo','centroCosto','unNegocio','estado','fBaja','diasTrabajo','diasMant','motivoBaja','tipoTaller','nombreTaller','motivoDemora','_usuarioAlta','fUltimaAlta'];
+  const COLS_MANT   = ['interno','patente','tipo','centroCosto','unNegocio','estado','fBaja','diasMant','motivoBaja','tipoTaller','nombreTaller','motivoDemora'];
   const COLS_OP     = ['interno','patente','tipo','centroCosto','unNegocio','estado','diasTrabajo','_usuarioAlta','fUltimaAlta'];
 
   const grupos = [
@@ -3232,9 +3300,31 @@ async function renderReporte() {
 
   let html = '<div id="print-area">';
 
+  // Calcular KPIs para el resumen
+  const total      = FILTRADOS.length;
+  const venta      = FILTRADOS.filter(d => d.estado === 'VENTA').length;
+  const op         = FILTRADOS.filter(d => d.estado === 'OPERATIVA').length;
+  const backup     = FILTRADOS.filter(d => d.estado === 'BACK UP - DISPONIBLE').length;
+  const mant       = FILTRADOS.filter(d => d.estado === 'MANTENIMIENTO').length;
+  const mantLargo  = FILTRADOS.filter(d => d.estado === 'MANTENIMIENTO LARGO').length;
+  const sinChofer  = FILTRADOS.filter(d => d.estado === 'MANT - SIN CHOFER').length;
+  const devol      = FILTRADOS.filter(d => d.estado === 'MANTENIMIENTO - DEVOLUCION').length;
+  const descuento  = FILTRADOS.filter(d => (d.descuento||'').toUpperCase().trim() === 'SI').length;
+  const totalActivo = total - venta;
+  const disp       = totalActivo ? Math.round((op + backup) / totalActivo * 100) : 0;
+  const totalMant  = mant + mantLargo + sinChofer + devol;
+  const dispColor  = disp >= 95 ? '#1D9E75' : disp >= 85 ? '#EF9F27' : '#C00000';
+
+  const mkKpi = (label, val, color, sub) =>
+    `<div style="background:white;border-radius:8px;padding:12px 16px;min-width:110px;border-left:4px solid ${color};flex:1">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#6b7280;margin-bottom:4px">${label}</div>
+      <div style="font-size:26px;font-weight:700;color:#1a1a1a;line-height:1">${val}</div>
+      ${sub ? `<div style="font-size:10px;color:#6b7280;margin-top:3px">${sub}</div>` : ''}
+    </div>`;
+
   // Encabezado
   html += `
-    <div style="background:var(--negro);color:white;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+    <div style="background:#1a1a1a;color:white;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
       <div style="display:flex;align-items:center;gap:14px">
         <span style="font-size:11px;font-weight:700;letter-spacing:3px;background:var(--rojo);padding:4px 10px;border-radius:2px">GRIFFOULIERE</span>
         <div>
@@ -3244,7 +3334,35 @@ async function renderReporte() {
       </div>
       <div style="text-align:right;font-size:11px;color:#aaa">
         <div>Generado por: <strong style="color:white">${SESSION.nombre}</strong></div>
-        <div style="margin-top:2px">${FILTRADOS.length} unidades</div>
+        <div style="margin-top:2px">${total} unidades</div>
+      </div>
+    </div>
+
+    <!-- RESUMEN DE INDICADORES -->
+    <div style="background:#f4f5f7;padding:16px 20px;border-bottom:2px solid #e0e2e8">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#6b7280;margin-bottom:10px">Resumen de Indicadores</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+
+        <!-- Disponibilidad — tarjeta grande con barra -->
+        <div style="background:white;border-radius:8px;padding:14px 18px;border-left:4px solid ${dispColor};min-width:180px;flex:1.5">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#6b7280;margin-bottom:4px">% Disponibilidad</div>
+          <div style="font-size:32px;font-weight:700;color:${dispColor};line-height:1">${disp}%</div>
+          <div style="font-size:10px;color:#6b7280;margin-top:3px">(OPER + BACKUP) / (TOTAL - VENTA)</div>
+          <div style="margin-top:8px;height:8px;background:#e0e2e8;border-radius:4px;overflow:hidden;position:relative">
+            <div style="height:100%;width:${disp}%;background:${dispColor};border-radius:4px"></div>
+            <div style="position:absolute;left:95%;top:0;bottom:0;width:2px;background:rgba(0,0,0,0.2)"></div>
+          </div>
+          <div style="font-size:9px;color:#6b7280;margin-top:3px;text-align:right">Objetivo: 95%</div>
+        </div>
+
+        ${mkKpi('Total Flota', total, '#1a1a1a', `${venta} en venta excluidas`)}
+        ${mkKpi('Operativas', op, '#1D9E75', 'en servicio')}
+        ${mkKpi('Back Up', backup, '#378ADD', 'disponibles')}
+        ${mkKpi('Mantenimiento', mant, '#EF9F27', 'estado MANT.')}
+        ${mkKpi('Mant. Largo', mantLargo, '#E07B39', '+30 días')}
+        ${mkKpi('Sin Chofer', sinChofer, '#D4A017', 'MANT S/CHOFER')}
+        ${mkKpi('Devolución', devol, '#888780', 'en devolución')}
+        ${descuento > 0 ? mkKpi('Descuento', descuento, '#C00000', 'con descuento') : ''}
       </div>
     </div>`;
 
@@ -3269,18 +3387,15 @@ async function renderReporte() {
         <span style="background:rgba(0,0,0,0.2);padding:2px 10px;border-radius:10px;font-size:11px">${uds.length} unidades</span>
       </div>
       ${wrapStart}
-      <table class="reporte-tabla" style="${needsScroll?'min-width:1100px;table-layout:fixed':'table-layout:fixed'};width:100%">
-        <colgroup>${colsGrupo.map(c => {
-          const anchos = {
-            'interno':'90px','patente':'85px','tipo':'110px',
-            'centroCosto':'130px','unNegocio':'130px','estado':'120px',
-            'fBaja':'90px','diasTrabajo':'65px','diasMant':'65px',
-            'motivoBaja':'180px','tipoTaller':'70px','nombreTaller':'120px',
-            'motivoDemora':'180px','_usuarioAlta':'110px','fUltimaAlta':'90px'
+      <table class="reporte-tabla" style="${needsScroll?'min-width:1200px':''}">
+        <thead><tr>${colsGrupo.map(c => {
+          const maxW = {
+            'motivoBaja':'max-width:160px','motivoDemora':'max-width:160px',
+            'centroCosto':'max-width:140px','unNegocio':'max-width:140px',
+            'nombreTaller':'max-width:120px'
           };
-          return `<col style="width:${anchos[c.key]||'100px'}">`;
-        }).join('')}</colgroup>
-        <thead><tr>${colsGrupo.map(c => `<th>${c.label}</th>`).join('')}</tr></thead>
+          return `<th style="${maxW[c.key]||''}">${c.label}</th>`;
+        }).join('')}</tr></thead>
         <tbody>`;
 
     uds.forEach((d, idx) => {
@@ -3292,10 +3407,24 @@ async function renderReporte() {
         if ((col.key === 'fBaja' || col.key === 'fUltimaAlta' || col.key === 'fNuevaAlta') && val && val !== '—') {
           val = formatFechaReporte(val);
         }
+        const tdStyle = {
+          'motivoBaja':    'max-width:160px;word-break:break-word;white-space:normal',
+          'motivoDemora':  'max-width:160px;word-break:break-word;white-space:normal',
+          'centroCosto':   'max-width:140px;word-break:break-word;white-space:normal',
+          'unNegocio':     'max-width:140px;word-break:break-word;white-space:normal',
+          'nombreTaller':  'max-width:110px;word-break:break-word;white-space:normal',
+          'interno':       'white-space:nowrap;width:70px',
+          'patente':       'white-space:nowrap;width:72px',
+          'diasMant':      'white-space:nowrap;width:55px;text-align:center',
+          'diasTrabajo':   'white-space:nowrap;width:55px;text-align:center',
+          'fBaja':         'white-space:nowrap;width:80px',
+          'fUltimaAlta':   'white-space:nowrap;width:80px',
+          'tipoTaller':    'white-space:nowrap;width:62px',
+        }[col.key] || '';
         if (col.pill && col.key === 'estado') {
-          html += `<td><span class="estado-pill ${estadoPillClass(d.estado)}" style="font-size:10px">${val}</span></td>`;
+          html += `<td style="${tdStyle}"><span class="estado-pill ${estadoPillClass(d.estado)}" style="font-size:10px">${val}</span></td>`;
         } else {
-          html += `<td>${val}</td>`;
+          html += `<td style="${tdStyle}">${val}</td>`;
         }
       });
       html += '</tr>';
@@ -3379,6 +3508,173 @@ function exportarReporteExcel() {
 
   const fecha = new Date().toISOString().slice(0,10);
   XLSX.writeFile(wb, `reporte_flota_${fecha}.xlsx`);
+}
+
+
+// ════════════════════════════════════════════════════════════
+// EXPORTAR IMAGEN PNG — Back Up + Descuento + Mantenimiento
+// ════════════════════════════════════════════════════════════
+async function exportarImagenReporte() {
+  if (typeof html2canvas === 'undefined') {
+    toast('Librería de imagen no cargada. Intentá de nuevo.', 'err');
+    return;
+  }
+
+  const btn = document.querySelector('.btn-reporte-img');
+  btn.disabled = true;
+  btn.textContent = '⏳ Generando...';
+  toast('Generando imagen, esperá unos segundos...', 'ok');
+
+  const ahora   = new Date();
+  const fechaStr = ahora.toLocaleDateString('es-AR', { day:'2-digit', month:'2-digit', year:'numeric' });
+  const horaStr  = ahora.toLocaleTimeString('es-AR', { hour:'2-digit', minute:'2-digit' });
+
+  // Función para formatear solo fecha sin hora
+  const soloFecha = (str) => {
+    if (!str || str === '—') return '—';
+    const d = parseFecha(str);
+    if (!d) return str;
+    return String(d.getDate()).padStart(2,'0') + '/' +
+           String(d.getMonth()+1).padStart(2,'0') + '/' + d.getFullYear();
+  };
+
+  const ESTADO_COLOR = {
+    'OPERATIVA':'#1D9E75','MANTENIMIENTO':'#EF9F27','MANTENIMIENTO LARGO':'#E07B39',
+    'BACK UP - DISPONIBLE':'#378ADD','MODIFICACION':'#534AB7',
+    'MANT - SIN CHOFER':'#D4A017','MANTENIMIENTO - DEVOLUCION':'#888780','VENTA':'#C00000'
+  };
+
+  // Definición de columnas por grupo con anchos fijos
+  const GRUPOS = [
+    {
+      label:'En Descuento', color:'#C00000',
+      filtro: d => (d.descuento||'').toUpperCase().trim() === 'SI',
+      cols: [
+        {h:'Interno',w:80,k:'interno'},{h:'Patente',w:80,k:'patente'},
+        {h:'Tipo',w:110,k:'tipo'},{h:'Centro Costo',w:180,k:'centroCosto'},
+        {h:'Unidad Negocio',w:160,k:'unNegocio'},{h:'Estado',w:130,k:'estado',pill:true},
+        {h:'F. Baja',w:85,k:'fBaja',fecha:true},{h:'Días Mant.',w:65,k:'diasMant'},
+        {h:'Motivo Baja',w:200,k:'motivoBaja'},{h:'Taller',w:65,k:'tipoTaller'},
+        {h:'Nombre Taller',w:130,k:'nombreTaller'},{h:'Motivo Demora',w:200,k:'motivoDemora'}
+      ]
+    },
+    {
+      label:'Back Up - Disponible', color:'#378ADD',
+      filtro: d => d.estado === 'BACK UP - DISPONIBLE',
+      cols: [
+        {h:'Interno',w:80,k:'interno'},{h:'Patente',w:80,k:'patente'},
+        {h:'Tipo',w:110,k:'tipo'},{h:'Centro Costo',w:200,k:'centroCosto'},
+        {h:'Unidad Negocio',w:180,k:'unNegocio'},{h:'Estado',w:140,k:'estado',pill:true},
+        {h:'Días Trab.',w:70,k:'diasTrabajo'},{h:'Motivo Baja',w:250,k:'motivoBaja'}
+      ]
+    },
+    {
+      label:'En Mantenimiento', color:'#EF9F27',
+      filtro: d => ['MANTENIMIENTO','MANTENIMIENTO LARGO','MANT - SIN CHOFER','MANTENIMIENTO - DEVOLUCION','MODIFICACION'].includes(d.estado),
+      orden: (a,b) => (parseInt(b.diasMant)||0) - (parseInt(a.diasMant)||0),
+      cols: [
+        {h:'Interno',w:80,k:'interno'},{h:'Patente',w:80,k:'patente'},
+        {h:'Tipo',w:100,k:'tipo'},{h:'Centro Costo',w:160,k:'centroCosto'},
+        {h:'Unidad Negocio',w:150,k:'unNegocio'},{h:'Estado',w:130,k:'estado',pill:true},
+        {h:'F. Baja',w:80,k:'fBaja',fecha:true},{h:'Días Mant.',w:60,k:'diasMant'},
+        {h:'Motivo Baja',w:180,k:'motivoBaja'},{h:'Taller',w:62,k:'tipoTaller'},
+        {h:'Nombre Taller',w:120,k:'nombreTaller'},{h:'Motivo Demora',w:180,k:'motivoDemora'}
+      ]
+    }
+  ];
+
+  // Calcular ancho total del grupo más ancho
+  const maxAncho = Math.max(...GRUPOS.map(g => g.cols.reduce((s,c) => s + c.w, 0))) + 40;
+  const totalAncho = Math.max(maxAncho, 1200);
+
+  const mkTh = (c) =>
+    `<th style="padding:5px 7px;font-size:9px;font-weight:700;text-transform:uppercase;` +
+    `letter-spacing:0.4px;color:#6b7280;background:#f0f0f0;border-bottom:2px solid #ddd;` +
+    `text-align:left;width:${c.w}px;min-width:${c.w}px;max-width:${c.w}px">${c.h}</th>`;
+
+  const mkTd = (c, val, estado) => {
+    const isTextoLargo = ['motivoBaja','motivoDemora','centroCosto','unNegocio','nombreTaller'].includes(c.k);
+    const style = `padding:5px 7px;font-size:10px;vertical-align:top;` +
+      `width:${c.w}px;min-width:${c.w}px;max-width:${c.w}px;` +
+      (isTextoLargo ? 'word-break:break-word;white-space:normal;line-height:1.4;' : 'white-space:nowrap;overflow:hidden;');
+    if (c.pill) {
+      const bg = ESTADO_COLOR[val] || '#999';
+      const textColor = val === 'MANT - SIN CHOFER' ? '#333' : 'white';
+      return `<td style="${style}"><span style="background:${bg};color:${textColor};font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px;white-space:nowrap">${val||'—'}</span></td>`;
+    }
+    return `<td style="${style}">${val||'—'}</td>`;
+  };
+
+  let html = `<div style="font-family:Arial,sans-serif;background:white;width:${totalAncho}px">
+    <div style="background:#1a1a1a;color:white;padding:12px 18px;display:flex;align-items:center;justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:12px">
+        <span style="font-size:10px;font-weight:700;letter-spacing:3px;background:#C00000;padding:3px 9px;border-radius:2px">GRIFFOULIERE</span>
+        <div>
+          <div style="font-size:14px;font-weight:700">Estado Operativo de Flota</div>
+          <div style="font-size:10px;color:#aaa;margin-top:1px">${fechaStr} · ${horaStr}</div>
+        </div>
+      </div>
+      <div style="font-size:10px;color:#aaa;text-align:right">
+        Generado por: <strong style="color:white">${SESSION.nombre}</strong>
+      </div>
+    </div>`;
+
+  GRUPOS.forEach(grupo => {
+    let uds = FILTRADOS.filter(grupo.filtro);
+    if (grupo.orden) uds = uds.sort(grupo.orden);
+    if (!uds.length) return;
+
+    html += `
+      <div style="background:${grupo.color};color:white;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;font-size:11px;font-weight:800;text-transform:uppercase">
+        <span>${grupo.label}</span>
+        <span style="background:rgba(0,0,0,0.25);padding:1px 9px;border-radius:10px;font-size:10px">${uds.length} unidades</span>
+      </div>
+      <table style="width:100%;border-collapse:collapse;table-layout:fixed">
+        <thead><tr>${grupo.cols.map(c => mkTh(c)).join('')}</tr></thead>
+        <tbody>`;
+
+    uds.forEach((d, idx) => {
+      const bg = idx%2===0 ? '#ffffff' : '#f9f9f9';
+      html += `<tr style="background:${bg};border-bottom:1px solid #eeeeee">`;
+      grupo.cols.forEach(c => {
+        let val = c.k === '_usuarioAlta' ? getUsuarioAlta(d.interno) : (d[c.k] || '—');
+        if (c.fecha && val && val !== '—') val = soloFecha(val);
+        html += mkTd(c, val, d.estado);
+      });
+      html += '</tr>';
+    });
+
+    html += '</tbody></table>';
+  });
+
+  html += '</div>';
+
+  const wrapper = document.createElement('div');
+  wrapper.style.cssText = 'position:fixed;left:-9999px;top:0;z-index:-1;background:white;';
+  wrapper.innerHTML = html;
+  document.body.appendChild(wrapper);
+
+  try {
+    const canvas = await html2canvas(wrapper.firstElementChild, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#ffffff',
+      logging: false,
+      width: totalAncho
+    });
+
+    const link = document.createElement('a');
+    link.download = `flota_griffouliere_${new Date().toISOString().slice(0,10)}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    toast('✓ Imagen descargada correctamente', 'ok');
+  } catch(err) {
+    toast('Error al generar imagen: ' + err.message, 'err');
+  } finally {
+    document.body.removeChild(wrapper);
+    btn.disabled = false;
+    btn.textContent = '📸 Guardar Imagen';
+  }
 }
 
 // ════════════════════════════════════════════════════════════
