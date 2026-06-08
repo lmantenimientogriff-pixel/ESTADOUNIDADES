@@ -565,6 +565,61 @@ tbody td { padding: 7px 10px; font-size: 12px; white-space: nowrap; }
   border-bottom: 2px solid var(--gris-borde);
 }
 .log-table-wrap { overflow-x: auto; max-height: 480px; overflow-y: auto; }
+
+/* ── REPORTE ── */
+#reporte-header {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 12px; margin-bottom: 16px;
+}
+#reporte-header h3 { font-size: 14px; font-weight: 700; color: var(--negro); }
+.reporte-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn-reporte-pdf {
+  padding: 8px 18px; background: var(--rojo); color: white;
+  border: none; border-radius: 6px; font-size: 13px; font-weight: 700;
+  cursor: pointer; font-family: var(--font); display: flex; align-items: center; gap: 6px;
+}
+.btn-reporte-pdf:hover { background: var(--rojo-dark); }
+.btn-reporte-excel {
+  padding: 8px 18px; background: #1D9E75; color: white;
+  border: none; border-radius: 6px; font-size: 13px; font-weight: 700;
+  cursor: pointer; font-family: var(--font); display: flex; align-items: center; gap: 6px;
+}
+.btn-reporte-excel:hover { background: #167a5c; }
+
+#reporte-preview {
+  background: white; border: 1px solid var(--gris-borde);
+  border-radius: 8px; overflow: hidden;
+}
+.reporte-seccion-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 16px; color: white; font-size: 12px;
+  font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.reporte-tabla { width: 100%; border-collapse: collapse; }
+.reporte-tabla th {
+  background: #f8f9fa; padding: 7px 10px;
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.5px; color: var(--gris-text);
+  border-bottom: 1px solid var(--gris-borde); text-align: left;
+  white-space: nowrap;
+}
+.reporte-tabla td {
+  padding: 7px 10px; font-size: 11px; border-bottom: 1px solid #f0f0f0;
+  vertical-align: top; word-break: break-word; line-height: 1.4;
+}
+.reporte-tabla tr:hover td { background: #fef9f9; }
+.reporte-empty {
+  padding: 16px; text-align: center; color: var(--gris-text);
+  font-size: 13px; font-style: italic;
+}
+
+/* Print styles */
+@media print {
+  body * { visibility: hidden; }
+  #print-area, #print-area * { visibility: visible; }
+  #print-area { position: absolute; left: 0; top: 0; width: 100%; }
+  .no-print { display: none !important; }
+}
 .log-table { width: 100%; border-collapse: collapse; min-width: 900px; }
 .log-table th {
   background: #f8f9fa; padding: 8px 10px; font-size: 11px;
@@ -1071,6 +1126,7 @@ tbody td { padding: 7px 10px; font-size: 12px; white-space: nowrap; }
       <button class="tab-btn" data-tab="detalle">📋 Detalle Flota</button>
       <button class="tab-btn" data-tab="mantenimiento">🔧 Mantenimiento</button>
       <button class="tab-btn" data-tab="descuento">🏷️ Descuento</button>
+      <button class="tab-btn" data-tab="reporte">📄 Reporte</button>
       <button class="tab-btn tab-admin" data-tab="log">📜 Log de Cambios</button>
       <button class="tab-btn tab-admin" data-tab="usuarios">👤 Usuarios</button>
     </div>
@@ -1182,6 +1238,19 @@ tbody td { padding: 7px 10px; font-size: 12px; white-space: nowrap; }
             <tbody id="descuento-body"></tbody>
           </table>
         </div>
+      </div>
+
+      <!-- TAB REPORTE -->
+      <div class="tab-pane" id="tab-reporte">
+        <div id="reporte-header">
+          <h3>📄 Reporte de Estado de Flota</h3>
+          <div class="reporte-btns">
+            <button class="btn-reporte-excel no-print" onclick="exportarReporteExcel()">⬇ Exportar Excel</button>
+            <button class="btn-reporte-pdf no-print" onclick="imprimirReporte()">🖨 Exportar PDF</button>
+          </div>
+        </div>
+        <div id="reporte-info" style="font-size:11px;color:var(--gris-text);margin-bottom:12px;"></div>
+        <div id="reporte-preview"></div>
       </div>
 
       <!-- TAB LOG -->
@@ -2577,6 +2646,7 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     if (this.dataset.tab === 'log') cargarLog();
     if (this.dataset.tab === 'usuarios') cargarUsuariosTab();
     if (this.dataset.tab === 'descuento') renderDescuentoTab(FILTRADOS);
+    if (this.dataset.tab === 'reporte') renderReporte();
     if (this.dataset.tab === 'graficos') {
       if (typeof Chart === 'undefined') {
         document.getElementById('tab-graficos').innerHTML = '<p style="padding:30px;color:#888;font-size:13px">⏳ Cargando librería de gráficos... intentá de nuevo en unos segundos.</p>';
@@ -3034,6 +3104,241 @@ document.getElementById('rol-popup-overlay').addEventListener('click', e => {
   if (e.target === document.getElementById('rol-popup-overlay'))
     document.getElementById('rol-popup-overlay').style.display = 'none';
 });
+
+
+// ════════════════════════════════════════════════════════════
+// REPORTE DE ESTADO DE FLOTA
+// ════════════════════════════════════════════════════════════
+
+// Cache del log para buscar usuario de alta
+let LOG_CACHE = [];
+
+async function cargarLogCache() {
+  if (LOG_CACHE.length) return;
+  try {
+    const r = await fetch(`${API_URL}?action=getLog`, { cache: 'no-store' });
+    const d = await r.json();
+    LOG_CACHE = d.rows || [];
+  } catch { LOG_CACHE = []; }
+}
+
+function getUsuarioAlta(interno) {
+  // Buscar en el log el último registro donde campo=estado y valor nuevo=OPERATIVA
+  // Columnas del log: [0]Timestamp [1]Usuario [2]Nombre [3]Interno [4]Patente [5]Campo [6]ValAnterior [7]ValNuevo
+  const registros = LOG_CACHE.filter(r =>
+    String(r[3]).trim() === interno &&
+    String(r[5]).trim().toLowerCase() === 'estado' &&
+    String(r[7]).trim().toUpperCase() === 'OPERATIVA'
+  );
+  if (!registros.length) return '—';
+  // Tomar el más reciente (último en el array)
+  const ultimo = registros[registros.length - 1];
+  return (ultimo[2] || ultimo[1] || '—').trim();
+}
+
+async function renderReporte() {
+  const preview = document.getElementById('reporte-preview');
+  const info    = document.getElementById('reporte-info');
+  preview.innerHTML = '<p style="padding:20px;color:#888;font-size:13px">Cargando datos del log...</p>';
+
+  await cargarLogCache();
+
+  const ahora = new Date();
+  const fechaStr = ahora.toLocaleDateString('es-AR', { weekday:'long', day:'2-digit', month:'long', year:'numeric' });
+  const horaStr  = ahora.toLocaleTimeString('es-AR', { hour:'2-digit', minute:'2-digit' });
+
+  info.innerHTML = `Generado por <strong>${SESSION.nombre}</strong> · ${fechaStr} ${horaStr} · <strong>${FILTRADOS.length}</strong> unidades con filtros activos`;
+
+  // Ordenar según especificación:
+  // 1. DESCUENTO=SI  2. BACK UP  3. MANTENIMIENTO (por fecha baja asc)  4. OPERATIVA (por fecha alta desc)
+  const grupos = [
+    {
+      key: 'descuento',
+      label: 'En Descuento',
+      color: '#C00000',
+      filtro: d => (d.descuento||'').toUpperCase().trim() === 'SI',
+      orden: (a,b) => (parseInt(b.diasMant)||0) - (parseInt(a.diasMant)||0)
+    },
+    {
+      key: 'backup',
+      label: 'Back Up - Disponible',
+      color: '#378ADD',
+      filtro: d => d.estado === 'BACK UP - DISPONIBLE',
+      orden: () => 0
+    },
+    {
+      key: 'mantenimiento',
+      label: 'En Mantenimiento',
+      color: '#EF9F27',
+      filtro: d => ['MANTENIMIENTO','MANTENIMIENTO LARGO','MANT - SIN CHOFER','MANTENIMIENTO - DEVOLUCION','MODIFICACION'].includes(d.estado),
+      orden: (a,b) => {
+        // Ordenar por fecha de baja más próxima primero
+        const fa = parseFecha(a.fBaja);
+        const fb = parseFecha(b.fBaja);
+        if (fa && fb) return fa - fb;
+        if (fa) return -1;
+        if (fb) return 1;
+        return (parseInt(b.diasMant)||0) - (parseInt(a.diasMant)||0);
+      }
+    },
+    {
+      key: 'operativa',
+      label: 'Operativa / Disponible',
+      color: '#1D9E75',
+      filtro: d => d.estado === 'OPERATIVA',
+      orden: (a,b) => {
+        // Ordenar por fecha de alta más nueva primero
+        const fa = parseFecha(a.fUltimaAlta);
+        const fb = parseFecha(b.fUltimaAlta);
+        if (fa && fb) return fb - fa;
+        if (fb) return -1;
+        if (fa) return 1;
+        return 0;
+      }
+    }
+  ];
+
+  const COLS = [
+    { label: 'Interno',       key: 'interno' },
+    { label: 'Patente',       key: 'patente' },
+    { label: 'Tipo',          key: 'tipo' },
+    { label: 'Centro Costo',  key: 'centroCosto' },
+    { label: 'Unidad Negocio',key: 'unNegocio' },
+    { label: 'Estado',        key: 'estado', pill: true },
+    { label: 'F. Baja',       key: 'fBaja' },
+    { label: 'Días Trab.',    key: 'diasTrabajo' },
+    { label: 'Días Mant.',    key: 'diasMant' },
+    { label: 'Motivo Baja',   key: 'motivoBaja' },
+    { label: 'Taller',        key: 'tipoTaller' },
+    { label: 'Nombre Taller', key: 'nombreTaller' },
+    { label: 'Motivo Demora', key: 'motivoDemora' },
+    { label: 'Usuario Alta',  key: '_usuarioAlta' },
+    { label: 'F. Alta',       key: 'fUltimaAlta' }
+  ];
+
+  let html = `<div id="print-area">`;
+
+  // Encabezado del reporte
+  html += `
+    <div style="background:var(--negro);color:white;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <div style="display:flex;align-items:center;gap:14px">
+        <span style="font-size:11px;font-weight:700;letter-spacing:3px;background:var(--rojo);padding:4px 10px;border-radius:2px">GRIFFOULIERE</span>
+        <div>
+          <div style="font-size:16px;font-weight:700">Estado Operativo de Flota</div>
+          <div style="font-size:11px;color:#aaa;margin-top:2px">${fechaStr} · ${horaStr}</div>
+        </div>
+      </div>
+      <div style="text-align:right;font-size:11px;color:#aaa">
+        <div>Generado por: <strong style="color:white">${SESSION.nombre}</strong></div>
+        <div style="margin-top:2px">${FILTRADOS.length} unidades</div>
+      </div>
+    </div>
+  `;
+
+  let hayContenido = false;
+
+  grupos.forEach(grupo => {
+    let uds = FILTRADOS.filter(grupo.filtro).sort(grupo.orden);
+    if (!uds.length) return;
+    hayContenido = true;
+
+    html += `
+      <div class="reporte-seccion-header" style="background:${grupo.color}">
+        <span>${grupo.label}</span>
+        <span style="background:rgba(0,0,0,0.2);padding:2px 10px;border-radius:10px;font-size:11px">${uds.length} unidades</span>
+      </div>
+      <table class="reporte-tabla">
+        <thead><tr>${COLS.map(c => `<th>${c.label}</th>`).join('')}</tr></thead>
+        <tbody>
+    `;
+
+    uds.forEach((d, idx) => {
+      const bg = idx%2===0 ? 'white' : '#fafafa';
+      html += `<tr style="background:${bg}">`;
+      COLS.forEach(col => {
+        let val = '';
+        if (col.key === '_usuarioAlta') {
+          val = getUsuarioAlta(d.interno);
+        } else {
+          val = d[col.key] || '—';
+        }
+        if (col.pill && col.key === 'estado') {
+          val = `<span class="estado-pill ${estadoPillClass(d.estado)}" style="font-size:10px">${val}</span>`;
+          html += `<td>${val}</td>`;
+        } else {
+          html += `<td>${val}</td>`;
+        }
+      });
+      html += '</tr>';
+    });
+
+    html += '</tbody></table>';
+  });
+
+  if (!hayContenido) {
+    html += '<div class="reporte-empty">No hay unidades con los filtros seleccionados.</div>';
+  }
+
+  html += '</div>';
+  preview.innerHTML = html;
+}
+
+function parseFecha(str) {
+  if (!str || str === '—') return null;
+  const p = str.split('/');
+  if (p.length === 3) return new Date(p[2], p[1]-1, p[0]);
+  return null;
+}
+
+function imprimirReporte() {
+  window.print();
+}
+
+function exportarReporteExcel() {
+  if (typeof XLSX === 'undefined') { toast('Librería Excel no cargada aún. Intentá de nuevo.', 'err'); return; }
+
+  const COLS = [
+    { label:'Interno', key:'interno' }, { label:'Patente', key:'patente' },
+    { label:'Tipo', key:'tipo' }, { label:'Centro Costo', key:'centroCosto' },
+    { label:'Unidad Negocio', key:'unNegocio' }, { label:'Estado', key:'estado' },
+    { label:'F. Baja', key:'fBaja' }, { label:'Días Trab.', key:'diasTrabajo' },
+    { label:'Días Mant.', key:'diasMant' }, { label:'Motivo Baja', key:'motivoBaja' },
+    { label:'Taller', key:'tipoTaller' }, { label:'Nombre Taller', key:'nombreTaller' },
+    { label:'Motivo Demora', key:'motivoDemora' },
+    { label:'Usuario Alta', key:'_usuarioAlta' }, { label:'F. Alta', key:'fUltimaAlta' }
+  ];
+
+  const ORDEN_GRUPOS = [
+    d => (d.descuento||'').toUpperCase().trim() === 'SI',
+    d => d.estado === 'BACK UP - DISPONIBLE',
+    d => ['MANTENIMIENTO','MANTENIMIENTO LARGO','MANT - SIN CHOFER','MANTENIMIENTO - DEVOLUCION','MODIFICACION'].includes(d.estado),
+    d => d.estado === 'OPERATIVA'
+  ];
+  const NOMBRES_GRUPOS = ['En Descuento','Back Up - Disponible','En Mantenimiento','Operativa / Disponible'];
+
+  const wb = XLSX.utils.book_new();
+
+  // Hoja resumen con todos los grupos
+  const rows = [COLS.map(c => c.label)];
+
+  ORDEN_GRUPOS.forEach((filtro, gi) => {
+    const uds = FILTRADOS.filter(filtro);
+    if (!uds.length) return;
+    rows.push([NOMBRES_GRUPOS[gi].toUpperCase()]);
+    uds.forEach(d => {
+      rows.push(COLS.map(col =>
+        col.key === '_usuarioAlta' ? getUsuarioAlta(d.interno) : (d[col.key] || '')
+      ));
+    });
+    rows.push([]);
+  });
+
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  XLSX.utils.book_append_sheet(wb, ws, 'Reporte');
+
+  const fecha = new Date().toISOString().slice(0,10);
+  XLSX.writeFile(wb, `reporte_flota_${fecha}.xlsx`);
+}
 
 // ════════════════════════════════════════════════════════════
 // SALIR
