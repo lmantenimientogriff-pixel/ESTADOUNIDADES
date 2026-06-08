@@ -2111,6 +2111,7 @@ function renderGraficos(datos) {
   destroyChart('venc');
   let vVenc = 0, v07 = 0, v830 = 0, vMas30 = 0;
   enMant.forEach(d => {
+    const dias = parseDias(d.diasMant);
     if (dias < 0) vVenc++;
     else if (dias <= 7) v07++;
     else if (dias <= 30) v830++;
@@ -2765,7 +2766,7 @@ function renderMantenimiento(datos) {
 
     const buildMantRow = (d, idx) => {
       const row = document.createElement('div');
-        const diasClass = dias > 30 ? 'dias-crit' : dias > 15 ? 'dias-warn' : 'dias-ok';
+        const diasClass = getDiasClass(d.diasMant);
       const bgRow = idx%2===0 ? 'white' : '#fafafa';
       row.style.cssText = 'display:grid;grid-template-columns:' + GRID_MANT + ';padding:8px 12px;border-bottom:1px solid #f0f0f0;font-size:12px;align-items:start;background:' + bgRow + ';';
       row.onmouseover = () => row.style.background = '#fef9f9';
