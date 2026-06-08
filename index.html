@@ -410,7 +410,8 @@ body {
 .confirm-interno { font-weight: 700; color: var(--negro); }
 .confirm-fecha-wrap { margin-bottom: 16px; }
 .confirm-fecha-wrap label { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--gris-text); display: block; margin-bottom: 4px; }
-.confirm-fecha-wrap input[type=date] {
+.confirm-fecha-wrap input[type=date],
+.confirm-fecha-wrap input[type=datetime-local] {
   width: 100%; padding: 8px 10px; border: 1.5px solid var(--gris-borde);
   border-radius: 6px; font-size: 13px; font-family: var(--font); outline: none;
 }
@@ -1440,7 +1441,7 @@ tbody td { padding: 7px 10px; font-size: 12px; white-space: nowrap; }
     <p id="confirm-msg"></p>
     <div class="confirm-fecha-wrap">
       <label id="confirm-fecha-label">Fecha</label>
-      <input type="date" id="confirm-fecha">
+      <input type="datetime-local" id="confirm-fecha">
     </div>
     <div class="confirm-actions">
       <button class="confirm-cancel" id="confirm-cancel-btn">Cancelar</button>
@@ -1644,8 +1645,20 @@ async function cargarDatos() {
   setLoading('Cargando datos desde Google Sheets...');
   try {
     const r = await fetch(`${API_URL}?action=getData`, { cache: 'no-store' });
-    const d = await r.json();
+    const text = await r.text();
+    let d;
+    try { d = JSON.parse(text); }
+    catch(parseErr) {
+      // Apps Script a veces devuelve HTML en cold start — reintentar una vez
+      console.warn('Reintentando carga (cold start)...');
+      await new Promise(res => setTimeout(res, 3000));
+      const r2 = await fetch(`${API_URL}?action=getData`, { cache: 'no-store' });
+      d = await r2.json();
+    }
     DATOS = (d.rows || []).map(mapearFila);
+    if (!DATOS.length) {
+      toast('No se encontraron datos en el Sheet. Verificá la configuración.', 'err');
+    }
     setLoading(false);
     aplicarFiltros();
     poblarFiltros();
@@ -1654,12 +1667,14 @@ async function cargarDatos() {
     renderMantenimiento(FILTRADOS);
     renderDescuentoTab(FILTRADOS);
     setTimeout(() => renderGraficos(FILTRADOS), 200);
-    // Auto-actualizar estados MANTENIMIENTO > 30 días → MANTENIMIENTO LARGO
     setTimeout(() => autoActualizarEstados(), 500);
   } catch (err) {
     setLoading(false);
-    toast('Error al cargar datos. Verificá la URL del Apps Script.', 'err');
-    console.error(err);
+    // Solo mostrar error si realmente no hay datos
+    if (!DATOS.length) {
+      toast('Error al cargar datos. Verificá la URL del Apps Script.', 'err');
+    }
+    console.error('cargarDatos error:', err);
   }
 }
 
@@ -2096,7 +2111,6 @@ function renderGraficos(datos) {
   destroyChart('venc');
   let vVenc = 0, v07 = 0, v830 = 0, vMas30 = 0;
   enMant.forEach(d => {
-    const dias = parseInt(d.diasMant) || 0;
     if (dias < 0) vVenc++;
     else if (dias <= 7) v07++;
     else if (dias <= 30) v830++;
@@ -2200,7 +2214,7 @@ function renderTarjetasMobile(datos) {
 function renderDescuentoTab(datos) {
   const unidades = datos
     .filter(d => (d.descuento || '').toUpperCase().trim() === 'SI')
-    .sort((a,b) => (parseInt(b.diasMant)||0) - (parseInt(a.diasMant)||0));
+    .sort((a,b) => parseDias(b.diasMant) - parseDias(a.diasMant));
 
   document.getElementById('descuento-count').textContent = unidades.length + ' unidades';
   const tbody = document.getElementById('descuento-body');
@@ -2221,8 +2235,7 @@ function renderDescuentoTab(datos) {
     tr.onmouseover = () => tr.style.background = '#fef9f9';
     tr.onmouseout  = () => tr.style.background = idx%2===0 ? 'white' : '#fafafa';
 
-    const dias = parseInt(d.diasMant) || 0;
-    const diasClass = dias > 30 ? 'dias-crit' : dias > 15 ? 'dias-warn' : 'dias-ok';
+    const diasClass = getDiasClass(d.diasMant);
 
     const td = (val, bold) => {
       const td = document.createElement('td');
@@ -2368,7 +2381,7 @@ function _renderLote(tbody, desde, cantidad) {
       '<td>' + (d.fNuevaAlta||'—') + '</td>' +
       '<td>' + (d.grupo||'—') + '</td>' +
       '<td>' + (d.diasTrabajo||'—') + '</td>' +
-      '<td>' + (d.diasMant||'—') + '</td>' +
+      '<td>' + formatDias(d.diasMant) + '</td>' +
       '<td>' + editPopup('tipoTaller', d.tipoTaller) + '</td>' +
       '<td>' + editField('nombreTaller', d.nombreTaller) + '</td>' +
       '<td>' + editField('nOT', d.nOT) + '</td>' +
@@ -2701,7 +2714,7 @@ function renderMantenimiento(datos) {
 
   // ── GRUPO DESCUENTO ──
   if (enDesc.length) {
-    const udsDesc = [...enDesc].sort((a,b) => (parseInt(b.diasMant)||0) - (parseInt(a.diasMant)||0));
+    const udsDesc = [...enDesc].sort((a,b) => parseDias(b.diasMant) - parseDias(a.diasMant));
 
     const buildDescRow = (d, idx) => {
       const row = document.createElement('div');
@@ -2717,7 +2730,7 @@ function renderMantenimiento(datos) {
         cell(d.interno, true) + cell(d.patente) + cell(d.tipo) +
         cell(d.centroCosto) + cell(d.unNegocio) +
         '<span>' + estadoHTML + '</span>' +
-        '<span><span class="dias-badge ' + (parseInt(d.diasMant)>30?'dias-crit':parseInt(d.diasMant)>15?'dias-warn':'dias-ok') + '">' + (parseInt(d.diasMant)||0) + 'd</span></span>' +
+        '<span><span class="dias-badge ' + getDiasClass(d.diasMant) + '">' + formatDias(d.diasMant) + '</span></span>' +
         cell(d.tipoTaller) + cell(d.nombreTaller) +
         cell(d.motivoBaja) + cell(d.motivoDemora);
 
@@ -2747,13 +2760,12 @@ function renderMantenimiento(datos) {
   ];
 
   estadosOrdenados.forEach(estado => {
-    const unidades = [...porEstado[estado]].sort((a,b) => (parseInt(b.diasMant)||0) - (parseInt(a.diasMant)||0));
+    const unidades = [...porEstado[estado]].sort((a,b) => parseDias(b.diasMant) - parseDias(a.diasMant));
     const bg = ESTADO_BG[estado] || '#374151';
 
     const buildMantRow = (d, idx) => {
       const row = document.createElement('div');
-      const dias = parseInt(d.diasMant) || 0;
-      const diasClass = dias > 30 ? 'dias-crit' : dias > 15 ? 'dias-warn' : 'dias-ok';
+        const diasClass = dias > 30 ? 'dias-crit' : dias > 15 ? 'dias-warn' : 'dias-ok';
       const bgRow = idx%2===0 ? 'white' : '#fafafa';
       row.style.cssText = 'display:grid;grid-template-columns:' + GRID_MANT + ';padding:8px 12px;border-bottom:1px solid #f0f0f0;font-size:12px;align-items:start;background:' + bgRow + ';';
       row.onmouseover = () => row.style.background = '#fef9f9';
@@ -2775,7 +2787,7 @@ function renderMantenimiento(datos) {
         cell(d.interno, true) + cell(d.patente) + cell(d.tipo) +
         '<span>' + tallBadge + '</span>' +
         cell(d.nombreTaller) +
-        '<span><span class="dias-badge ' + diasClass + '">' + dias + 'd</span></span>' +
+        '<span><span class="dias-badge ' + diasClass + '">' + formatDias(d.diasMant) + '</span></span>' +
         cell(d.nOT) + cell(d.nST) + cell(d.nNP) +
         makeEdit('estadoRep', d.estadoRep) +
         makeEdit('motivoDemora', d.motivoDemora) +
@@ -3029,14 +3041,14 @@ function resetFormUsuario() {
 // BOTONES DAR DE BAJA / DAR DE ALTA
 // ════════════════════════════════════════════════════════════
 function renderBtnAccion(d) {
-  const esOperativa = d.estado === 'OPERATIVA';
-  const esMant = ['MANTENIMIENTO','MANTENIMIENTO LARGO','MANT - SIN CHOFER',
-                  'MANTENIMIENTO - DEVOLUCION','MODIFICACION'].includes(d.estado);
+  const esActiva = ['OPERATIVA','BACK UP - DISPONIBLE'].includes(d.estado);
+  const esMant   = ['MANTENIMIENTO','MANTENIMIENTO LARGO','MANT - SIN CHOFER',
+                    'MANTENIMIENTO - DEVOLUCION','MODIFICACION'].includes(d.estado);
 
   const puedeAlta = SESSION && ['Admin','Propietario','Jefe de Taller'].includes(SESSION.rol);
   const puedeBaja = SESSION && ['Admin','Propietario','Operador','Jefe de Taller'].includes(SESSION.rol);
 
-  if (esOperativa && puedeBaja) {
+  if (esActiva && puedeBaja) {
     return `<button class="btn-baja" onclick="abrirConfirmBaja('${d.interno}','${d.patente}')">🔴 Dar de Baja</button>`;
   }
   if (esMant && puedeAlta) {
@@ -3045,8 +3057,47 @@ function renderBtnAccion(d) {
   return '—';
 }
 
+// Formatea días decimales → "Xd Yh" o "Yh" si menos de 1 día
+function formatDias(val) {
+  const num = parseFloat(val);
+  if (isNaN(num) || val === '' || val === '—') return '—';
+  const dias  = Math.floor(num);
+  const horas = Math.round((num - dias) * 24);
+  if (dias === 0 && horas === 0) return '0h';
+  if (dias === 0) return horas + 'h';
+  if (horas === 0) return dias + 'd';
+  return dias + 'd ' + horas + 'h';
+}
+
+// Valor numérico para comparaciones (siempre float)
+function parseDias(val) {
+  const n = parseFloat(val);
+  return isNaN(n) ? 0 : n;
+}
+
+function getDiasClass(val) {
+  const n = parseDias(val);
+  return n > 30 ? 'dias-crit' : n > 15 ? 'dias-warn' : 'dias-ok';
+}
+
 function getFechaHoy() {
-  return new Date().toISOString().slice(0,10);
+  // Devuelve fecha+hora local en formato YYYY-MM-DDTHH:MM para datetime-local
+  const now = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  return now.getFullYear() + '-' +
+    pad(now.getMonth()+1) + '-' +
+    pad(now.getDate()) + 'T' +
+    pad(now.getHours()) + ':' +
+    pad(now.getMinutes());
+}
+
+function formatearFechaParaSheet(datetimeLocalVal) {
+  // Convierte YYYY-MM-DDTHH:MM → DD/MM/YYYY HH:MM
+  if (!datetimeLocalVal) return '';
+  const [fecha, hora] = datetimeLocalVal.split('T');
+  if (!fecha) return '';
+  const [y, m, d] = fecha.split('-');
+  return d + '/' + m + '/' + y + (hora ? ' ' + hora : '');
 }
 
 function abrirConfirmBaja(interno, patente) {
@@ -3077,13 +3128,315 @@ function abrirConfirmAlta(interno, patente) {
   document.getElementById('confirm-overlay').style.display = 'flex';
 }
 
+
+// ════════════════════════════════════════════════════════════
+// AUTO-ACTUALIZACIÓN DE ESTADOS
+// MANTENIMIENTO + diasMant > 30 → MANTENIMIENTO LARGO
+// ════════════════════════════════════════════════════════════
+async function autoActualizarEstados() {
+  const candidatos = DATOS.filter(d =>
+    d.estado === 'MANTENIMIENTO' &&
+    parseDias(d.diasMant) > 30 &&
+    d.interno
+  );
+  if (!candidatos.length) return;
+  candidatos.forEach(d => actualizarFila(d.interno, 'estado', 'MANTENIMIENTO LARGO'));
+  refrescar();
+  toast('↗ ' + candidatos.length + ' unidad' + (candidatos.length > 1 ? 'es' : '') + ' pasaron a MANTENIMIENTO LARGO (+30 días)', 'ok');
+  for (const d of candidatos) {
+    const params = new URLSearchParams({ action: 'update', interno: d.interno, campo: 'estado', valor: 'MANTENIMIENTO LARGO' });
+    fetch(API_URL + '?' + params, { cache: 'no-store' })
+      .then(r => r.json())
+      .then(res => { if (res.ok) registrarLog(d.interno, d.patente, 'estado', 'MANTENIMIENTO', 'MANTENIMIENTO LARGO'); })
+      .catch(() => {});
+    await new Promise(r => setTimeout(r, 300));
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+// LOG CACHE — para Usuario Alta en reporte
+// ════════════════════════════════════════════════════════════
+let LOG_CACHE = [];
+
+async function cargarLogCache() {
+  if (LOG_CACHE.length) return;
+  try {
+    const r = await fetch(API_URL + '?action=getLog', { cache: 'no-store' });
+    const d = await r.json();
+    LOG_CACHE = d.rows || [];
+  } catch { LOG_CACHE = []; }
+}
+
+function getUsuarioAlta(interno) {
+  const registros = LOG_CACHE.filter(r =>
+    String(r[3]).trim() === interno &&
+    String(r[5]).trim().toLowerCase() === 'estado' &&
+    String(r[7]).trim().toUpperCase() === 'OPERATIVA'
+  );
+  if (!registros.length) return '—';
+  const ultimo = registros[registros.length - 1];
+  return (ultimo[2] || ultimo[1] || '—').trim();
+}
+
+// ════════════════════════════════════════════════════════════
+// REPORTE DE ESTADO DE FLOTA
+// ════════════════════════════════════════════════════════════
+function parseFecha(str) {
+  if (!str || str === '—') return null;
+  // Soportar DD/MM/YYYY HH:MM y DD/MM/YYYY
+  const match = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+(\d{1,2}):(\d{2}))?/);
+  if (match) {
+    const [,d,m,y,h,min] = match;
+    return new Date(parseInt(y), parseInt(m)-1, parseInt(d), parseInt(h||0), parseInt(min||0));
+  }
+  const dt = new Date(str);
+  return isNaN(dt) ? null : dt;
+}
+
+function formatFechaReporte(str) {
+  if (!str || str === '—') return '—';
+  let d = parseFecha(str);
+  if (!d) return str;
+  return String(d.getDate()).padStart(2,'0') + '/' +
+         String(d.getMonth()+1).padStart(2,'0') + '/' + d.getFullYear() +
+         ' ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+}
+
+async function renderReporte() {
+  const preview = document.getElementById('reporte-preview');
+  const info    = document.getElementById('reporte-info');
+  if (!preview) return;
+  preview.innerHTML = '<p style="padding:20px;color:#888;font-size:13px">Cargando...</p>';
+  await cargarLogCache();
+
+  const ahora    = new Date();
+  const fechaStr = ahora.toLocaleDateString('es-AR', { weekday:'long', day:'2-digit', month:'long', year:'numeric' });
+  const horaStr  = ahora.toLocaleTimeString('es-AR', { hour:'2-digit', minute:'2-digit' });
+  info.innerHTML = 'Generado por <strong>' + SESSION.nombre + '</strong> · ' + fechaStr + ' ' + horaStr + ' · <strong>' + FILTRADOS.length + '</strong> unidades';
+
+  const COLS_TODOS = [
+    { label:'Interno', key:'interno' }, { label:'Patente', key:'patente' },
+    { label:'Tipo', key:'tipo' }, { label:'Centro Costo', key:'centroCosto' },
+    { label:'Unidad Negocio', key:'unNegocio' }, { label:'Estado', key:'estado', pill:true },
+    { label:'F. Baja', key:'fBaja' }, { label:'Días Trab.', key:'diasTrabajo' },
+    { label:'Días Mant.', key:'diasMant' }, { label:'Motivo Baja', key:'motivoBaja' },
+    { label:'Taller', key:'tipoTaller' }, { label:'Nombre Taller', key:'nombreTaller' },
+    { label:'Motivo Demora', key:'motivoDemora' },
+    { label:'Usuario Alta', key:'_usuarioAlta' }, { label:'F. Alta', key:'fUltimaAlta' }
+  ];
+
+  const COLS_BACKUP = ['interno','patente','tipo','centroCosto','unNegocio','estado','diasTrabajo','motivoBaja','_usuarioAlta','fUltimaAlta'];
+  const COLS_MANT   = ['interno','patente','tipo','centroCosto','unNegocio','estado','fBaja','diasMant','motivoBaja','tipoTaller','nombreTaller','motivoDemora'];
+  const COLS_OP     = ['interno','patente','tipo','centroCosto','unNegocio','estado','diasTrabajo','_usuarioAlta','fUltimaAlta'];
+
+  const grupos = [
+    { key:'descuento', label:'En Descuento', color:'#C00000',
+      filtro: d => (d.descuento||'').toUpperCase().trim() === 'SI',
+      orden: (a,b) => parseDias(b.diasMant) - parseDias(a.diasMant), cols: COLS_MANT },
+    { key:'backup', label:'Back Up - Disponible', color:'#378ADD',
+      filtro: d => d.estado === 'BACK UP - DISPONIBLE', orden: () => 0, cols: COLS_BACKUP },
+    { key:'mantenimiento', label:'En Mantenimiento', color:'#EF9F27',
+      filtro: d => ['MANTENIMIENTO','MANTENIMIENTO LARGO','MANT - SIN CHOFER','MANTENIMIENTO - DEVOLUCION','MODIFICACION'].includes(d.estado),
+      orden: (a,b) => { const fa=parseFecha(a.fBaja),fb=parseFecha(b.fBaja); if(fa&&fb)return fa-fb; if(fa)return -1; if(fb)return 1; return parseDias(b.diasMant)-parseDias(a.diasMant); },
+      cols: COLS_MANT },
+    { key:'operativa', label:'Operativa / Disponible', color:'#1D9E75',
+      filtro: d => d.estado === 'OPERATIVA',
+      orden: (a,b) => { const fa=parseFecha(a.fUltimaAlta),fb=parseFecha(b.fUltimaAlta); if(fa&&fb)return fb-fa; if(fb)return -1; if(fa)return 1; return 0; },
+      cols: COLS_OP }
+  ];
+
+  // KPIs
+  const total=FILTRADOS.length, venta=FILTRADOS.filter(d=>d.estado==='VENTA').length;
+  const op=FILTRADOS.filter(d=>d.estado==='OPERATIVA').length, backup=FILTRADOS.filter(d=>d.estado==='BACK UP - DISPONIBLE').length;
+  const mant=FILTRADOS.filter(d=>d.estado==='MANTENIMIENTO').length, mantL=FILTRADOS.filter(d=>d.estado==='MANTENIMIENTO LARGO').length;
+  const sinC=FILTRADOS.filter(d=>d.estado==='MANT - SIN CHOFER').length, devol=FILTRADOS.filter(d=>d.estado==='MANTENIMIENTO - DEVOLUCION').length;
+  const desc=FILTRADOS.filter(d=>(d.descuento||'').toUpperCase().trim()==='SI').length;
+  const totalAct=total-venta, disp=totalAct?Math.round((op+backup)/totalAct*100):0;
+  const dispColor=disp>=95?'#1D9E75':disp>=85?'#EF9F27':'#C00000';
+
+  const mkKpi=(label,val,color,sub)=>'<div style="background:white;border-radius:8px;padding:12px 16px;min-width:100px;flex:1;border-left:4px solid '+color+'"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#6b7280;margin-bottom:4px">'+label+'</div><div style="font-size:24px;font-weight:700;color:#1a1a1a;line-height:1">'+val+'</div>'+(sub?'<div style="font-size:10px;color:#6b7280;margin-top:3px">'+sub+'</div>':'')+'</div>';
+
+  let html = '<div id="print-area">';
+  html += '<div style="background:#1a1a1a;color:white;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px"><div style="display:flex;align-items:center;gap:14px"><span style="font-size:11px;font-weight:700;letter-spacing:3px;background:#C00000;padding:4px 10px;border-radius:2px">GRIFFOULIERE</span><div><div style="font-size:16px;font-weight:700">Estado Operativo de Flota</div><div style="font-size:11px;color:#aaa;margin-top:2px">'+fechaStr+' · '+horaStr+'</div></div></div><div style="text-align:right;font-size:11px;color:#aaa"><div>Generado por: <strong style="color:white">'+SESSION.nombre+'</strong></div><div style="margin-top:2px">'+total+' unidades</div></div></div>';
+  html += '<div style="background:#f4f5f7;padding:16px 20px;border-bottom:2px solid #e0e2e8"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#6b7280;margin-bottom:10px">Resumen de Indicadores</div><div style="display:flex;gap:10px;flex-wrap:wrap">';
+  html += '<div style="background:white;border-radius:8px;padding:14px 18px;border-left:4px solid '+dispColor+';min-width:160px;flex:1.5"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#6b7280;margin-bottom:4px">% Disponibilidad</div><div style="font-size:32px;font-weight:700;color:'+dispColor+';line-height:1">'+disp+'%</div><div style="font-size:10px;color:#6b7280;margin-top:3px">(OPER + BACKUP) / (TOTAL - VENTA)</div><div style="margin-top:8px;height:8px;background:#e0e2e8;border-radius:4px;overflow:hidden;position:relative"><div style="height:100%;width:'+disp+'%;background:'+dispColor+';border-radius:4px"></div></div><div style="font-size:9px;color:#6b7280;margin-top:3px;text-align:right">Objetivo: 95%</div></div>';
+  html += mkKpi('Total Flota',total,'#1a1a1a',venta+' en venta excl.');
+  html += mkKpi('Operativas',op,'#1D9E75','en servicio');
+  html += mkKpi('Back Up',backup,'#378ADD','disponibles');
+  html += mkKpi('Mantenimiento',mant,'#EF9F27','estado MANT.');
+  html += mkKpi('Mant. Largo',mantL,'#E07B39','+30 días');
+  html += mkKpi('Sin Chofer',sinC,'#D4A017','MANT S/CHOFER');
+  html += mkKpi('Devolución',devol,'#888780','en devolución');
+  if(desc>0) html += mkKpi('Descuento',desc,'#C00000','con descuento');
+  html += '</div></div>';
+
+  let hayContenido = false;
+  grupos.forEach(grupo => {
+    const uds = FILTRADOS.filter(grupo.filtro).sort(grupo.orden);
+    if (!uds.length) return;
+    hayContenido = true;
+    const colsGrupo = COLS_TODOS.filter(c => grupo.cols.includes(c.key));
+    const needsScroll = grupo.key === 'mantenimiento' || grupo.key === 'descuento';
+    html += '<div class="reporte-seccion-header" style="background:'+grupo.color+'"><span>'+grupo.label+'</span><span style="background:rgba(0,0,0,0.2);padding:2px 10px;border-radius:10px;font-size:11px">'+uds.length+' unidades</span></div>';
+    html += (needsScroll ? '<div style="overflow-x:auto;">' : '');
+    html += '<table class="reporte-tabla" style="'+(needsScroll?'min-width:1200px':'')+'">';
+    html += '<thead><tr>' + colsGrupo.map(c => {
+      const maxW = {motivoBaja:'max-width:160px',motivoDemora:'max-width:160px',centroCosto:'max-width:140px',unNegocio:'max-width:140px',nombreTaller:'max-width:120px'}[c.key]||'';
+      return '<th style="'+maxW+'">'+c.label+'</th>';
+    }).join('') + '</tr></thead><tbody>';
+    uds.forEach((d,idx) => {
+      const bg = idx%2===0?'white':'#fafafa';
+      html += '<tr style="background:'+bg+'">';
+      colsGrupo.forEach(col => {
+        let val = col.key === '_usuarioAlta' ? getUsuarioAlta(d.interno) : (d[col.key]||'—');
+        if ((col.key==='fBaja'||col.key==='fUltimaAlta') && val && val!=='—') val = formatFechaReporte(val);
+        const tdStyle = {
+          motivoBaja:'max-width:160px;word-break:break-word;white-space:normal',
+          motivoDemora:'max-width:160px;word-break:break-word;white-space:normal',
+          centroCosto:'max-width:140px;word-break:break-word;white-space:normal',
+          unNegocio:'max-width:140px;word-break:break-word;white-space:normal',
+          nombreTaller:'max-width:110px;word-break:break-word;white-space:normal',
+          interno:'white-space:nowrap;width:70px', patente:'white-space:nowrap;width:72px',
+          diasMant:'white-space:nowrap;width:55px;text-align:center',
+          diasTrabajo:'white-space:nowrap;width:55px;text-align:center',
+          fBaja:'white-space:nowrap;width:80px', fUltimaAlta:'white-space:nowrap;width:80px',
+          tipoTaller:'white-space:nowrap;width:62px'
+        }[col.key]||'';
+        if (col.pill && col.key==='estado') {
+          html += '<td style="'+tdStyle+'"><span class="estado-pill '+estadoPillClass(d.estado)+'" style="font-size:10px">'+val+'</span></td>';
+        } else {
+          html += '<td style="'+tdStyle+'">'+val+'</td>';
+        }
+      });
+      html += '</tr>';
+    });
+    html += '</tbody></table>' + (needsScroll ? '</div>' : '');
+  });
+  if (!hayContenido) html += '<div class="reporte-empty">No hay unidades con los filtros seleccionados.</div>';
+  html += '</div>';
+  preview.innerHTML = html;
+}
+
+function imprimirReporte() { window.print(); }
+
+function exportarReporteExcel() {
+  if (typeof XLSX === 'undefined') { toast('Librería Excel no cargada. Intentá de nuevo.', 'err'); return; }
+  const COLS = [
+    {label:'Interno',key:'interno'},{label:'Patente',key:'patente'},{label:'Tipo',key:'tipo'},
+    {label:'Centro Costo',key:'centroCosto'},{label:'Unidad Negocio',key:'unNegocio'},{label:'Estado',key:'estado'},
+    {label:'F. Baja',key:'fBaja'},{label:'Días Trab.',key:'diasTrabajo'},{label:'Días Mant.',key:'diasMant'},
+    {label:'Motivo Baja',key:'motivoBaja'},{label:'Taller',key:'tipoTaller'},{label:'Nombre Taller',key:'nombreTaller'},
+    {label:'Motivo Demora',key:'motivoDemora'},{label:'Usuario Alta',key:'_usuarioAlta'},{label:'F. Alta',key:'fUltimaAlta'}
+  ];
+  const GRUPOS = [
+    {n:'En Descuento', f:d=>(d.descuento||'').toUpperCase().trim()==='SI'},
+    {n:'Back Up - Disponible', f:d=>d.estado==='BACK UP - DISPONIBLE'},
+    {n:'En Mantenimiento', f:d=>['MANTENIMIENTO','MANTENIMIENTO LARGO','MANT - SIN CHOFER','MANTENIMIENTO - DEVOLUCION','MODIFICACION'].includes(d.estado)},
+    {n:'Operativa / Disponible', f:d=>d.estado==='OPERATIVA'}
+  ];
+  const wb = XLSX.utils.book_new();
+  const rows = [COLS.map(c=>c.label)];
+  GRUPOS.forEach(g => {
+    const uds = FILTRADOS.filter(g.f);
+    if (!uds.length) return;
+    rows.push([g.n.toUpperCase()]);
+    uds.forEach(d => rows.push(COLS.map(c => c.key==='_usuarioAlta'?getUsuarioAlta(d.interno):(d[c.key]||''))));
+    rows.push([]);
+  });
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  XLSX.utils.book_append_sheet(wb, ws, 'Reporte');
+  XLSX.writeFile(wb, 'reporte_flota_' + new Date().toISOString().slice(0,10) + '.xlsx');
+}
+
+// ════════════════════════════════════════════════════════════
+// EXPORTAR IMAGEN PNG
+// ════════════════════════════════════════════════════════════
+async function exportarImagenReporte() {
+  const btn = document.querySelector('.btn-reporte-img');
+  if (!btn) return;
+
+  if (typeof html2canvas === 'undefined') {
+    toast('Cargando librería de imagen...', 'ok');
+    loadHtml2Canvas(() => exportarImagenReporte());
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = '⏳ Generando...';
+  toast('Generando imagen, esperá unos segundos...', 'ok');
+
+  const ahora    = new Date();
+  const fechaStr = ahora.toLocaleDateString('es-AR', {day:'2-digit',month:'2-digit',year:'numeric'});
+  const horaStr  = ahora.toLocaleTimeString('es-AR', {hour:'2-digit',minute:'2-digit'});
+  const soloFecha = str => { if(!str||str==='—')return '—'; const d=parseFecha(str); if(!d)return str; return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear(); };
+  const ESTADO_COLOR = {'OPERATIVA':'#1D9E75','MANTENIMIENTO':'#EF9F27','MANTENIMIENTO LARGO':'#E07B39','BACK UP - DISPONIBLE':'#378ADD','MODIFICACION':'#534AB7','MANT - SIN CHOFER':'#D4A017','MANTENIMIENTO - DEVOLUCION':'#888780','VENTA':'#C00000'};
+
+  const GRUPOS = [
+    { label:'En Descuento', color:'#C00000', filtro:d=>(d.descuento||'').toUpperCase().trim()==='SI',
+      cols:[{h:'Interno',w:80,k:'interno'},{h:'Patente',w:80,k:'patente'},{h:'Tipo',w:110,k:'tipo'},{h:'Centro Costo',w:180,k:'centroCosto'},{h:'Unidad Negocio',w:160,k:'unNegocio'},{h:'Estado',w:130,k:'estado',pill:true},{h:'F. Baja',w:85,k:'fBaja',fecha:true},{h:'Días Mant.',w:65,k:'diasMant'},{h:'Motivo Baja',w:200,k:'motivoBaja'},{h:'Taller',w:65,k:'tipoTaller'},{h:'Nombre Taller',w:130,k:'nombreTaller'},{h:'Motivo Demora',w:200,k:'motivoDemora'}]},
+    { label:'Back Up - Disponible', color:'#378ADD', filtro:d=>d.estado==='BACK UP - DISPONIBLE',
+      cols:[{h:'Interno',w:80,k:'interno'},{h:'Patente',w:80,k:'patente'},{h:'Tipo',w:110,k:'tipo'},{h:'Centro Costo',w:200,k:'centroCosto'},{h:'Unidad Negocio',w:180,k:'unNegocio'},{h:'Estado',w:140,k:'estado',pill:true},{h:'Días Trab.',w:70,k:'diasTrabajo'},{h:'Motivo Baja',w:250,k:'motivoBaja'}]},
+    { label:'En Mantenimiento', color:'#EF9F27', filtro:d=>['MANTENIMIENTO','MANTENIMIENTO LARGO','MANT - SIN CHOFER','MANTENIMIENTO - DEVOLUCION','MODIFICACION'].includes(d.estado),
+      orden:(a,b)=>parseDias(b.diasMant)-parseDias(a.diasMant),
+      cols:[{h:'Interno',w:80,k:'interno'},{h:'Patente',w:80,k:'patente'},{h:'Tipo',w:100,k:'tipo'},{h:'Centro Costo',w:160,k:'centroCosto'},{h:'Unidad Negocio',w:150,k:'unNegocio'},{h:'Estado',w:130,k:'estado',pill:true},{h:'F. Baja',w:80,k:'fBaja',fecha:true},{h:'Días Mant.',w:60,k:'diasMant'},{h:'Motivo Baja',w:180,k:'motivoBaja'},{h:'Taller',w:62,k:'tipoTaller'},{h:'Nombre Taller',w:120,k:'nombreTaller'},{h:'Motivo Demora',w:180,k:'motivoDemora'}]}
+  ];
+
+  const maxAncho = Math.max(...GRUPOS.map(g=>g.cols.reduce((s,c)=>s+c.w,0)))+40;
+  const totalAncho = Math.max(maxAncho,1200);
+
+  const mkTh=c=>'<th style="padding:5px 7px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;color:#6b7280;background:#f0f0f0;border-bottom:2px solid #ddd;text-align:left;width:'+c.w+'px;min-width:'+c.w+'px;max-width:'+c.w+'px">'+c.h+'</th>';
+  const mkTd=(c,val,estado)=>{
+    const isLong=['motivoBaja','motivoDemora','centroCosto','unNegocio','nombreTaller'].includes(c.k);
+    const style='padding:5px 7px;font-size:10px;vertical-align:top;width:'+c.w+'px;min-width:'+c.w+'px;max-width:'+c.w+'px;'+(isLong?'word-break:break-word;white-space:normal;line-height:1.4;':'white-space:nowrap;overflow:hidden;');
+    if(c.pill){const bg=ESTADO_COLOR[val]||'#999';const tc=val==='MANT - SIN CHOFER'?'#333':'white';return '<td style="'+style+'"><span style="background:'+bg+';color:'+tc+';font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px;white-space:nowrap">'+(val||'—')+'</span></td>';}
+    return '<td style="'+style+'">'+(val||'—')+'</td>';
+  };
+
+  let html='<div style="font-family:Arial,sans-serif;background:white;width:'+totalAncho+'px"><div style="background:#1a1a1a;color:white;padding:12px 18px;display:flex;align-items:center;justify-content:space-between"><div style="display:flex;align-items:center;gap:12px"><span style="font-size:10px;font-weight:700;letter-spacing:3px;background:#C00000;padding:3px 9px;border-radius:2px">GRIFFOULIERE</span><div><div style="font-size:14px;font-weight:700">Estado Operativo de Flota</div><div style="font-size:10px;color:#aaa;margin-top:1px">'+fechaStr+' · '+horaStr+'</div></div></div><div style="font-size:10px;color:#aaa;text-align:right">Generado por: <strong style="color:white">'+SESSION.nombre+'</strong></div></div>';
+
+  GRUPOS.forEach(grupo=>{
+    let uds=FILTRADOS.filter(grupo.filtro);
+    if(grupo.orden)uds=uds.sort(grupo.orden);
+    if(!uds.length)return;
+    html+='<div style="background:'+grupo.color+';color:white;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;font-size:11px;font-weight:800;text-transform:uppercase"><span>'+grupo.label+'</span><span style="background:rgba(0,0,0,0.25);padding:1px 9px;border-radius:10px;font-size:10px">'+uds.length+' unidades</span></div>';
+    html+='<table style="width:100%;border-collapse:collapse;table-layout:fixed"><thead><tr>'+grupo.cols.map(c=>mkTh(c)).join('')+'</tr></thead><tbody>';
+    uds.forEach((d,idx)=>{
+      const bg=idx%2===0?'#ffffff':'#f9f9f9';
+      html+='<tr style="background:'+bg+';border-bottom:1px solid #eeeeee">';
+      grupo.cols.forEach(c=>{
+        let val=c.k==='_usuarioAlta'?getUsuarioAlta(d.interno):(d[c.k]||'—');
+        if(c.fecha&&val&&val!=='—')val=soloFecha(val);
+        html+=mkTd(c,val,d.estado);
+      });
+      html+='</tr>';
+    });
+    html+='</tbody></table>';
+  });
+  html+='</div>';
+
+  const wrapper=document.createElement('div');
+  wrapper.style.cssText='position:fixed;left:-9999px;top:0;z-index:-1;background:white;';
+  wrapper.innerHTML=html;
+  document.body.appendChild(wrapper);
+  try {
+    const canvas=await html2canvas(wrapper.firstElementChild,{scale:2,useCORS:true,backgroundColor:'#ffffff',logging:false,width:totalAncho});
+    const link=document.createElement('a');
+    link.download='flota_griffouliere_'+new Date().toISOString().slice(0,10)+'.png';
+    link.href=canvas.toDataURL('image/png');
+    link.click();
+    toast('✓ Imagen descargada correctamente','ok');
+  } catch(err){toast('Error al generar imagen: '+err.message,'err');}
+  finally{document.body.removeChild(wrapper);btn.disabled=false;btn.textContent='📸 Guardar Imagen';}
+}
+
 document.getElementById('confirm-cancel-btn').addEventListener('click', () => {
   document.getElementById('confirm-overlay').style.display = 'none';
 });
 
 async function ejecutarBaja(interno, patente) {
-  const fecha = document.getElementById('confirm-fecha').value;
-  if (!fecha) { toast('Seleccioná una fecha de baja.', 'err'); return; }
+  const fechaRaw = document.getElementById('confirm-fecha').value;
+  if (!fechaRaw) { toast('Seleccioná una fecha y hora de baja.', 'err'); return; }
+  const fecha = formatearFechaParaSheet(fechaRaw);
   document.getElementById('confirm-overlay').style.display = 'none';
 
   // ── PASO 1: Actualizar memoria ──
@@ -3092,7 +3445,8 @@ async function ejecutarBaja(interno, patente) {
 
   // ── PASO 2: Agregar al LOG_CACHE local inmediatamente ──
   const ts = new Date().toLocaleString('es-AR');
-  LOG_CACHE.push([ts, SESSION.usuario, SESSION.nombre, interno, patente, 'estado', 'OPERATIVA', 'MANTENIMIENTO']);
+  const estadoAntBaja = (DATOS.find(d=>d.interno===interno)||{}).estado || 'OPERATIVA';
+  LOG_CACHE.push([ts, SESSION.usuario, SESSION.nombre, interno, patente, 'estado', estadoAntBaja, 'MANTENIMIENTO']);
   LOG_CACHE.push([ts, SESSION.usuario, SESSION.nombre, interno, patente, 'FECHA DE BAJA', '', fecha]);
 
   // ── PASO 3: Actualizar UI completa ──
@@ -3131,7 +3485,8 @@ async function ejecutarBaja(interno, patente) {
     .then(r => r.json())
     .then(d => {
       if (d.ok) {
-        registrarLog(interno, patente, 'estado', 'OPERATIVA', 'MANTENIMIENTO');
+        const eAnt = estadoAntBaja || 'OPERATIVA';
+        registrarLog(interno, patente, 'estado', eAnt, 'MANTENIMIENTO');
         registrarLog(interno, patente, 'FECHA DE BAJA', '', fecha);
       } else {
         actualizarFila(interno, 'estado', 'OPERATIVA');
@@ -3156,8 +3511,9 @@ async function ejecutarBaja(interno, patente) {
 
 
 async function ejecutarAlta(interno, patente) {
-  const fecha = document.getElementById('confirm-fecha').value;
-  if (!fecha) { toast('Seleccioná una fecha de alta.', 'err'); return; }
+  const fechaRaw = document.getElementById('confirm-fecha').value;
+  if (!fechaRaw) { toast('Seleccioná una fecha y hora de alta.', 'err'); return; }
+  const fecha = formatearFechaParaSheet(fechaRaw);
   document.getElementById('confirm-overlay').style.display = 'none';
 
   // Guardar estado anterior para revertir si falla
