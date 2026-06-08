@@ -451,6 +451,28 @@ thead th {
   position: sticky; top: 0; z-index: 10;
 }
 thead th:hover { background: #333; }
+/* Columnas fijas: Interno y Patente — SOLO tabla detalle flota */
+#tabla-detalle thead th:nth-child(1) {
+  position: sticky; left: 0; z-index: 12;
+  background: var(--negro); box-shadow: 2px 0 4px rgba(0,0,0,0.15);
+}
+#tabla-detalle thead th:nth-child(2) {
+  position: sticky; left: 90px; z-index: 12;
+  background: var(--negro); box-shadow: 2px 0 4px rgba(0,0,0,0.15);
+}
+#tabla-detalle tbody td:nth-child(1) {
+  position: sticky; left: 0; z-index: 5;
+  background: #f8f9fa; font-weight: 700;
+  box-shadow: 2px 0 4px rgba(0,0,0,0.08);
+}
+#tabla-detalle tbody td:nth-child(2) {
+  position: sticky; left: 90px; z-index: 5;
+  background: #f8f9fa;
+  box-shadow: 2px 0 6px rgba(0,0,0,0.1);
+  border-right: 2px solid #ddd;
+}
+#tabla-detalle tbody tr:hover td:nth-child(1),
+#tabla-detalle tbody tr:hover td:nth-child(2) { background: #fef0f0; }
 thead th .sort-icon { margin-left: 4px; opacity: 0.5; }
 thead th.asc .sort-icon::after { content: '↑'; }
 thead th.desc .sort-icon::after { content: '↓'; }
@@ -1891,18 +1913,27 @@ function renderActiveTags() {
   });
 }
 
+// Debounce para evitar renders múltiples al cambiar filtros rápido
+let _refrescarTimer = null;
 function refrescar() {
-  aplicarFiltros();
-  renderKPIs(FILTRADOS);
-  renderGraficos(FILTRADOS);
-  renderTablaDetalle(FILTRADOS);
-  renderMantenimiento(FILTRADOS);
-  renderDescuentoTab(FILTRADOS);
-  // Auto-actualizar reporte si está visible
-  const tabReporte = document.getElementById('tab-reporte');
-  if (tabReporte && tabReporte.classList.contains('active')) {
-    renderReporte();
-  }
+  clearTimeout(_refrescarTimer);
+  _refrescarTimer = setTimeout(() => {
+    aplicarFiltros();
+    renderKPIs(FILTRADOS);
+    renderTablaDetalle(FILTRADOS);
+    renderMantenimiento(FILTRADOS);
+    renderDescuentoTab(FILTRADOS);
+    // Gráficos solo si la pestaña está activa
+    const tabGraf = document.getElementById('tab-graficos');
+    if (tabGraf && tabGraf.classList.contains('active')) {
+      renderGraficos(FILTRADOS);
+    }
+    // Reporte solo si la pestaña está activa
+    const tabReporte = document.getElementById('tab-reporte');
+    if (tabReporte && tabReporte.classList.contains('active')) {
+      renderReporte();
+    }
+  }, 80);
 }
 
 // Eventos texto libre
@@ -2237,95 +2268,120 @@ function renderDescuentoTab(datos) {
   bindEditableEvents();
 }
 
+// ── Renderizado virtual de tabla — solo renderiza filas visibles ──
+const TABLA_PAGE_SIZE = 60; // filas por lote
+let TABLA_SORTED = [];      // datos ordenados completos
+let TABLA_OFFSET = 0;       // cuántas filas ya renderizadas
+let TABLA_LOADING = false;
+
 function renderTablaDetalle(datos) {
-  let sorted = [...datos];
+  // Ordenar
+  TABLA_SORTED = [...datos];
   if (SORT.col) {
-    sorted.sort((a, b) => {
-      const va = (a[SORT.col] || '').toString();
-      const vb = (b[SORT.col] || '').toString();
+    TABLA_SORTED.sort((a,b) => {
+      const va = (a[SORT.col]||'').toString();
+      const vb = (b[SORT.col]||'').toString();
       return SORT.dir === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va);
     });
   }
 
-  document.getElementById('tabla-count').textContent = `${sorted.length} unidades`;
-
-  // En mobile renderizar tarjetas en lugar de tabla
-  if (esMobile()) {
-    renderTarjetasMobile(sorted);
-    return;
-  }
-
+  TABLA_OFFSET = 0;
   const tbody = document.getElementById('tabla-body');
   tbody.innerHTML = '';
+  document.getElementById('tabla-count').textContent = TABLA_SORTED.length + ' unidades';
 
-  const puedoEditar = SESSION && (SESSION.rol === 'Admin' || SESSION.rol === 'Operador');
+  // En mobile renderizar tarjetas
+  if (esMobile()) { renderTarjetasMobile(TABLA_SORTED); return; }
 
-  sorted.forEach(d => {
-    const tr = document.createElement('tr');
-    const estadoPill = `<span class="estado-pill ${estadoPillClass(d.estado)}" data-interno="${d.interno}" data-campo="estado" data-valor="${d.estado}">${d.estado || '—'}</span>`;
+  // Renderizar primer lote
+  _renderLote(tbody, 0, TABLA_PAGE_SIZE);
+  TABLA_OFFSET = Math.min(TABLA_PAGE_SIZE, TABLA_SORTED.length);
 
-    const editField = (campo, valor) => {
-      if (!puedoEditar || !d.interno) return `<span>${valor || '—'}</span>`;
-      return `<span class="editable-field" data-interno="${d.interno}" data-patente="${d.patente}" data-campo="${campo}" data-valor="${valor}">${valor || '—'}</span>`;
-    };
-
-    const editPopup = (campo, valor) => {
-      if (!puedoEditar || !d.interno) return `<span>${valor || '—'}</span>`;
-      return `<span class="editable-field popup-trigger" data-interno="${d.interno}" data-patente="${d.patente}" data-campo="${campo}" data-valor="${valor}">${valor || '—'}</span>`;
-    };
-
-    tr.innerHTML = `
-      <td>${d.interno || '—'}</td>
-      <td>${d.patente || '—'}</td>
-      <td>${d.tipo || '—'}</td>
-      <td>${d.centroCosto || '—'}</td>
-      <td>${d.unNegocio || '—'}</td>
-      <td>${puedoEditar ? `<span class="estado-pill ${estadoPillClass(d.estado)} popup-estado" data-interno="${d.interno}" data-patente="${d.patente}" style="cursor:pointer">${d.estado || '—'}</span>` : `<span class="estado-pill ${estadoPillClass(d.estado)}">${d.estado || '—'}</span>`}</td>
-      <td>${renderDescuento(d, puedoEditar)}</td>
-      <td>${puedoEditar && d.interno ? renderBtnAccion(d) : ''}</td>
-      <td>${d.fUltimaAlta || '—'}</td>
-      <td>${d.fBaja || '—'}</td>
-      <td>${d.fNuevaAlta || '—'}</td>
-      <td>${d.grupo || '—'}</td>
-      <td>${d.diasTrabajo || '—'}</td>
-      <td>${d.diasMant || '—'}</td>
-      <td>${editPopup('tipoTaller', d.tipoTaller)}</td>
-      <td>${editField('nombreTaller', d.nombreTaller)}</td>
-      <td>${editField('nOT', d.nOT)}</td>
-      <td>${editField('nST', d.nST)}</td>
-      <td>${editField('nNP', d.nNP)}</td>
-      <td>${editPopup('estadoRep', d.estadoRep)}</td>
-      <td>${editField('motivoDemora', d.motivoDemora)}</td>
-      <td>${editField('semiTractor', d.semiTractor)}</td>
-    `;
-    tbody.appendChild(tr);
-  });
-
-  // sincronizar scroll horizontal doble
+  // Sincronizar scroll doble
   const outer = document.getElementById('tabla-outer');
   const scrollTop = document.getElementById('scroll-top');
   const inner = document.getElementById('scroll-inner');
-  inner.style.width = (document.getElementById('tabla-detalle').scrollWidth) + 'px';
+  setTimeout(() => {
+    inner.style.width = (document.getElementById('tabla-detalle').scrollWidth) + 'px';
+  }, 50);
   scrollTop.onscroll = () => { outer.scrollLeft = scrollTop.scrollLeft; };
-  outer.onscroll = () => { scrollTop.scrollLeft = outer.scrollLeft; };
-
-  bindEditableEvents();
+  outer.onscroll = () => {
+    scrollTop.scrollLeft = outer.scrollLeft;
+    // Cargar más filas al acercarse al fondo
+    if (!TABLA_LOADING && TABLA_OFFSET < TABLA_SORTED.length) {
+      const distFondo = outer.scrollHeight - outer.scrollTop - outer.clientHeight;
+      if (distFondo < 200) {
+        TABLA_LOADING = true;
+        requestAnimationFrame(() => {
+          _renderLote(tbody, TABLA_OFFSET, TABLA_PAGE_SIZE);
+          TABLA_OFFSET = Math.min(TABLA_OFFSET + TABLA_PAGE_SIZE, TABLA_SORTED.length);
+          TABLA_LOADING = false;
+        });
+      }
+    }
+  };
 }
 
-// Sort por columna
-document.getElementById('tabla-detalle').addEventListener('click', e => {
-  const th = e.target.closest('th[data-col]');
-  if (!th) return;
-  const col = th.dataset.col;
-  if (SORT.col === col) {
-    SORT.dir = SORT.dir === 'asc' ? 'desc' : 'asc';
-  } else {
-    SORT.col = col; SORT.dir = 'asc';
+function _renderLote(tbody, desde, cantidad) {
+  const puedoEditar = SESSION && (SESSION.rol === 'Admin' || SESSION.rol === 'Operador' ||
+    SESSION.rol === 'Propietario' || SESSION.rol === 'Jefe de Taller');
+  const frag = document.createDocumentFragment();
+  const hasta = Math.min(desde + cantidad, TABLA_SORTED.length);
+
+  for (let i = desde; i < hasta; i++) {
+    const d = TABLA_SORTED[i];
+    const tr = document.createElement('tr');
+    tr.style.borderBottom = '1px solid var(--gris-borde)';
+
+    const editField = (campo, valor) => {
+      if (!puedoEditar || !d.interno) return '<span>' + (valor||'—') + '</span>';
+      return '<span class="editable-field" data-interno="' + d.interno +
+        '" data-patente="' + d.patente + '" data-campo="' + campo +
+        '" data-valor="' + (valor||'') + '">' + (valor||'—') + '</span>';
+    };
+    const editPopup = (campo, valor) => {
+      if (!puedoEditar || !d.interno) return '<span>' + (valor||'—') + '</span>';
+      return '<span class="editable-field popup-trigger" data-interno="' + d.interno +
+        '" data-patente="' + d.patente + '" data-campo="' + campo +
+        '" data-valor="' + (valor||'') + '">' + (valor||'—') + '</span>';
+    };
+
+    const estadoHTML = puedoEditar
+      ? '<span class="estado-pill ' + estadoPillClass(d.estado) + ' popup-estado" data-interno="' + d.interno + '" data-patente="' + d.patente + '" style="cursor:pointer">' + (d.estado||'—') + '</span>'
+      : '<span class="estado-pill ' + estadoPillClass(d.estado) + '">' + (d.estado||'—') + '</span>';
+
+    const descHTML = renderDescuento(d, puedoEditar);
+    const btnHTML  = puedoEditar && d.interno ? renderBtnAccion(d) : '';
+
+    tr.innerHTML =
+      '<td>' + (d.interno||'—') + '</td>' +
+      '<td>' + (d.patente||'—') + '</td>' +
+      '<td>' + (d.tipo||'—') + '</td>' +
+      '<td>' + (d.centroCosto||'—') + '</td>' +
+      '<td>' + (d.unNegocio||'—') + '</td>' +
+      '<td>' + estadoHTML + '</td>' +
+      '<td>' + descHTML + '</td>' +
+      '<td>' + btnHTML + '</td>' +
+      '<td>' + (d.fUltimaAlta||'—') + '</td>' +
+      '<td>' + (d.fBaja||'—') + '</td>' +
+      '<td>' + (d.fNuevaAlta||'—') + '</td>' +
+      '<td>' + (d.grupo||'—') + '</td>' +
+      '<td>' + (d.diasTrabajo||'—') + '</td>' +
+      '<td>' + (d.diasMant||'—') + '</td>' +
+      '<td>' + editPopup('tipoTaller', d.tipoTaller) + '</td>' +
+      '<td>' + editField('nombreTaller', d.nombreTaller) + '</td>' +
+      '<td>' + editField('nOT', d.nOT) + '</td>' +
+      '<td>' + editField('nST', d.nST) + '</td>' +
+      '<td>' + editField('nNP', d.nNP) + '</td>' +
+      '<td>' + editPopup('estadoRep', d.estadoRep) + '</td>' +
+      '<td>' + editField('motivoDemora', d.motivoDemora) + '</td>' +
+      '<td>' + editField('semiTractor', d.semiTractor) + '</td>';
+
+    frag.appendChild(tr);
   }
-  document.querySelectorAll('thead th').forEach(t => t.classList.remove('asc','desc'));
-  th.classList.add(SORT.dir);
-  renderTablaDetalle(FILTRADOS);
-});
+  tbody.appendChild(frag);
+}
+
 
 // ════════════════════════════════════════════════════════════
 // EDICIÓN INLINE
@@ -2346,85 +2402,94 @@ function renderDescuento(d, puedoEditar) {
     data-valor="${val}" style="cursor:pointer">${label}</span>`;
 }
 
-// Bind eventos descuento — se llama desde bindEditableEvents
+// bindDescuentoEvents — manejado por delegación en bindEditableEvents
 function bindDescuentoEvents() {
-  document.querySelectorAll('.popup-descuento').forEach(el => {
-    el.addEventListener('click', function() {
-      const interno  = this.dataset.interno;
-      const patente  = this.dataset.patente;
-      const valorAnt = this.dataset.valor;
-      const self     = this;
-
-      abrirPopup(interno, patente, 'descuento', valorAnt, ['SI','NO'], (nuevoVal) => {
-        const cls = nuevoVal === 'SI' ? 'descuento-si' : 'descuento-no';
-        self.className = `descuento-pill ${cls} popup-descuento`;
-        self.textContent = nuevoVal;
-        self.dataset.valor = nuevoVal;
-        actualizarFila(interno, 'descuento', nuevoVal);
-      });
-    });
-  });
+  // No hace nada — el click en popup-descuento es capturado
+  // por la delegación de eventos en bindEditableEvents()
 }
+
+// ── Delegación de eventos — UN solo listener, se inicializa UNA vez ──
+let _editDelegated = false;
 
 function bindEditableEvents() {
-  // Campos texto libre → onblur
-  document.querySelectorAll('.editable-field:not(.popup-trigger)').forEach(el => {
-    el.addEventListener('click', function() {
-      if (this.querySelector('input')) return;
-      const valorActual = this.dataset.valor || '';
-      const input = document.createElement('input');
-      input.type = 'text';
-      input.value = valorActual;
-      input.className = 'editable-input';
-      this.textContent = '';
-      this.appendChild(input);
-      input.focus();
+  if (_editDelegated) return;
+  _editDelegated = true;
 
-      const guardar = () => {
-        const nuevoValor = input.value.trim();
-        this.textContent = nuevoValor || '—';
-        this.dataset.valor = nuevoValor;
-        if (nuevoValor !== valorActual) {
-          guardarCampo(this.dataset.interno, this.dataset.patente, this.dataset.campo, valorActual, nuevoValor);
-        }
-      };
-      input.addEventListener('blur', guardar);
-      input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); guardar(); } });
-    });
-  });
+  const contenedores = [
+    document.getElementById('tabla-body'),
+    document.getElementById('mant-groups'),
+    document.getElementById('descuento-body'),
+    document.getElementById('tab-descuento')
+  ];
 
-  // Popup estado
-  document.querySelectorAll('.popup-estado').forEach(el => {
-    el.addEventListener('click', function() {
-      abrirPopup(this.dataset.interno, this.dataset.patente, 'estado', this.textContent.trim(), ESTADO_LISTA, (v) => {
-        this.textContent = v;
-        this.className = `estado-pill ${estadoPillClass(v)} popup-estado`;
-        this.dataset.valor = v;
-        actualizarFila(this.dataset.interno, 'estado', v);
-      });
-    });
-  });
+  contenedores.forEach(cont => {
+    if (!cont) return;
+    cont.addEventListener('click', function(e) {
+      const el = e.target.closest('[data-interno]');
+      if (!el) return;
 
-  // Pills descuento
-  bindDescuentoEvents();
+      // Popup estado
+      if (el.classList.contains('popup-estado')) {
+        e.stopPropagation();
+        abrirPopup(el.dataset.interno, el.dataset.patente, 'estado',
+          el.textContent.trim(), ESTADO_LISTA, (v) => {
+            el.textContent = v;
+            el.className = 'estado-pill ' + estadoPillClass(v) + ' popup-estado';
+            el.dataset.valor = v;
+            actualizarFila(el.dataset.interno, 'estado', v);
+          });
+        return;
+      }
 
-  // Popup campos con opciones
-  document.querySelectorAll('.popup-trigger').forEach(el => {
-    el.addEventListener('click', function() {
-      const campo = this.dataset.campo;
-      let opciones = [];
-      if (campo === 'tipoTaller') opciones = ['PROPIO','TERCERO','CAMPO'];
-      if (campo === 'estadoRep') opciones = ESTADO_REP_LISTA;
-      if (campo === 'descuento') opciones = ['SI','NO'];
-      if (!opciones.length) return;
-      abrirPopup(this.dataset.interno, this.dataset.patente, campo, this.textContent.trim(), opciones, (v) => {
-        this.textContent = v;
-        this.dataset.valor = v;
-        actualizarFila(this.dataset.interno, campo, v);
-      });
+      // Popup trigger (tipoTaller, estadoRep) y popup-descuento
+      if (el.classList.contains('popup-trigger') || el.classList.contains('popup-descuento')) {
+        e.stopPropagation();
+        const campo = el.dataset.campo;
+        let opciones = [];
+        if (campo === 'tipoTaller') opciones = ['PROPIO','TERCERO','CAMPO'];
+        if (campo === 'estadoRep')  opciones = ESTADO_REP_LISTA;
+        if (campo === 'descuento')  opciones = ['SI','NO'];
+        if (!opciones.length) return;
+        abrirPopup(el.dataset.interno, el.dataset.patente, campo,
+          el.textContent.trim(), opciones, (v) => {
+            if (campo === 'descuento') {
+              const cls = v === 'SI' ? 'descuento-si' : 'descuento-no';
+              el.className = 'descuento-pill ' + cls + ' popup-descuento';
+            }
+            el.textContent = v;
+            el.dataset.valor = v;
+            actualizarFila(el.dataset.interno, campo, v);
+          });
+        return;
+      }
+
+      // Campo texto libre
+      if (el.classList.contains('editable-field') && !el.classList.contains('popup-trigger')) {
+        e.stopPropagation();
+        if (el.querySelector('input')) return;
+        const valorActual = el.dataset.valor || '';
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = valorActual;
+        input.className = 'editable-input';
+        el.textContent = '';
+        el.appendChild(input);
+        input.focus();
+        const guardar = () => {
+          const nuevoValor = input.value.trim();
+          el.textContent = nuevoValor || '—';
+          el.dataset.valor = nuevoValor;
+          if (nuevoValor !== valorActual) {
+            guardarCampo(el.dataset.interno, el.dataset.patente, el.dataset.campo, valorActual, nuevoValor);
+          }
+        };
+        input.addEventListener('blur', guardar);
+        input.addEventListener('keydown', ev => { if (ev.key === 'Enter') { ev.preventDefault(); guardar(); } });
+      }
     });
   });
 }
+
 
 function actualizarFila(interno, campo, valor) {
   const idx = DATOS.findIndex(d => d.interno === interno);
@@ -2561,21 +2626,111 @@ async function cargarLog() {
 // ════════════════════════════════════════════════════════════
 function renderMantenimiento(datos) {
   const enMant = datos.filter(d => MANT_ESTADOS.includes(d.estado));
+  const enDesc = datos.filter(d => (d.descuento||'').toUpperCase().trim() === 'SI');
   const cont   = document.getElementById('mant-groups');
   cont.innerHTML = '';
-  const puedoEditar = SESSION && (SESSION.rol === 'Admin' || SESSION.rol === 'Operador' || SESSION.rol === 'Propietario' || SESSION.rol === 'Jefe de Taller');
+  const puedoEditar = SESSION && (SESSION.rol === 'Admin' || SESSION.rol === 'Operador' ||
+    SESSION.rol === 'Propietario' || SESSION.rol === 'Jefe de Taller');
 
-  if (!enMant.length) {
+  if (!enMant.length && !enDesc.length) {
     cont.innerHTML = '<p style="color:#888;font-size:13px;padding:20px;">No hay unidades en mantenimiento con los filtros actuales.</p>';
     return;
   }
 
+  const COLS_MANT = [
+    {label:'Interno',       w:'100px'}, {label:'Patente',       w:'95px'},
+    {label:'Tipo',          w:'130px'}, {label:'Taller',        w:'75px'},
+    {label:'Nombre Taller', w:'160px'}, {label:'Días',          w:'55px'},
+    {label:'N° OT',         w:'90px'},  {label:'N° ST',         w:'90px'},
+    {label:'N° NP',         w:'90px'},  {label:'Estado Rep.',   w:'130px'},
+    {label:'Motivo Demora', w:'1fr'},   {label:'Motivo Baja',   w:'1fr'}
+  ];
+  const GRID_MANT = COLS_MANT.map(c => c.w).join(' ');
+
+  const COLS_DESC = [
+    {label:'Interno',       w:'100px'}, {label:'Patente',       w:'95px'},
+    {label:'Tipo',          w:'130px'}, {label:'Centro Costo',  w:'180px'},
+    {label:'Unidad Neg.',   w:'160px'}, {label:'Estado',        w:'130px'},
+    {label:'Días Mant.',    w:'70px'},  {label:'Taller',        w:'75px'},
+    {label:'Nombre Taller', w:'150px'}, {label:'Motivo Baja',   w:'1fr'},
+    {label:'Motivo Demora', w:'1fr'}
+  ];
+  const GRID_DESC = COLS_DESC.map(c => c.w).join(' ');
+
+  // ── Helper: construir grupo colapsable ──
+  const mkGrupo = (label, color, unidades, gridCols, buildRow) => {
+    const seccion = document.createElement('div');
+    seccion.style.marginBottom = '16px';
+
+    const cab = document.createElement('div');
+    cab.style.cssText = 'background:' + color + ';color:white;padding:10px 16px;border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:800;letter-spacing:0.5px;text-transform:uppercase;cursor:pointer;user-select:none;';
+    cab.innerHTML = '<span>' + label + '</span><div style="display:flex;align-items:center;gap:10px"><span style="background:rgba(0,0,0,0.25);color:white;font-size:11px;padding:2px 10px;border-radius:10px;font-weight:700">' + unidades.length + ' unidades</span><span class="est-arrow" style="font-size:11px;opacity:0.8">▲</span></div>';
+
+    const cuerpo = document.createElement('div');
+    cuerpo.style.cssText = 'border:1px solid #e0e2e8;border-top:none;border-radius:0 0 8px 8px;overflow-x:auto;';
+
+    cab.addEventListener('click', () => {
+      const ab = cuerpo.style.display !== 'none';
+      cuerpo.style.display = ab ? 'none' : 'block';
+      cab.querySelector('.est-arrow').textContent = ab ? '▼' : '▲';
+      cab.style.borderRadius = ab ? '8px' : '8px 8px 0 0';
+    });
+
+    const wrapper = document.createElement('div');
+    wrapper.style.minWidth = '1200px';
+
+    const headerRow = document.createElement('div');
+    headerRow.style.cssText = 'display:grid;grid-template-columns:' + gridCols + ';padding:7px 12px;background:#f8f9fa;border-bottom:2px solid #e0e2e8;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#6b7280;';
+    headerRow.innerHTML = gridCols.split(' ').map((_, i) => '<span>' + (i < Object.keys({}).length ? '' : '') + '</span>').join('');
+    // Reemplazar con labels correctos
+    const cols = gridCols === GRID_MANT ? COLS_MANT : COLS_DESC;
+    headerRow.innerHTML = cols.map(c => '<span>' + c.label + '</span>').join('');
+    wrapper.appendChild(headerRow);
+
+    unidades.forEach((d, idx) => {
+      const row = buildRow(d, idx);
+      wrapper.appendChild(row);
+    });
+
+    cuerpo.appendChild(wrapper);
+    seccion.appendChild(cab);
+    seccion.appendChild(cuerpo);
+    return seccion;
+  };
+
+  // ── GRUPO DESCUENTO ──
+  if (enDesc.length) {
+    const udsDesc = [...enDesc].sort((a,b) => (parseInt(b.diasMant)||0) - (parseInt(a.diasMant)||0));
+
+    const buildDescRow = (d, idx) => {
+      const row = document.createElement('div');
+      const bgRow = idx%2===0 ? 'white' : '#fafafa';
+      row.style.cssText = 'display:grid;grid-template-columns:' + GRID_DESC + ';padding:8px 12px;border-bottom:1px solid #f0f0f0;font-size:12px;align-items:start;background:' + bgRow + ';';
+      row.onmouseover = () => row.style.background = '#fef9f9';
+      row.onmouseout  = () => row.style.background = bgRow;
+
+      const cell = (val, bold) => '<span style="' + (bold?'font-weight:700;':'') + 'word-break:break-word;white-space:normal;line-height:1.4;color:#374151">' + (val||'—') + '</span>';
+      const estadoHTML = '<span class="estado-pill ' + estadoPillClass(d.estado) + '" style="font-size:10px">' + (d.estado||'—') + '</span>';
+
+      row.innerHTML =
+        cell(d.interno, true) + cell(d.patente) + cell(d.tipo) +
+        cell(d.centroCosto) + cell(d.unNegocio) +
+        '<span>' + estadoHTML + '</span>' +
+        '<span><span class="dias-badge ' + (parseInt(d.diasMant)>30?'dias-crit':parseInt(d.diasMant)>15?'dias-warn':'dias-ok') + '">' + (parseInt(d.diasMant)||0) + 'd</span></span>' +
+        cell(d.tipoTaller) + cell(d.nombreTaller) +
+        cell(d.motivoBaja) + cell(d.motivoDemora);
+
+      return row;
+    };
+
+    cont.appendChild(mkGrupo('🏷️ En Descuento', '#C00000', udsDesc, GRID_DESC, buildDescRow));
+  }
+
+  // ── GRUPOS MANTENIMIENTO por estado ──
   const ORDEN_ESTADO = ['MANTENIMIENTO LARGO','MANTENIMIENTO','MANT - SIN CHOFER','MANTENIMIENTO - DEVOLUCION'];
   const ESTADO_BG = {
-    'MANTENIMIENTO LARGO':        '#E07B39',
-    'MANTENIMIENTO':              '#EF9F27',
-    'MANT - SIN CHOFER':         '#D4A017',
-    'MANTENIMIENTO - DEVOLUCION': '#888780'
+    'MANTENIMIENTO LARGO':'#E07B39','MANTENIMIENTO':'#EF9F27',
+    'MANT - SIN CHOFER':'#D4A017','MANTENIMIENTO - DEVOLUCION':'#888780'
   };
 
   const porEstado = {};
@@ -2590,101 +2745,45 @@ function renderMantenimiento(datos) {
     ...Object.keys(porEstado).filter(e => !ORDEN_ESTADO.includes(e))
   ];
 
-  // Columnas: Interno|Patente|Tipo|Taller|Nombre Taller|Días|N°OT|N°ST|N°NP|Estado Rep.|Motivo Demora|Motivo Baja
-  const COLS = [
-    {label:'Interno',       w:'100px'},
-    {label:'Patente',       w:'95px'},
-    {label:'Tipo',          w:'130px'},
-    {label:'Taller',        w:'75px'},
-    {label:'Nombre Taller', w:'160px'},
-    {label:'Días',          w:'55px'},
-    {label:'N° OT',         w:'90px'},
-    {label:'N° ST',         w:'90px'},
-    {label:'N° NP',         w:'90px'},
-    {label:'Estado Rep.',   w:'130px'},
-    {label:'Motivo Demora', w:'1fr'},
-    {label:'Motivo Baja',   w:'1fr'}
-  ];
-  const GRID = COLS.map(c => c.w).join(' ');
-
   estadosOrdenados.forEach(estado => {
-    let unidades = porEstado[estado];
-    unidades.sort((a,b) => (parseInt(b.diasMant)||0) - (parseInt(a.diasMant)||0));
-
-    const seccion = document.createElement('div');
-    seccion.style.marginBottom = '16px';
-
+    const unidades = [...porEstado[estado]].sort((a,b) => (parseInt(b.diasMant)||0) - (parseInt(a.diasMant)||0));
     const bg = ESTADO_BG[estado] || '#374151';
-    const cabEstado = document.createElement('div');
-    cabEstado.style.cssText = 'background:' + bg + ';color:white;padding:10px 16px;border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:800;letter-spacing:0.5px;text-transform:uppercase;cursor:pointer;user-select:none;';
-    cabEstado.innerHTML = '<span>' + estado + '</span><div style="display:flex;align-items:center;gap:10px"><span style="background:rgba(0,0,0,0.25);color:white;font-size:11px;padding:2px 10px;border-radius:10px;font-weight:700">' + unidades.length + ' unidades</span><span class="est-arrow" style="font-size:11px;opacity:0.8">▲</span></div>';
 
-    const cuerpo = document.createElement('div');
-    cuerpo.style.cssText = 'border:1px solid #e0e2e8;border-top:none;border-radius:0 0 8px 8px;overflow-x:auto;';
-
-    cabEstado.addEventListener('click', () => {
-      const ab = cuerpo.style.display !== 'none';
-      cuerpo.style.display = ab ? 'none' : 'block';
-      cabEstado.querySelector('.est-arrow').textContent = ab ? '▼' : '▲';
-      cabEstado.style.borderRadius = ab ? '8px' : '8px 8px 0 0';
-    });
-
-    const wrapper = document.createElement('div');
-    wrapper.style.minWidth = '1200px';
-
-    // Header
-    const headerRow = document.createElement('div');
-    headerRow.style.cssText = 'display:grid;grid-template-columns:' + GRID + ';padding:7px 12px;background:#f8f9fa;border-bottom:2px solid #e0e2e8;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#6b7280;';
-    headerRow.innerHTML = COLS.map(c => '<span>' + c.label + '</span>').join('');
-    wrapper.appendChild(headerRow);
-
-    unidades.forEach((d, idx) => {
+    const buildMantRow = (d, idx) => {
       const row = document.createElement('div');
       const dias = parseInt(d.diasMant) || 0;
       const diasClass = dias > 30 ? 'dias-crit' : dias > 15 ? 'dias-warn' : 'dias-ok';
       const bgRow = idx%2===0 ? 'white' : '#fafafa';
-      row.style.cssText = 'display:grid;grid-template-columns:' + GRID + ';padding:8px 12px;border-bottom:1px solid #f0f0f0;font-size:12px;align-items:start;background:' + bgRow + ';';
+      row.style.cssText = 'display:grid;grid-template-columns:' + GRID_MANT + ';padding:8px 12px;border-bottom:1px solid #f0f0f0;font-size:12px;align-items:start;background:' + bgRow + ';';
       row.onmouseover = () => row.style.background = '#fef9f9';
       row.onmouseout  = () => row.style.background = bgRow;
 
-      const cell = (val, bold) => {
-        const v = val || '—';
-        return '<span style="' + (bold?'font-weight:700;color:#1a1a1a;':'color:#374151;') + 'word-break:break-word;white-space:normal;line-height:1.4">' + v + '</span>';
-      };
-
+      const cell = (val, bold) => '<span style="' + (bold?'font-weight:700;':'') + 'word-break:break-word;white-space:normal;line-height:1.4;color:#374151">' + (val||'—') + '</span>';
       const tallBadge = '<span style="font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;background:' +
         (d.tipoTaller==='PROPIO'?'#d1fae5':d.tipoTaller==='TERCERO'?'#fee2e2':'#dbeafe') +
         ';color:' + (d.tipoTaller==='PROPIO'?'#065f46':d.tipoTaller==='TERCERO'?'#991b1b':'#1e40af') + '">' +
         (d.tipoTaller||'—') + '</span>';
 
       const makeEdit = (campo, valor) => {
-        const v = valor || '—';
-        if (!puedoEditar || !d.interno) return '<span style="color:#374151;word-break:break-word;white-space:normal;line-height:1.4">' + v + '</span>';
-        if (campo === 'estadoRep') return '<span class="editable-field popup-trigger" data-interno="' + d.interno + '" data-patente="' + d.patente + '" data-campo="estadoRep" data-valor="' + (valor||'') + '" style="word-break:break-word;white-space:normal;line-height:1.4;cursor:pointer">' + v + '</span>';
-        return '<span class="editable-field" data-interno="' + d.interno + '" data-patente="' + d.patente + '" data-campo="' + campo + '" data-valor="' + (valor||'') + '" style="word-break:break-word;white-space:normal;line-height:1.4">' + v + '</span>';
+        if (!puedoEditar || !d.interno) return '<span style="word-break:break-word;white-space:normal;line-height:1.4;color:#374151">' + (valor||'—') + '</span>';
+        if (campo === 'estadoRep') return '<span class="editable-field popup-trigger" data-interno="' + d.interno + '" data-patente="' + d.patente + '" data-campo="estadoRep" data-valor="' + (valor||'') + '" style="word-break:break-word;white-space:normal;line-height:1.4;cursor:pointer">' + (valor||'—') + '</span>';
+        return '<span class="editable-field" data-interno="' + d.interno + '" data-patente="' + d.patente + '" data-campo="' + campo + '" data-valor="' + (valor||'') + '" style="word-break:break-word;white-space:normal;line-height:1.4">' + (valor||'—') + '</span>';
       };
 
       row.innerHTML =
-        cell(d.interno, true) +
-        cell(d.patente, false) +
-        cell(d.tipo, false) +
+        cell(d.interno, true) + cell(d.patente) + cell(d.tipo) +
         '<span>' + tallBadge + '</span>' +
-        cell(d.nombreTaller, false) +
+        cell(d.nombreTaller) +
         '<span><span class="dias-badge ' + diasClass + '">' + dias + 'd</span></span>' +
-        cell(d.nOT, false) +
-        cell(d.nST, false) +
-        cell(d.nNP, false) +
+        cell(d.nOT) + cell(d.nST) + cell(d.nNP) +
         makeEdit('estadoRep', d.estadoRep) +
         makeEdit('motivoDemora', d.motivoDemora) +
-        cell(d.motivoBaja, false);
+        cell(d.motivoBaja);
 
-      wrapper.appendChild(row);
-    });
+      return row;
+    };
 
-    cuerpo.appendChild(wrapper);
-    seccion.appendChild(cabEstado);
-    seccion.appendChild(cuerpo);
-    cont.appendChild(seccion);
+    cont.appendChild(mkGrupo(estado, bg, unidades, GRID_MANT, buildMantRow));
   });
 
   bindEditableEvents();
@@ -2986,13 +3085,46 @@ async function ejecutarBaja(interno, patente) {
   if (!fecha) { toast('Seleccioná una fecha de baja.', 'err'); return; }
   document.getElementById('confirm-overlay').style.display = 'none';
 
-  // 1. Actualizar UI inmediatamente
+  // ── PASO 1: Actualizar memoria ──
   actualizarFila(interno, 'estado', 'MANTENIMIENTO');
   actualizarFila(interno, 'fBaja', fecha);
-  refrescar();
+
+  // ── PASO 2: Agregar al LOG_CACHE local inmediatamente ──
+  const ts = new Date().toLocaleString('es-AR');
+  LOG_CACHE.push([ts, SESSION.usuario, SESSION.nombre, interno, patente, 'estado', 'OPERATIVA', 'MANTENIMIENTO']);
+  LOG_CACHE.push([ts, SESSION.usuario, SESSION.nombre, interno, patente, 'FECHA DE BAJA', '', fecha]);
+
+  // ── PASO 3: Actualizar UI completa ──
+  aplicarFiltros();
+  renderKPIs(FILTRADOS);
+  renderTablaDetalle(FILTRADOS);
+  renderMantenimiento(FILTRADOS);
+  renderDescuentoTab(FILTRADOS);
+  const tabRep = document.getElementById('tab-reporte');
+  if (tabRep && tabRep.classList.contains('active')) renderReporte();
+
+  // ── PASO 4: Actualizar Log de Cambios si está visible ──
+  const tabLog = document.getElementById('tab-log');
+  if (tabLog && tabLog.classList.contains('active')) {
+    const tbody = document.getElementById('log-body');
+    if (tbody) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${ts}</td>
+        <td>${SESSION.usuario}</td>
+        <td>${SESSION.nombre}</td>
+        <td>${interno}</td>
+        <td>${patente}</td>
+        <td>estado</td>
+        <td><span class="val-old">OPERATIVA</span></td>
+        <td><span class="val-new">MANTENIMIENTO</span></td>`;
+      tbody.insertBefore(tr, tbody.firstChild);
+    }
+  }
+
   toast(`✓ ${interno} → MANTENIMIENTO`, 'ok');
 
-  // 2. Sincronizar con Sheet en background
+  // ── PASO 5: Sincronizar con Sheet en background ──
   const params = new URLSearchParams({ action: 'darBaja', interno, fechaBaja: fecha });
   fetch(`${API_URL}?${params}`, { cache: 'no-store' })
     .then(r => r.json())
@@ -3001,20 +3133,26 @@ async function ejecutarBaja(interno, patente) {
         registrarLog(interno, patente, 'estado', 'OPERATIVA', 'MANTENIMIENTO');
         registrarLog(interno, patente, 'FECHA DE BAJA', '', fecha);
       } else {
-        // Revertir
         actualizarFila(interno, 'estado', 'OPERATIVA');
         actualizarFila(interno, 'fBaja', '');
-        refrescar();
+        aplicarFiltros();
+        renderKPIs(FILTRADOS); renderTablaDetalle(FILTRADOS);
+        renderMantenimiento(FILTRADOS); renderDescuentoTab(FILTRADOS);
+        if (tabRep && tabRep.classList.contains('active')) renderReporte();
         toast(`Error al guardar baja: ${d.error}`, 'err');
       }
     })
     .catch(() => {
       actualizarFila(interno, 'estado', 'OPERATIVA');
       actualizarFila(interno, 'fBaja', '');
-      refrescar();
+      aplicarFiltros();
+      renderKPIs(FILTRADOS); renderTablaDetalle(FILTRADOS);
+      renderMantenimiento(FILTRADOS); renderDescuentoTab(FILTRADOS);
+      if (tabRep && tabRep.classList.contains('active')) renderReporte();
       toast('Error de conexión — baja revertida.', 'err');
     });
 }
+
 
 async function ejecutarAlta(interno, patente) {
   const fecha = document.getElementById('confirm-fecha').value;
@@ -3025,7 +3163,7 @@ async function ejecutarAlta(interno, patente) {
   const idx = DATOS.findIndex(d => d.interno === interno);
   const estadoAnterior = idx >= 0 ? {...DATOS[idx]} : null;
 
-  // 1. Actualizar UI inmediatamente
+  // ── PASO 1: Actualizar memoria ──
   actualizarFila(interno, 'estado', 'OPERATIVA');
   actualizarFila(interno, 'fUltimaAlta', fecha);
   actualizarFila(interno, 'fBaja', '');
@@ -3034,26 +3172,63 @@ async function ejecutarAlta(interno, patente) {
   actualizarFila(interno, 'estadoRep', '');
   actualizarFila(interno, 'motivoDemora', '');
   actualizarFila(interno, 'nombreTaller', '');
-  refrescar();
-  toast(`✓ ${interno} → OPERATIVA. Guardando historial...`, 'ok');
 
-  // 2. Sincronizar con Sheet en background
+  // ── PASO 2: Agregar al LOG_CACHE local inmediatamente ──
+  const ts = new Date().toLocaleString('es-AR');
+  LOG_CACHE.push([ts, SESSION.usuario, SESSION.nombre, interno, patente, 'estado', 'MANTENIMIENTO', 'OPERATIVA']);
+
+  // ── PASO 3: Actualizar UI completa incluyendo reporte con usuario ──
+  aplicarFiltros();
+  renderKPIs(FILTRADOS);
+  renderTablaDetalle(FILTRADOS);
+  renderMantenimiento(FILTRADOS);
+  renderDescuentoTab(FILTRADOS);
+  const tabRep = document.getElementById('tab-reporte');
+  if (tabRep && tabRep.classList.contains('active')) renderReporte();
+
+  // ── PASO 4: Actualizar Log de Cambios si está visible ──
+  const tabLog = document.getElementById('tab-log');
+  if (tabLog && tabLog.classList.contains('active')) {
+    const tbody = document.getElementById('log-body');
+    if (tbody) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${ts}</td>
+        <td>${SESSION.usuario}</td>
+        <td>${SESSION.nombre}</td>
+        <td>${interno}</td>
+        <td>${patente}</td>
+        <td>estado</td>
+        <td><span class="val-old">MANTENIMIENTO</span></td>
+        <td><span class="val-new">OPERATIVA</span></td>`;
+      tbody.insertBefore(tr, tbody.firstChild);
+    }
+  }
+
+  toast(`✓ ${interno} → OPERATIVA`, 'ok');
+
+  // ── PASO 5: Sincronizar con Sheet en background ──
   const params = new URLSearchParams({ action: 'darAlta', interno, fechaAlta: fecha });
   fetch(`${API_URL}?${params}`, { cache: 'no-store' })
     .then(r => r.json())
     .then(d => {
       if (d.ok) {
-        toast(`✓ ${interno} operativa. Historial guardado.`, 'ok');
         registrarLog(interno, patente, 'estado', 'MANTENIMIENTO', 'OPERATIVA');
         registrarLog(interno, patente, 'Fecha de ultima alta', '', fecha);
       } else {
-        // Revertir
+        // Revertir si falló
         if (estadoAnterior && idx >= 0) {
           Object.assign(DATOS[idx], estadoAnterior);
           const fi = FILTRADOS.findIndex(d => d.interno === interno);
           if (fi >= 0) Object.assign(FILTRADOS[fi], estadoAnterior);
         }
-        refrescar();
+        // Quitar del cache local
+        const li = LOG_CACHE.findIndex(r => r[3]===interno && r[7]==='OPERATIVA' && r[0]===ts);
+        if (li >= 0) LOG_CACHE.splice(li, 1);
+        aplicarFiltros();
+        renderKPIs(FILTRADOS); renderTablaDetalle(FILTRADOS);
+        renderMantenimiento(FILTRADOS); renderDescuentoTab(FILTRADOS);
+        if (tabRep && tabRep.classList.contains('active')) renderReporte();
         toast(`Error al guardar alta: ${d.error}`, 'err');
       }
     })
@@ -3063,666 +3238,12 @@ async function ejecutarAlta(interno, patente) {
         const fi = FILTRADOS.findIndex(d => d.interno === interno);
         if (fi >= 0) Object.assign(FILTRADOS[fi], estadoAnterior);
       }
-      refrescar();
+      aplicarFiltros();
+      renderKPIs(FILTRADOS); renderTablaDetalle(FILTRADOS);
+      renderMantenimiento(FILTRADOS); renderDescuentoTab(FILTRADOS);
+      if (tabRep && tabRep.classList.contains('active')) renderReporte();
       toast('Error de conexión — alta revertida.', 'err');
     });
 }
 
-// ════════════════════════════════════════════════════════════
-// AUTO-ACTUALIZACIÓN DE ESTADOS
-// MANTENIMIENTO + diasMant > 30 → MANTENIMIENTO LARGO
-// ════════════════════════════════════════════════════════════
-async function autoActualizarEstados() {
-  const candidatos = DATOS.filter(d =>
-    d.estado === 'MANTENIMIENTO' &&
-    (parseInt(d.diasMant) || 0) > 30 &&
-    d.interno
-  );
 
-  if (!candidatos.length) return;
-
-  console.log(`Auto-update: ${candidatos.length} unidades pasan a MANTENIMIENTO LARGO`);
-
-  // Actualizar en memoria inmediatamente
-  candidatos.forEach(d => {
-    actualizarFila(d.interno, 'estado', 'MANTENIMIENTO LARGO');
-  });
-
-  // Refrescar vista
-  refrescar();
-  toast(`↗ ${candidatos.length} unidad${candidatos.length > 1 ? 'es' : ''} pasaron a MANTENIMIENTO LARGO (+30 días)`, 'ok');
-
-  // Sincronizar con Sheet en background — de a uno para no saturar
-  for (const d of candidatos) {
-    const params = new URLSearchParams({
-      action: 'update',
-      interno: d.interno,
-      campo: 'estado',
-      valor: 'MANTENIMIENTO LARGO'
-    });
-    fetch(`${API_URL}?${params}`, { cache: 'no-store' })
-      .then(r => r.json())
-      .then(res => {
-        if (res.ok) {
-          registrarLog(d.interno, d.patente, 'estado', 'MANTENIMIENTO', 'MANTENIMIENTO LARGO');
-        } else {
-          console.warn(`Error al actualizar ${d.interno}:`, res.error);
-        }
-      })
-      .catch(err => console.warn(`Error conexión ${d.interno}:`, err));
-
-    // Pequeña pausa entre requests para no saturar el Apps Script
-    await new Promise(r => setTimeout(r, 300));
-  }
-}
-
-
-// ════════════════════════════════════════════════════════════
-// POPUP CAMBIO DE ROL
-// ════════════════════════════════════════════════════════════
-const ROLES_DISPONIBLES = ['Admin','Jefe de Taller','Operador','Lectura'];
-
-function abrirCambioRol(login, nombre, rolActual) {
-  document.getElementById('rol-popup-usuario').textContent = nombre + ' (' + login + ')';
-  const cont = document.getElementById('rol-popup-opciones');
-  cont.innerHTML = '';
-
-  ROLES_DISPONIBLES.forEach(rol => {
-    const div = document.createElement('div');
-    div.className = 'rol-opcion' + (rol === rolActual ? ' selected' : '');
-
-    const permisos = ROL_PERMISOS[rol] || {};
-    const permStr  = Object.entries(permisos)
-      .filter(([,v]) => v).map(([k]) => k).join(' · ');
-
-    div.innerHTML = `
-      <div class="rol-opcion-left">
-        <span class="rol-pill rol-${rol.toLowerCase().replace(' ','-')}">${rol}</span>
-        <div>
-          <div class="rol-opcion-nombre">${rol}</div>
-          <div class="rol-opcion-desc">${ROL_DESC[rol] || ''}</div>
-        </div>
-      </div>
-      <div style="font-size:10px;color:var(--gris-text);max-width:200px;text-align:right;line-height:1.4">${permStr}</div>
-    `;
-
-    div.addEventListener('click', () => {
-      if (rol !== rolActual) guardarCambioRol(login, nombre, rolActual, rol);
-      document.getElementById('rol-popup-overlay').style.display = 'none';
-    });
-
-    cont.appendChild(div);
-  });
-
-  document.getElementById('rol-popup-overlay').style.display = 'flex';
-}
-
-async function guardarCambioRol(login, nombre, rolAnterior, nuevoRol) {
-  // Buscar índice en USUARIOS
-  const idx = USUARIOS.findIndex(u =>
-    (u.usuario || u['Usuario (login)']) === login
-  );
-  if (idx >= 0) USUARIOS[idx].rol = nuevoRol;
-
-  // Guardar en Sheet
-  const datos = {
-    action: 'saveUsuario',
-    n: idx >= 0 ? (USUARIOS[idx].n || String(idx + 1)) : null,
-    nombre: nombre,
-    usuario: login,
-    password: idx >= 0 ? (USUARIOS[idx].password || USUARIOS[idx]['Contraseña'] || '') : '',
-    rol: nuevoRol,
-    empresa: idx >= 0 ? (USUARIOS[idx].empresa || '') : '',
-    obs: idx >= 0 ? (USUARIOS[idx].obs || '') : ''
-  };
-
-  fetch(API_URL, {
-    method: 'POST', mode: 'no-cors',
-    headers: { 'Content-Type': 'text/plain' },
-    body: JSON.stringify(datos)
-  }).catch(() => {});
-
-  toast(`✓ Rol de ${nombre} cambiado a ${nuevoRol}`, 'ok');
-  setTimeout(cargarUsuariosTab, 800);
-}
-
-document.getElementById('rol-popup-cancel').addEventListener('click', () => {
-  document.getElementById('rol-popup-overlay').style.display = 'none';
-});
-document.getElementById('rol-popup-overlay').addEventListener('click', e => {
-  if (e.target === document.getElementById('rol-popup-overlay'))
-    document.getElementById('rol-popup-overlay').style.display = 'none';
-});
-
-
-// ════════════════════════════════════════════════════════════
-// REPORTE DE ESTADO DE FLOTA
-// ════════════════════════════════════════════════════════════
-
-// Cache del log para buscar usuario de alta
-let LOG_CACHE = [];
-
-async function cargarLogCache() {
-  if (LOG_CACHE.length) return;
-  try {
-    const r = await fetch(`${API_URL}?action=getLog`, { cache: 'no-store' });
-    const d = await r.json();
-    LOG_CACHE = d.rows || [];
-  } catch { LOG_CACHE = []; }
-}
-
-function getUsuarioAlta(interno) {
-  // Buscar en el log el último registro donde campo=estado y valor nuevo=OPERATIVA
-  // Columnas del log: [0]Timestamp [1]Usuario [2]Nombre [3]Interno [4]Patente [5]Campo [6]ValAnterior [7]ValNuevo
-  const registros = LOG_CACHE.filter(r =>
-    String(r[3]).trim() === interno &&
-    String(r[5]).trim().toLowerCase() === 'estado' &&
-    String(r[7]).trim().toUpperCase() === 'OPERATIVA'
-  );
-  if (!registros.length) return '—';
-  // Tomar el más reciente (último en el array)
-  const ultimo = registros[registros.length - 1];
-  return (ultimo[2] || ultimo[1] || '—').trim();
-}
-
-async function renderReporte() {
-  const preview = document.getElementById('reporte-preview');
-  const info    = document.getElementById('reporte-info');
-  preview.innerHTML = '<p style="padding:20px;color:#888;font-size:13px">Cargando...</p>';
-
-  await cargarLogCache();
-
-  const ahora   = new Date();
-  const fechaStr = ahora.toLocaleDateString('es-AR', { weekday:'long', day:'2-digit', month:'long', year:'numeric' });
-  const horaStr  = ahora.toLocaleTimeString('es-AR', { hour:'2-digit', minute:'2-digit' });
-
-  info.innerHTML = `Generado por <strong>${SESSION.nombre}</strong> · ${fechaStr} ${horaStr} · <strong>${FILTRADOS.length}</strong> unidades`;
-
-  // Columnas por grupo
-  const COLS_TODOS = [
-    { label:'Interno',        key:'interno' },
-    { label:'Patente',        key:'patente' },
-    { label:'Tipo',           key:'tipo' },
-    { label:'Centro Costo',   key:'centroCosto' },
-    { label:'Unidad Negocio', key:'unNegocio' },
-    { label:'Estado',         key:'estado', pill:true },
-    { label:'F. Baja',        key:'fBaja' },
-    { label:'Días Trab.',     key:'diasTrabajo' },
-    { label:'Días Mant.',     key:'diasMant' },
-    { label:'Motivo Baja',    key:'motivoBaja' },
-    { label:'Taller',         key:'tipoTaller' },
-    { label:'Nombre Taller',  key:'nombreTaller' },
-    { label:'Motivo Demora',  key:'motivoDemora' },
-    { label:'Usuario Alta',   key:'_usuarioAlta' },
-    { label:'F. Alta',        key:'fUltimaAlta' }
-  ];
-
-  // Columnas específicas por grupo (keys visibles)
-  const COLS_BACKUP = ['interno','patente','tipo','centroCosto','unNegocio','estado','diasTrabajo','motivoBaja','_usuarioAlta','fUltimaAlta'];
-  const COLS_MANT   = ['interno','patente','tipo','centroCosto','unNegocio','estado','fBaja','diasMant','motivoBaja','tipoTaller','nombreTaller','motivoDemora'];
-  const COLS_OP     = ['interno','patente','tipo','centroCosto','unNegocio','estado','diasTrabajo','_usuarioAlta','fUltimaAlta'];
-
-  const grupos = [
-    {
-      key:'descuento', label:'En Descuento', color:'#C00000',
-      filtro: d => (d.descuento||'').toUpperCase().trim() === 'SI',
-      orden:  (a,b) => (parseInt(b.diasMant)||0) - (parseInt(a.diasMant)||0),
-      cols: COLS_MANT
-    },
-    {
-      key:'backup', label:'Back Up - Disponible', color:'#378ADD',
-      filtro: d => d.estado === 'BACK UP - DISPONIBLE',
-      orden:  () => 0,
-      cols: COLS_BACKUP
-    },
-    {
-      key:'mantenimiento', label:'En Mantenimiento', color:'#EF9F27',
-      filtro: d => ['MANTENIMIENTO','MANTENIMIENTO LARGO','MANT - SIN CHOFER','MANTENIMIENTO - DEVOLUCION','MODIFICACION'].includes(d.estado),
-      orden: (a,b) => {
-        const fa = parseFecha(a.fBaja), fb = parseFecha(b.fBaja);
-        if (fa && fb) return fa - fb;
-        if (fa) return -1; if (fb) return 1;
-        return (parseInt(b.diasMant)||0) - (parseInt(a.diasMant)||0);
-      },
-      cols: COLS_MANT
-    },
-    {
-      key:'operativa', label:'Operativa / Disponible', color:'#1D9E75',
-      filtro: d => d.estado === 'OPERATIVA',
-      orden: (a,b) => {
-        const fa = parseFecha(a.fUltimaAlta), fb = parseFecha(b.fUltimaAlta);
-        if (fa && fb) return fb - fa;
-        if (fb) return -1; if (fa) return 1; return 0;
-      },
-      cols: COLS_OP
-    }
-  ];
-
-  let html = '<div id="print-area">';
-
-  // Calcular KPIs para el resumen
-  const total      = FILTRADOS.length;
-  const venta      = FILTRADOS.filter(d => d.estado === 'VENTA').length;
-  const op         = FILTRADOS.filter(d => d.estado === 'OPERATIVA').length;
-  const backup     = FILTRADOS.filter(d => d.estado === 'BACK UP - DISPONIBLE').length;
-  const mant       = FILTRADOS.filter(d => d.estado === 'MANTENIMIENTO').length;
-  const mantLargo  = FILTRADOS.filter(d => d.estado === 'MANTENIMIENTO LARGO').length;
-  const sinChofer  = FILTRADOS.filter(d => d.estado === 'MANT - SIN CHOFER').length;
-  const devol      = FILTRADOS.filter(d => d.estado === 'MANTENIMIENTO - DEVOLUCION').length;
-  const descuento  = FILTRADOS.filter(d => (d.descuento||'').toUpperCase().trim() === 'SI').length;
-  const totalActivo = total - venta;
-  const disp       = totalActivo ? Math.round((op + backup) / totalActivo * 100) : 0;
-  const totalMant  = mant + mantLargo + sinChofer + devol;
-  const dispColor  = disp >= 95 ? '#1D9E75' : disp >= 85 ? '#EF9F27' : '#C00000';
-
-  const mkKpi = (label, val, color, sub) =>
-    `<div style="background:white;border-radius:8px;padding:12px 16px;min-width:110px;border-left:4px solid ${color};flex:1">
-      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#6b7280;margin-bottom:4px">${label}</div>
-      <div style="font-size:26px;font-weight:700;color:#1a1a1a;line-height:1">${val}</div>
-      ${sub ? `<div style="font-size:10px;color:#6b7280;margin-top:3px">${sub}</div>` : ''}
-    </div>`;
-
-  // Encabezado
-  html += `
-    <div style="background:#1a1a1a;color:white;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
-      <div style="display:flex;align-items:center;gap:14px">
-        <span style="font-size:11px;font-weight:700;letter-spacing:3px;background:var(--rojo);padding:4px 10px;border-radius:2px">GRIFFOULIERE</span>
-        <div>
-          <div style="font-size:16px;font-weight:700">Estado Operativo de Flota</div>
-          <div style="font-size:11px;color:#aaa;margin-top:2px">${fechaStr} · ${horaStr}</div>
-        </div>
-      </div>
-      <div style="text-align:right;font-size:11px;color:#aaa">
-        <div>Generado por: <strong style="color:white">${SESSION.nombre}</strong></div>
-        <div style="margin-top:2px">${total} unidades</div>
-      </div>
-    </div>
-
-    <!-- RESUMEN DE INDICADORES -->
-    <div style="background:#f4f5f7;padding:16px 20px;border-bottom:2px solid #e0e2e8">
-      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#6b7280;margin-bottom:10px">Resumen de Indicadores</div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap">
-
-        <!-- Disponibilidad — tarjeta grande con barra -->
-        <div style="background:white;border-radius:8px;padding:14px 18px;border-left:4px solid ${dispColor};min-width:180px;flex:1.5">
-          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#6b7280;margin-bottom:4px">% Disponibilidad</div>
-          <div style="font-size:32px;font-weight:700;color:${dispColor};line-height:1">${disp}%</div>
-          <div style="font-size:10px;color:#6b7280;margin-top:3px">(OPER + BACKUP) / (TOTAL - VENTA)</div>
-          <div style="margin-top:8px;height:8px;background:#e0e2e8;border-radius:4px;overflow:hidden;position:relative">
-            <div style="height:100%;width:${disp}%;background:${dispColor};border-radius:4px"></div>
-            <div style="position:absolute;left:95%;top:0;bottom:0;width:2px;background:rgba(0,0,0,0.2)"></div>
-          </div>
-          <div style="font-size:9px;color:#6b7280;margin-top:3px;text-align:right">Objetivo: 95%</div>
-        </div>
-
-        ${mkKpi('Total Flota', total, '#1a1a1a', `${venta} en venta excluidas`)}
-        ${mkKpi('Operativas', op, '#1D9E75', 'en servicio')}
-        ${mkKpi('Back Up', backup, '#378ADD', 'disponibles')}
-        ${mkKpi('Mantenimiento', mant, '#EF9F27', 'estado MANT.')}
-        ${mkKpi('Mant. Largo', mantLargo, '#E07B39', '+30 días')}
-        ${mkKpi('Sin Chofer', sinChofer, '#D4A017', 'MANT S/CHOFER')}
-        ${mkKpi('Devolución', devol, '#888780', 'en devolución')}
-        ${descuento > 0 ? mkKpi('Descuento', descuento, '#C00000', 'con descuento') : ''}
-      </div>
-    </div>`;
-
-  let hayContenido = false;
-
-  grupos.forEach(grupo => {
-    const uds = FILTRADOS.filter(grupo.filtro).sort(grupo.orden);
-    if (!uds.length) return;
-    hayContenido = true;
-
-    // Filtrar columnas del grupo
-    const colsGrupo = COLS_TODOS.filter(c => grupo.cols.includes(c.key));
-
-    // Scroll wrapper para mantenimiento
-    const needsScroll = grupo.key === 'mantenimiento' || grupo.key === 'descuento';
-    const wrapStart = needsScroll ? '<div style="overflow-x:auto;">' : '';
-    const wrapEnd   = needsScroll ? '</div>' : '';
-
-    html += `
-      <div class="reporte-seccion-header" style="background:${grupo.color}">
-        <span>${grupo.label}</span>
-        <span style="background:rgba(0,0,0,0.2);padding:2px 10px;border-radius:10px;font-size:11px">${uds.length} unidades</span>
-      </div>
-      ${wrapStart}
-      <table class="reporte-tabla" style="${needsScroll?'min-width:1200px':''}">
-        <thead><tr>${colsGrupo.map(c => {
-          const maxW = {
-            'motivoBaja':'max-width:160px','motivoDemora':'max-width:160px',
-            'centroCosto':'max-width:140px','unNegocio':'max-width:140px',
-            'nombreTaller':'max-width:120px'
-          };
-          return `<th style="${maxW[c.key]||''}">${c.label}</th>`;
-        }).join('')}</tr></thead>
-        <tbody>`;
-
-    uds.forEach((d, idx) => {
-      const bg = idx%2===0 ? 'white' : '#fafafa';
-      html += `<tr style="background:${bg}">`;
-      colsGrupo.forEach(col => {
-        let val = col.key === '_usuarioAlta' ? getUsuarioAlta(d.interno) : (d[col.key] || '—');
-        // Formatear fechas
-        if ((col.key === 'fBaja' || col.key === 'fUltimaAlta' || col.key === 'fNuevaAlta') && val && val !== '—') {
-          val = formatFechaReporte(val);
-        }
-        const tdStyle = {
-          'motivoBaja':    'max-width:160px;word-break:break-word;white-space:normal',
-          'motivoDemora':  'max-width:160px;word-break:break-word;white-space:normal',
-          'centroCosto':   'max-width:140px;word-break:break-word;white-space:normal',
-          'unNegocio':     'max-width:140px;word-break:break-word;white-space:normal',
-          'nombreTaller':  'max-width:110px;word-break:break-word;white-space:normal',
-          'interno':       'white-space:nowrap;width:70px',
-          'patente':       'white-space:nowrap;width:72px',
-          'diasMant':      'white-space:nowrap;width:55px;text-align:center',
-          'diasTrabajo':   'white-space:nowrap;width:55px;text-align:center',
-          'fBaja':         'white-space:nowrap;width:80px',
-          'fUltimaAlta':   'white-space:nowrap;width:80px',
-          'tipoTaller':    'white-space:nowrap;width:62px',
-        }[col.key] || '';
-        if (col.pill && col.key === 'estado') {
-          html += `<td style="${tdStyle}"><span class="estado-pill ${estadoPillClass(d.estado)}" style="font-size:10px">${val}</span></td>`;
-        } else {
-          html += `<td style="${tdStyle}">${val}</td>`;
-        }
-      });
-      html += '</tr>';
-    });
-
-    html += `</tbody></table>${wrapEnd}`;
-  });
-
-  if (!hayContenido) html += '<div class="reporte-empty">No hay unidades con los filtros seleccionados.</div>';
-  html += '</div>';
-  preview.innerHTML = html;
-}
-
-
-function parseFecha(str) {
-  if (!str || str === '—') return null;
-  // Soportar DD/MM/YYYY y Date strings de JS
-  const p = str.split('/');
-  if (p.length === 3) return new Date(p[2], p[1]-1, p[0]);
-  const d = new Date(str);
-  return isNaN(d) ? null : d;
-}
-
-function formatFechaReporte(str) {
-  if (!str || str === '—') return '—';
-  let d = parseFecha(str);
-  if (!d) return str;
-  const dd   = String(d.getDate()).padStart(2,'0');
-  const mm   = String(d.getMonth()+1).padStart(2,'0');
-  const yyyy = d.getFullYear();
-  const hh   = String(d.getHours()).padStart(2,'0');
-  const min  = String(d.getMinutes()).padStart(2,'0');
-  return `${dd}/${mm}/${yyyy} ${hh}:${min}`;
-}
-
-function imprimirReporte() {
-  window.print();
-}
-
-function exportarReporteExcel() {
-  if (typeof XLSX === 'undefined') { toast('Librería Excel no cargada aún. Intentá de nuevo.', 'err'); return; }
-
-  const COLS = [
-    { label:'Interno', key:'interno' }, { label:'Patente', key:'patente' },
-    { label:'Tipo', key:'tipo' }, { label:'Centro Costo', key:'centroCosto' },
-    { label:'Unidad Negocio', key:'unNegocio' }, { label:'Estado', key:'estado' },
-    { label:'F. Baja', key:'fBaja' }, { label:'Días Trab.', key:'diasTrabajo' },
-    { label:'Días Mant.', key:'diasMant' }, { label:'Motivo Baja', key:'motivoBaja' },
-    { label:'Taller', key:'tipoTaller' }, { label:'Nombre Taller', key:'nombreTaller' },
-    { label:'Motivo Demora', key:'motivoDemora' },
-    { label:'Usuario Alta', key:'_usuarioAlta' }, { label:'F. Alta', key:'fUltimaAlta' }
-  ];
-
-  const ORDEN_GRUPOS = [
-    d => (d.descuento||'').toUpperCase().trim() === 'SI',
-    d => d.estado === 'BACK UP - DISPONIBLE',
-    d => ['MANTENIMIENTO','MANTENIMIENTO LARGO','MANT - SIN CHOFER','MANTENIMIENTO - DEVOLUCION','MODIFICACION'].includes(d.estado),
-    d => d.estado === 'OPERATIVA'
-  ];
-  const NOMBRES_GRUPOS = ['En Descuento','Back Up - Disponible','En Mantenimiento','Operativa / Disponible'];
-
-  const wb = XLSX.utils.book_new();
-
-  // Hoja resumen con todos los grupos
-  const rows = [COLS.map(c => c.label)];
-
-  ORDEN_GRUPOS.forEach((filtro, gi) => {
-    const uds = FILTRADOS.filter(filtro);
-    if (!uds.length) return;
-    rows.push([NOMBRES_GRUPOS[gi].toUpperCase()]);
-    uds.forEach(d => {
-      rows.push(COLS.map(col =>
-        col.key === '_usuarioAlta' ? getUsuarioAlta(d.interno) : (d[col.key] || '')
-      ));
-    });
-    rows.push([]);
-  });
-
-  const ws = XLSX.utils.aoa_to_sheet(rows);
-  XLSX.utils.book_append_sheet(wb, ws, 'Reporte');
-
-  const fecha = new Date().toISOString().slice(0,10);
-  XLSX.writeFile(wb, `reporte_flota_${fecha}.xlsx`);
-}
-
-
-// ════════════════════════════════════════════════════════════
-// EXPORTAR IMAGEN PNG — Back Up + Descuento + Mantenimiento
-// ════════════════════════════════════════════════════════════
-async function exportarImagenReporte() {
-  if (typeof html2canvas === 'undefined') {
-    toast('Librería de imagen no cargada. Intentá de nuevo.', 'err');
-    return;
-  }
-
-  const btn = document.querySelector('.btn-reporte-img');
-  btn.disabled = true;
-  btn.textContent = '⏳ Generando...';
-  toast('Generando imagen, esperá unos segundos...', 'ok');
-
-  const ahora   = new Date();
-  const fechaStr = ahora.toLocaleDateString('es-AR', { day:'2-digit', month:'2-digit', year:'numeric' });
-  const horaStr  = ahora.toLocaleTimeString('es-AR', { hour:'2-digit', minute:'2-digit' });
-
-  // Función para formatear solo fecha sin hora
-  const soloFecha = (str) => {
-    if (!str || str === '—') return '—';
-    const d = parseFecha(str);
-    if (!d) return str;
-    return String(d.getDate()).padStart(2,'0') + '/' +
-           String(d.getMonth()+1).padStart(2,'0') + '/' + d.getFullYear();
-  };
-
-  const ESTADO_COLOR = {
-    'OPERATIVA':'#1D9E75','MANTENIMIENTO':'#EF9F27','MANTENIMIENTO LARGO':'#E07B39',
-    'BACK UP - DISPONIBLE':'#378ADD','MODIFICACION':'#534AB7',
-    'MANT - SIN CHOFER':'#D4A017','MANTENIMIENTO - DEVOLUCION':'#888780','VENTA':'#C00000'
-  };
-
-  // Definición de columnas por grupo con anchos fijos
-  const GRUPOS = [
-    {
-      label:'En Descuento', color:'#C00000',
-      filtro: d => (d.descuento||'').toUpperCase().trim() === 'SI',
-      cols: [
-        {h:'Interno',w:80,k:'interno'},{h:'Patente',w:80,k:'patente'},
-        {h:'Tipo',w:110,k:'tipo'},{h:'Centro Costo',w:180,k:'centroCosto'},
-        {h:'Unidad Negocio',w:160,k:'unNegocio'},{h:'Estado',w:130,k:'estado',pill:true},
-        {h:'F. Baja',w:85,k:'fBaja',fecha:true},{h:'Días Mant.',w:65,k:'diasMant'},
-        {h:'Motivo Baja',w:200,k:'motivoBaja'},{h:'Taller',w:65,k:'tipoTaller'},
-        {h:'Nombre Taller',w:130,k:'nombreTaller'},{h:'Motivo Demora',w:200,k:'motivoDemora'}
-      ]
-    },
-    {
-      label:'Back Up - Disponible', color:'#378ADD',
-      filtro: d => d.estado === 'BACK UP - DISPONIBLE',
-      cols: [
-        {h:'Interno',w:80,k:'interno'},{h:'Patente',w:80,k:'patente'},
-        {h:'Tipo',w:110,k:'tipo'},{h:'Centro Costo',w:200,k:'centroCosto'},
-        {h:'Unidad Negocio',w:180,k:'unNegocio'},{h:'Estado',w:140,k:'estado',pill:true},
-        {h:'Días Trab.',w:70,k:'diasTrabajo'},{h:'Motivo Baja',w:250,k:'motivoBaja'}
-      ]
-    },
-    {
-      label:'En Mantenimiento', color:'#EF9F27',
-      filtro: d => ['MANTENIMIENTO','MANTENIMIENTO LARGO','MANT - SIN CHOFER','MANTENIMIENTO - DEVOLUCION','MODIFICACION'].includes(d.estado),
-      orden: (a,b) => (parseInt(b.diasMant)||0) - (parseInt(a.diasMant)||0),
-      cols: [
-        {h:'Interno',w:80,k:'interno'},{h:'Patente',w:80,k:'patente'},
-        {h:'Tipo',w:100,k:'tipo'},{h:'Centro Costo',w:160,k:'centroCosto'},
-        {h:'Unidad Negocio',w:150,k:'unNegocio'},{h:'Estado',w:130,k:'estado',pill:true},
-        {h:'F. Baja',w:80,k:'fBaja',fecha:true},{h:'Días Mant.',w:60,k:'diasMant'},
-        {h:'Motivo Baja',w:180,k:'motivoBaja'},{h:'Taller',w:62,k:'tipoTaller'},
-        {h:'Nombre Taller',w:120,k:'nombreTaller'},{h:'Motivo Demora',w:180,k:'motivoDemora'}
-      ]
-    }
-  ];
-
-  // Calcular ancho total del grupo más ancho
-  const maxAncho = Math.max(...GRUPOS.map(g => g.cols.reduce((s,c) => s + c.w, 0))) + 40;
-  const totalAncho = Math.max(maxAncho, 1200);
-
-  const mkTh = (c) =>
-    `<th style="padding:5px 7px;font-size:9px;font-weight:700;text-transform:uppercase;` +
-    `letter-spacing:0.4px;color:#6b7280;background:#f0f0f0;border-bottom:2px solid #ddd;` +
-    `text-align:left;width:${c.w}px;min-width:${c.w}px;max-width:${c.w}px">${c.h}</th>`;
-
-  const mkTd = (c, val, estado) => {
-    const isTextoLargo = ['motivoBaja','motivoDemora','centroCosto','unNegocio','nombreTaller'].includes(c.k);
-    const style = `padding:5px 7px;font-size:10px;vertical-align:top;` +
-      `width:${c.w}px;min-width:${c.w}px;max-width:${c.w}px;` +
-      (isTextoLargo ? 'word-break:break-word;white-space:normal;line-height:1.4;' : 'white-space:nowrap;overflow:hidden;');
-    if (c.pill) {
-      const bg = ESTADO_COLOR[val] || '#999';
-      const textColor = val === 'MANT - SIN CHOFER' ? '#333' : 'white';
-      return `<td style="${style}"><span style="background:${bg};color:${textColor};font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px;white-space:nowrap">${val||'—'}</span></td>`;
-    }
-    return `<td style="${style}">${val||'—'}</td>`;
-  };
-
-  let html = `<div style="font-family:Arial,sans-serif;background:white;width:${totalAncho}px">
-    <div style="background:#1a1a1a;color:white;padding:12px 18px;display:flex;align-items:center;justify-content:space-between">
-      <div style="display:flex;align-items:center;gap:12px">
-        <span style="font-size:10px;font-weight:700;letter-spacing:3px;background:#C00000;padding:3px 9px;border-radius:2px">GRIFFOULIERE</span>
-        <div>
-          <div style="font-size:14px;font-weight:700">Estado Operativo de Flota</div>
-          <div style="font-size:10px;color:#aaa;margin-top:1px">${fechaStr} · ${horaStr}</div>
-        </div>
-      </div>
-      <div style="font-size:10px;color:#aaa;text-align:right">
-        Generado por: <strong style="color:white">${SESSION.nombre}</strong>
-      </div>
-    </div>`;
-
-  GRUPOS.forEach(grupo => {
-    let uds = FILTRADOS.filter(grupo.filtro);
-    if (grupo.orden) uds = uds.sort(grupo.orden);
-    if (!uds.length) return;
-
-    html += `
-      <div style="background:${grupo.color};color:white;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;font-size:11px;font-weight:800;text-transform:uppercase">
-        <span>${grupo.label}</span>
-        <span style="background:rgba(0,0,0,0.25);padding:1px 9px;border-radius:10px;font-size:10px">${uds.length} unidades</span>
-      </div>
-      <table style="width:100%;border-collapse:collapse;table-layout:fixed">
-        <thead><tr>${grupo.cols.map(c => mkTh(c)).join('')}</tr></thead>
-        <tbody>`;
-
-    uds.forEach((d, idx) => {
-      const bg = idx%2===0 ? '#ffffff' : '#f9f9f9';
-      html += `<tr style="background:${bg};border-bottom:1px solid #eeeeee">`;
-      grupo.cols.forEach(c => {
-        let val = c.k === '_usuarioAlta' ? getUsuarioAlta(d.interno) : (d[c.k] || '—');
-        if (c.fecha && val && val !== '—') val = soloFecha(val);
-        html += mkTd(c, val, d.estado);
-      });
-      html += '</tr>';
-    });
-
-    html += '</tbody></table>';
-  });
-
-  html += '</div>';
-
-  const wrapper = document.createElement('div');
-  wrapper.style.cssText = 'position:fixed;left:-9999px;top:0;z-index:-1;background:white;';
-  wrapper.innerHTML = html;
-  document.body.appendChild(wrapper);
-
-  try {
-    const canvas = await html2canvas(wrapper.firstElementChild, {
-      scale: 2,
-      useCORS: true,
-      backgroundColor: '#ffffff',
-      logging: false,
-      width: totalAncho
-    });
-
-    const link = document.createElement('a');
-    link.download = `flota_griffouliere_${new Date().toISOString().slice(0,10)}.png`;
-    link.href = canvas.toDataURL('image/png');
-    link.click();
-    toast('✓ Imagen descargada correctamente', 'ok');
-  } catch(err) {
-    toast('Error al generar imagen: ' + err.message, 'err');
-  } finally {
-    document.body.removeChild(wrapper);
-    btn.disabled = false;
-    btn.textContent = '📸 Guardar Imagen';
-  }
-}
-
-// ════════════════════════════════════════════════════════════
-// SALIR
-// ════════════════════════════════════════════════════════════
-document.getElementById('btn-refresh').addEventListener('click', async () => {
-  const btn = document.getElementById('btn-refresh');
-  btn.classList.add('spinning');
-  btn.disabled = true;
-  await cargarDatos();
-  btn.classList.remove('spinning');
-  btn.disabled = false;
-  toast('✓ Datos actualizados', 'ok');
-});
-
-document.getElementById('btn-salir').addEventListener('click', () => {
-  SESSION = null;
-  DATOS = []; FILTRADOS = [];
-  document.getElementById('app').style.display = 'none';
-  document.getElementById('overlay').style.display = 'flex';
-  document.getElementById('login-user').value = '';
-  document.getElementById('login-pass').value = '';
-  document.getElementById('login-error').textContent = '';
-});
-
-// ════════════════════════════════════════════════════════════
-// INIT
-// ════════════════════════════════════════════════════════════
-document.addEventListener('DOMContentLoaded', async () => {
-  setLoading(false);
-  // Ping silencioso para despertar el Apps Script mientras carga usuarios
-  fetch(`${API_URL}?action=ping`, { cache: 'no-store' }).catch(() => {});
-  await cargarUsuarios();
-});
-
-// Mantener el Apps Script caliente — ping cada 8 minutos
-setInterval(() => {
-  if (SESSION) {
-    fetch(`${API_URL}?action=ping`, { cache: 'no-store' }).catch(() => {});
-  }
-}, 8 * 60 * 1000);
-
-// Cuando las libs cargan, renderizar gráficos si ya hay datos
-document.addEventListener('libsReady', () => {
-  if (FILTRADOS && FILTRADOS.length > 0) {
-    setTimeout(() => renderGraficos(FILTRADOS), 100);
-  }
-});
-</script>
-</body>
-</html>
