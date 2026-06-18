@@ -1596,6 +1596,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     btn.disabled = true;
     DATOS = [];
     FILTRADOS = [];
+    // Esperar 2 segundos para que el Sheet recalcule fórmulas
+    await new Promise(r => setTimeout(r, 2000));
     await cargarDatos();
     btn.classList.remove('spinning');
     btn.disabled = false;
@@ -1681,6 +1683,9 @@ async function cargarDatos() {
     renderDescuentoTab(FILTRADOS);
     setTimeout(() => renderGraficos(FILTRADOS), 200);
     setTimeout(() => autoActualizarEstados(), 500);
+    // Actualizar reporte si está activo
+    const tabRep = document.getElementById('tab-reporte');
+    if (tabRep && tabRep.classList.contains('active')) renderReporte();
   } catch (err) {
     setLoading(false);
     // Solo mostrar error si realmente no hay datos
