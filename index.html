@@ -1441,7 +1441,7 @@ tbody td { padding: 7px 10px; font-size: 12px; white-space: nowrap; }
     <p id="confirm-msg"></p>
     <div class="confirm-fecha-wrap">
       <label id="confirm-fecha-label">Fecha</label>
-      <input type="datetime-local" id="confirm-fecha">
+      <input type="date" id="confirm-fecha">
     </div>
     <div class="confirm-actions">
       <button class="confirm-cancel" id="confirm-cancel-btn">Cancelar</button>
@@ -2253,9 +2253,11 @@ function renderDescuentoTab(datos) {
       : `<span class="estado-pill ${estadoPillClass(d.estado)}">${d.estado || '—'}</span>`;
 
     // Días badge
+    const diasNum = parseInt(d.diasMant) || 0;
+    const diasCls = diasNum > 30 ? 'dias-crit' : diasNum > 15 ? 'dias-warn' : 'dias-ok';
     const tdDias = document.createElement('td');
     tdDias.style.cssText = 'padding:8px 12px;vertical-align:top;';
-    tdDias.innerHTML = `<span class="dias-badge ${diasClass}">${dias}d</span>`;
+    tdDias.innerHTML = `<span class="dias-badge ${diasCls}">${diasNum}d</span>`;
 
     // Motivo demora editable
     const tdMotivoDemora = document.createElement('td');
@@ -3082,23 +3084,16 @@ function getDiasClass(val) {
 }
 
 function getFechaHoy() {
-  // Devuelve fecha+hora local en formato YYYY-MM-DDTHH:MM para datetime-local
   const now = new Date();
   const pad = n => String(n).padStart(2,'0');
-  return now.getFullYear() + '-' +
-    pad(now.getMonth()+1) + '-' +
-    pad(now.getDate()) + 'T' +
-    pad(now.getHours()) + ':' +
-    pad(now.getMinutes());
+  return now.getFullYear() + '-' + pad(now.getMonth()+1) + '-' + pad(now.getDate());
 }
 
-function formatearFechaParaSheet(datetimeLocalVal) {
-  // Convierte YYYY-MM-DDTHH:MM → DD/MM/YYYY HH:MM
-  if (!datetimeLocalVal) return '';
-  const [fecha, hora] = datetimeLocalVal.split('T');
-  if (!fecha) return '';
-  const [y, m, d] = fecha.split('-');
-  return d + '/' + m + '/' + y + (hora ? ' ' + hora : '');
+function formatearFechaParaSheet(dateVal) {
+  // Convierte YYYY-MM-DD → DD/MM/YYYY
+  if (!dateVal) return '';
+  const [y, m, d] = dateVal.split('-');
+  return d + '/' + m + '/' + y;
 }
 
 function abrirConfirmBaja(interno, patente) {
