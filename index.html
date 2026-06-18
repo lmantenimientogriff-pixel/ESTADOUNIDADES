@@ -3562,6 +3562,8 @@ async function ejecutarAlta(interno, patente) {
   actualizarFila(interno, 'estadoRep', '');
   actualizarFila(interno, 'motivoDemora', '');
   actualizarFila(interno, 'nombreTaller', '');
+  actualizarFila(interno, 'diasTrabajo', '0');
+  actualizarFila(interno, 'diasMant', '0');
 
   // ── PASO 2: Agregar al LOG_CACHE local inmediatamente ──
   const ts = new Date().toLocaleString('es-AR');
