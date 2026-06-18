@@ -1678,6 +1678,17 @@ async function cargarDatos() {
   }
 }
 
+function limpiarFecha(str) {
+  if (!str || str === '') return '';
+  // Si ya está en DD/MM/YYYY devolver directo
+  if (/^\d{1,2}\/\d{1,2}\/\d{4}/.test(str)) return str.substring(0, 10);
+  // Si viene como "Thu Jun 18 2026 04:00:00 GMT-0300..." parsearlo
+  const d = new Date(str);
+  if (isNaN(d)) return str;
+  const pad = n => String(n).padStart(2,'0');
+  return pad(d.getDate()) + '/' + pad(d.getMonth()+1) + '/' + d.getFullYear();
+}
+
 function mapearFila(r) {
   return {
     patente:       cleanVal(r['PATENTE']),
@@ -1688,9 +1699,9 @@ function mapearFila(r) {
     servicio:      cleanVal(r['SERVICIO']),
     estado:        cleanVal(r['ESTADO']),
     descuento:     cleanVal(r['DESCUENTO']),
-    fUltimaAlta:   cleanVal(r['Fecha de ultima alta']),
-    fBaja:         cleanVal(r['FECHA DE BAJA']),
-    fNuevaAlta:    cleanVal(r['Fecha Nueva Alta']),
+    fUltimaAlta:   limpiarFecha(cleanVal(r['Fecha de ultima alta'])),
+    fBaja:         limpiarFecha(cleanVal(r['FECHA DE BAJA'])),
+    fNuevaAlta:    limpiarFecha(cleanVal(r['Fecha Nueva Alta'])),
     fComprometida: cleanVal(r['Fecha Comprometida']),
     semiTractor:   cleanVal(r['Semi / Tractor']),
     diasTrabajo:   cleanVal(r['Dias de Trabajo']),
