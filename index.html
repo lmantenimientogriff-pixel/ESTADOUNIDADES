@@ -811,6 +811,45 @@ tbody td { padding: 7px 10px; font-size: 12px; white-space: nowrap; }
 }
 #rol-popup-cancel:hover { color: var(--rojo); }
 
+/* ── Panel de Ayuda ── */
+#help-btn {
+  position: fixed; bottom: 80px; right: 24px;
+  width: 44px; height: 44px; border-radius: 50%;
+  background: var(--rojo); color: white;
+  border: none; font-size: 20px; cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  z-index: 800; display: flex; align-items: center;
+  justify-content: center; transition: transform 0.2s;
+  font-family: var(--font);
+}
+#help-btn:hover { transform: scale(1.1); }
+#help-panel {
+  position: fixed; top: 0; right: -380px; width: 360px;
+  height: 100vh; background: white;
+  box-shadow: -4px 0 20px rgba(0,0,0,0.15);
+  z-index: 900; transition: right 0.3s ease;
+  display: flex; flex-direction: column;
+  font-family: var(--font);
+}
+#help-panel.open { right: 0; }
+#help-header {
+  background: var(--negro); color: white;
+  padding: 16px 18px; display: flex;
+  align-items: center; justify-content: space-between; flex-shrink: 0;
+}
+#help-header h3 { font-size: 14px; font-weight: 700; margin: 0; }
+#help-close { background: none; border: none; color: white; font-size: 18px; cursor: pointer; padding: 0; line-height: 1; }
+#help-body { padding: 16px 18px; overflow-y: auto; flex: 1; font-size: 13px; color: var(--negro); line-height: 1.6; }
+#help-body h4 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--rojo); margin: 14px 0 5px; border-bottom: 1px solid var(--gris-borde); padding-bottom: 3px; }
+#help-body h4:first-child { margin-top: 0; }
+#help-body p { margin: 0 0 7px; color: #374151; }
+#help-body ul { margin: 0 0 8px; padding-left: 16px; }
+#help-body ul li { margin-bottom: 3px; color: #374151; }
+#help-body .help-tip { background: #fff5f5; border-left: 3px solid var(--rojo); padding: 7px 10px; border-radius: 0 4px 4px 0; font-size: 12px; color: #555; margin: 7px 0; }
+#help-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.2); z-index: 899; display: none; }
+#help-overlay.open { display: block; }
+@media (max-width: 768px) { #help-panel { width: 100%; right: -100%; } }
+
 /* ── TOAST ── */
 #toast {
   position: fixed; bottom: 24px; right: 24px;
@@ -1471,6 +1510,21 @@ tbody td { padding: 7px 10px; font-size: 12px; white-space: nowrap; }
 
 <!-- TOAST -->
 <div id="toast"></div>
+
+<!-- Botón de ayuda -->
+<button id="help-btn" title="Ayuda — ¿Cómo usar el sistema?">❓</button>
+
+<!-- Overlay -->
+<div id="help-overlay"></div>
+
+<!-- Panel de ayuda -->
+<div id="help-panel">
+  <div id="help-header">
+    <h3>❓ Ayuda — Estado Operativo de Flota</h3>
+    <button id="help-close" title="Cerrar">✕</button>
+  </div>
+  <div id="help-body" id="help-content"></div>
+</div>
 
 <script>
 // ════════════════════════════════════════════════════════════
@@ -2586,6 +2640,63 @@ document.getElementById('popup-overlay').addEventListener('click', e => {
   if (e.target === document.getElementById('popup-overlay')) {
     document.getElementById('popup-overlay').style.display = 'none';
   }
+});
+
+// ════════════════════════════════════════════════════════════
+// PANEL DE AYUDA CONTEXTUAL
+// ════════════════════════════════════════════════════════════
+const AYUDA_CONTENIDO = {
+  graficos: '<h4>Pestaña Gráficos</h4><p>Muestra 6 visualizaciones que responden a los filtros activos.</p><ul><li><strong>Distribución por Estado</strong> — proporción de cada estado</li><li><strong>Top 8 Tipos de Unidad</strong> — tipos más frecuentes</li><li><strong>Propio vs Subcontratado</strong> — por grupo</li><li><strong>En Mantenimiento por Taller</strong> — unidades por taller</li><li><strong>Por Centro de Costo</strong> — distribución</li><li><strong>Vencimiento / Días Mant.</strong> — clasificado en rangos</li></ul><div class="help-tip">Los gráficos se actualizan al hacer clic en esta pestaña después de cambiar filtros.</div>',
+
+  detalle: '<h4>Pestaña Detalle Flota</h4><p>Tabla completa de todas las unidades con sus datos operativos.</p><h4>Columnas fijas</h4><p>Las columnas <strong>Interno</strong> y <strong>Patente</strong> quedan fijas al scrollear horizontalmente.</p><h4>Edición de campos</h4><ul><li><strong>Estado / Descuento:</strong> clic en el pill → desplegable</li><li><strong>Estado Reparación:</strong> clic → popup con lista</li><li><strong>Campos de texto</strong> (OT, ST, NP, Motivo): clic → escribir → Enter para guardar</li></ul><h4>Dar de Baja</h4><p>Clic en 🔴 Dar de Baja → confirmar fecha → pasa a MANTENIMIENTO.</p><h4>Dar de Alta</h4><p>Solo el <strong>Jefe de Taller</strong> puede dar de Alta. Clic en 🟢 Dar de Alta → confirmar fecha → pasa a OPERATIVA.</p><div class="help-tip">Todos los cambios quedan registrados en el Log de Cambios.</div>',
+
+  mantenimiento: '<h4>Pestaña Mantenimiento</h4><p>Vista de gestión para coordinadores. Agrupa las unidades por estado.</p><h4>Orden de grupos</h4><ul><li>🏷️ <strong>En Descuento</strong></li><li>🟠 <strong>Mant. Largo</strong> — más de 30 días</li><li>🟡 <strong>Mantenimiento</strong> — activo</li><li>🟡 <strong>Sin Chofer</strong></li><li>⬜ <strong>Devolución</strong></li></ul><h4>Badge de días</h4><ul><li>Verde — menos de 15 días</li><li>Naranja — entre 15 y 30 días</li><li>Rojo — más de 30 días (crítico)</li></ul><div class="help-tip">Las unidades con +30 días pasan automáticamente a MANTENIMIENTO LARGO al cargar el sistema.</div>',
+
+  descuento: '<h4>Pestaña Descuento</h4><p>Muestra todas las unidades con Descuento = SI, independientemente del estado operativo.</p><h4>Para qué sirve</h4><p>Seguimiento de unidades con algún tipo de descuento o bonificación activa.</p><h4>Campos editables</h4><ul><li><strong>Motivo Demora</strong> — editable directamente</li></ul><div class="help-tip">Se actualiza automáticamente al cambiar los filtros.</div>',
+
+  reporte: '<h4>Pestaña Reporte</h4><p>Vista consolidada lista para exportar. Se actualiza al cambiar filtros.</p><h4>Grupos en el reporte</h4><ul><li>1. En Descuento</li><li>2. Back Up - Disponible</li><li>3. En Mantenimiento (por fecha de baja)</li><li>4. Operativa (por fecha de alta más reciente)</li></ul><h4>Exportar</h4><ul><li>🖨 <strong>PDF</strong> — orientación Horizontal, activar "Gráficos de fondo"</li><li>⬇ <strong>Excel</strong> — descarga automática con los 4 grupos</li><li>📸 <strong>Imagen PNG</strong> — incluye Descuento, Back Up y Mantenimiento</li></ul><div class="help-tip">La columna "Usuario Alta" muestra quién dio de alta la unidad.</div>',
+
+  log: '<h4>Pestaña Log de Cambios</h4><p>Registro automático de todas las modificaciones. Solo visible para <strong>Admin</strong> y <strong>Propietario</strong>.</p><h4>Qué registra</h4><ul><li>Timestamp, usuario y nombre completo</li><li>Interno y patente de la unidad</li><li>Campo modificado, valor anterior y nuevo</li></ul><h4>Exportar</h4><p>Botón ⬇ Excel descarga el historial completo.</p><div class="help-tip">Los registros no pueden ser modificados ni eliminados.</div>',
+
+  usuarios: '<h4>Pestaña Usuarios</h4><p>Gestión de accesos. Solo visible para <strong>Admin</strong> y <strong>Propietario</strong>.</p><h4>Roles disponibles</h4><ul><li><strong>Propietario / Admin</strong> — acceso total</li><li><strong>Jefe de Taller</strong> — puede dar de Alta y Baja</li><li><strong>Operador</strong> — puede editar y dar de Baja</li><li><strong>Lectura</strong> — solo consulta</li></ul><h4>Cambiar rol rápido</h4><p>Clic en el pill de color del rol → popup para cambiarlo sin entrar al formulario.</p><div class="help-tip">El usuario Propietario está protegido y no puede ser editado.</div>',
+
+  default: '<h4>Bienvenido al sistema</h4><p>Estado Operativo de Flota — Griffouliere S.A.</p><h4>Navegación</h4><ul><li>Usá los <strong>filtros superiores</strong> para segmentar la flota</li><li>El botón <strong>↺ Actualizar</strong> recarga los datos sin perder la sesión</li><li>Los cambios se guardan automáticamente en Google Sheets</li></ul><h4>Pestañas disponibles</h4><ul><li>📊 Gráficos — visualizaciones</li><li>📋 Detalle Flota — tabla editable</li><li>🔧 Mantenimiento — gestión de taller</li><li>🏷️ Descuento — unidades con descuento</li><li>📄 Reporte — exportar PDF, Excel e imagen</li></ul><div class="help-tip">Hacé clic en cualquier pestaña para ver la ayuda específica de esa sección.</div>'
+};
+
+const TAB_AYUDA_MAP = { graficos:'graficos', detalle:'detalle', mantenimiento:'mantenimiento', descuento:'descuento', reporte:'reporte', log:'log', usuarios:'usuarios' };
+
+function getTabActiva() {
+  const activeBtn = document.querySelector('.tab-btn.active');
+  if (!activeBtn) return 'default';
+  return TAB_AYUDA_MAP[activeBtn.dataset.tab] || 'default';
+}
+
+function abrirAyuda() {
+  const body = document.getElementById('help-body');
+  body.innerHTML = AYUDA_CONTENIDO[getTabActiva()] || AYUDA_CONTENIDO.default;
+  document.getElementById('help-panel').classList.add('open');
+  document.getElementById('help-overlay').classList.add('open');
+}
+
+function cerrarAyuda() {
+  document.getElementById('help-panel').classList.remove('open');
+  document.getElementById('help-overlay').classList.remove('open');
+}
+
+document.getElementById('help-btn').addEventListener('click', abrirAyuda);
+document.getElementById('help-close').addEventListener('click', cerrarAyuda);
+document.getElementById('help-overlay').addEventListener('click', cerrarAyuda);
+
+// Actualizar contenido si el panel está abierto al cambiar pestaña
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (document.getElementById('help-panel').classList.contains('open')) {
+      setTimeout(() => {
+        const tab = TAB_AYUDA_MAP[btn.dataset.tab] || 'default';
+        document.getElementById('help-body').innerHTML = AYUDA_CONTENIDO[tab] || AYUDA_CONTENIDO.default;
+      }, 50);
+    }
+  });
 });
 
 // ════════════════════════════════════════════════════════════
