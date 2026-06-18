@@ -1588,6 +1588,19 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Ping al Apps Script para que despierte mientras carga
   fetch(`${API_URL}?action=ping`, { cache: 'no-store' }).catch(() => {});
   await cargarUsuarios();
+
+  // Botón Actualizar datos
+  document.getElementById('btn-refresh').addEventListener('click', async () => {
+    const btn = document.getElementById('btn-refresh');
+    btn.classList.add('spinning');
+    btn.disabled = true;
+    DATOS = [];
+    FILTRADOS = [];
+    await cargarDatos();
+    btn.classList.remove('spinning');
+    btn.disabled = false;
+    toast('✓ Datos actualizados', 'ok');
+  });
 });
 
 // Keep-alive cada 8 minutos
@@ -2520,10 +2533,13 @@ function bindEditableEvents() {
 
 
 function actualizarFila(interno, campo, valor) {
+  // Limpiar formato de fecha si corresponde
+  const CAMPOS_FECHA = ['fUltimaAlta','fBaja','fNuevaAlta'];
+  const valorFinal = CAMPOS_FECHA.includes(campo) ? limpiarFecha(valor) : valor;
   const idx = DATOS.findIndex(d => d.interno === interno);
-  if (idx >= 0) DATOS[idx][campo] = valor;
+  if (idx >= 0) DATOS[idx][campo] = valorFinal;
   const fidx = FILTRADOS.findIndex(d => d.interno === interno);
-  if (fidx >= 0) FILTRADOS[fidx][campo] = valor;
+  if (fidx >= 0) FILTRADOS[fidx][campo] = valorFinal;
 }
 
 // ════════════════════════════════════════════════════════════
