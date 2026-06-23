@@ -1781,7 +1781,7 @@ function mapearFila(r) {
     fUltimaAlta:   limpiarFecha(cleanVal(r['Fecha de ultima alta'])),
     fBaja:         limpiarFecha(cleanVal(r['FECHA DE BAJA'])),
     fNuevaAlta:    limpiarFecha(cleanVal(r['Fecha Nueva Alta'])),
-    fComprometida: cleanVal(r['Fecha Comprometida']),
+    fComprometida: limpiarFecha(cleanVal(r['Fecha Comprometida'])),
     semiTractor:   cleanVal(r['Semi / Tractor']),
     diasTrabajo:   cleanVal(r['Dias de Trabajo']),
     diasMant:      cleanVal(r['Dias en Mantenimiento']),
@@ -3472,7 +3472,7 @@ async function renderReporte() {
       html += '<tr style="background:'+bg+'">';
       colsGrupo.forEach(col => {
         let val = col.key === '_usuarioAlta' ? getUsuarioAlta(d.interno) : (d[col.key]||'—');
-        if ((col.key==='fBaja'||col.key==='fUltimaAlta') && val && val!=='—') val = formatFechaReporte(val);
+        if ((col.key==='fBaja'||col.key==='fUltimaAlta'||col.key==='fComprometida') && val && val!=='—') val = limpiarFecha(val);
         const tdStyle = {
           motivoBaja:'max-width:160px;word-break:break-word;white-space:normal',
           motivoDemora:'max-width:160px;word-break:break-word;white-space:normal',
