@@ -3815,7 +3815,9 @@ document.addEventListener('change', function(e) {
   if (!input.classList.contains('editable-date')) return;
   const tr = input.closest('tr');
   if (!tr) return;
-  const interno = tr.cells[0] ? tr.cells[0].textContent.trim() : '';
+  // Buscar interno y patente desde data attributes del input o desde las celdas
+  // Las celdas 0 y 1 son Interno y Patente en la tabla detalle
+  const interno = (tr.cells[0] ? tr.cells[0].textContent.trim() : '').replace(/[^a-zA-Z0-9\-]/g,'');
   const patente = tr.cells[1] ? tr.cells[1].textContent.trim() : '';
   if (!interno || interno === '—') return;
   const campo = input.dataset.campo;
@@ -3831,38 +3833,9 @@ document.addEventListener('change', function(e) {
   actualizarFila(interno, campo, nuevoValor);
   if (nuevoValor !== valorAnterior) {
     guardarCampo(interno, patente, campo, valorAnterior, nuevoValor);
+    toast('✓ Fecha comprometida actualizada', 'ok');
   }
 });
 </script>
 </body>
 </html>
-
-
-// Listener para campos de fecha editable (change en tabla-body)
-document.addEventListener('change', function(e) {
-  const input = e.target;
-  if (!input.classList.contains('editable-date')) return;
-  const tr = input.closest('tr');
-  if (!tr) return;
-  // Obtener interno de la primera celda
-  const interno = tr.cells[0] ? tr.cells[0].textContent.trim() : '';
-  const patente = tr.cells[1] ? tr.cells[1].textContent.trim() : '';
-  if (!interno || interno === '—') return;
-
-  const campo = input.dataset.campo;
-  const valorAnterior = input.dataset.valor || '';
-  const rawVal = input.value; // YYYY-MM-DD
-  let nuevoValor = '';
-  if (rawVal) {
-    const [y,m,d] = rawVal.split('-');
-    nuevoValor = d + '/' + m + '/' + y;
-  }
-  input.dataset.valor = nuevoValor;
-  input.title = nuevoValor || 'Sin fecha';
-  // Actualizar memoria
-  actualizarFila(interno, campo, nuevoValor);
-  // Guardar en Sheet
-  if (nuevoValor !== valorAnterior) {
-    guardarCampo(interno, patente, campo, valorAnterior, nuevoValor);
-  }
-});
