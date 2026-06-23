@@ -515,6 +515,12 @@ tbody td { padding: 7px 10px; font-size: 12px; white-space: nowrap; }
   border-radius: 4px; font-size: 12px; font-family: var(--font);
   width: 120px; outline: none;
 }
+.editable-date {
+  border: 1.5px solid var(--rojo); border-radius: 4px;
+  padding: 2px 4px; font-size: 11px; font-family: var(--font);
+  outline: none; cursor: pointer; background: white;
+  color: var(--negro); width: 110px;
+}
 
 /* ── POPUP EDITOR ── */
 #popup-overlay {
@@ -1328,12 +1334,12 @@ tbody td { padding: 7px 10px; font-size: 12px; white-space: nowrap; }
                   <th data-col="fUltimaAlta">Últ. Alta<span class="sort-icon"></span></th>
                   <th data-col="fBaja">F. Baja<span class="sort-icon"></span></th>
                   <th data-col="fNuevaAlta">F. Nueva Alta<span class="sort-icon"></span></th>
+                  <th data-col="fComprometida">F. Comprometida<span class="sort-icon"></span></th>
                   <th data-col="grupo">Grupo<span class="sort-icon"></span></th>
                   <th data-col="diasTrabajo">Días Trab.<span class="sort-icon"></span></th>
                   <th data-col="diasMant">Días Mant.<span class="sort-icon"></span></th>
                   <th data-col="tipoTaller">Taller<span class="sort-icon"></span></th>
                   <th data-col="nombreTaller">Nombre Taller<span class="sort-icon"></span></th>
-                  <th data-col="fComprometida">F. Comprometida<span class="sort-icon"></span></th>
                   <th data-col="nOT">N° OT<span class="sort-icon"></span></th>
                   <th data-col="nST">N° ST<span class="sort-icon"></span></th>
                   <th data-col="nNP">N° NP<span class="sort-icon"></span></th>
@@ -2424,6 +2430,23 @@ function renderTablaDetalle(datos) {
   };
 }
 
+// Campo fecha editable con input type=date
+function editDateField(campo, valor) {
+  const puedoEditar = SESSION && (SESSION.rol === 'Admin' || SESSION.rol === 'Operador' ||
+    SESSION.rol === 'Propietario' || SESSION.rol === 'Jefe de Taller');
+  if (!puedoEditar) return '<span>' + (valor||'—') + '</span>';
+
+  // Convertir DD/MM/YYYY a YYYY-MM-DD para el input
+  let inputVal = '';
+  if (valor && valor !== '—') {
+    const m = valor.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+    if (m) inputVal = m[3] + '-' + m[2].padStart(2,'0') + '-' + m[1].padStart(2,'0');
+  }
+  return '<input type="date" class="editable-date" data-campo="' + campo + '" ' +
+         'data-valor="' + (valor||'') + '" value="' + inputVal + '" ' +
+         'title="' + (valor||'Sin fecha') + '">';
+}
+
 function _renderLote(tbody, desde, cantidad) {
   const puedoEditar = SESSION && (SESSION.rol === 'Admin' || SESSION.rol === 'Operador' ||
     SESSION.rol === 'Propietario' || SESSION.rol === 'Jefe de Taller');
@@ -2467,12 +2490,12 @@ function _renderLote(tbody, desde, cantidad) {
       '<td>' + (d.fUltimaAlta||'—') + '</td>' +
       '<td>' + (d.fBaja||'—') + '</td>' +
       '<td>' + (d.fNuevaAlta||'—') + '</td>' +
+      '<td>' + editDateField('fComprometida', d.fComprometida) + '</td>' +
       '<td>' + (d.grupo||'—') + '</td>' +
       '<td>' + (d.diasTrabajo||'—') + '</td>' +
       '<td>' + formatDias(d.diasMant) + '</td>' +
       '<td>' + editPopup('tipoTaller', d.tipoTaller) + '</td>' +
       '<td>' + editField('nombreTaller', d.nombreTaller) + '</td>' +
-      '<td>' + limpiarFecha(d.fComprometida||'') + '</td>' +
       '<td>' + editField('nOT', d.nOT) + '</td>' +
       '<td>' + editField('nST', d.nST) + '</td>' +
       '<td>' + editField('nNP', d.nNP) + '</td>' +
@@ -2563,6 +2586,12 @@ function bindEditableEvents() {
             el.dataset.valor = v;
             actualizarFila(el.dataset.interno, campo, v);
           });
+        return;
+      }
+
+      // Campo fecha editable (input date)
+      if (el.classList.contains('editable-date')) {
+        // El evento change se maneja directamente en el input — no hace falta delegación aquí
         return;
       }
 
@@ -3778,6 +3807,61 @@ function loadHtml2Canvas(cb) {
   };
   document.body.appendChild(s);
 }
+
+// Listener change para campos de fecha editable (F. Comprometida)
+document.addEventListener('change', function(e) {
+  const input = e.target;
+  if (!input.classList.contains('editable-date')) return;
+  const tr = input.closest('tr');
+  if (!tr) return;
+  const interno = tr.cells[0] ? tr.cells[0].textContent.trim() : '';
+  const patente = tr.cells[1] ? tr.cells[1].textContent.trim() : '';
+  if (!interno || interno === '—') return;
+  const campo = input.dataset.campo;
+  const valorAnterior = input.dataset.valor || '';
+  const rawVal = input.value;
+  let nuevoValor = '';
+  if (rawVal) {
+    const [y,m,d] = rawVal.split('-');
+    nuevoValor = d + '/' + m + '/' + y;
+  }
+  input.dataset.valor = nuevoValor;
+  input.title = nuevoValor || 'Sin fecha';
+  actualizarFila(interno, campo, nuevoValor);
+  if (nuevoValor !== valorAnterior) {
+    guardarCampo(interno, patente, campo, valorAnterior, nuevoValor);
+  }
+});
 </script>
 </body>
 </html>
+
+
+// Listener para campos de fecha editable (change en tabla-body)
+document.addEventListener('change', function(e) {
+  const input = e.target;
+  if (!input.classList.contains('editable-date')) return;
+  const tr = input.closest('tr');
+  if (!tr) return;
+  // Obtener interno de la primera celda
+  const interno = tr.cells[0] ? tr.cells[0].textContent.trim() : '';
+  const patente = tr.cells[1] ? tr.cells[1].textContent.trim() : '';
+  if (!interno || interno === '—') return;
+
+  const campo = input.dataset.campo;
+  const valorAnterior = input.dataset.valor || '';
+  const rawVal = input.value; // YYYY-MM-DD
+  let nuevoValor = '';
+  if (rawVal) {
+    const [y,m,d] = rawVal.split('-');
+    nuevoValor = d + '/' + m + '/' + y;
+  }
+  input.dataset.valor = nuevoValor;
+  input.title = nuevoValor || 'Sin fecha';
+  // Actualizar memoria
+  actualizarFila(interno, campo, nuevoValor);
+  // Guardar en Sheet
+  if (nuevoValor !== valorAnterior) {
+    guardarCampo(interno, patente, campo, valorAnterior, nuevoValor);
+  }
+});
