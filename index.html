@@ -2967,6 +2967,7 @@ function renderMantenimiento(datos) {
         '<span>' + tallBadge + '</span>' +
         cell(d.nombreTaller) +
         '<span><span class="dias-badge ' + diasClass + '">' + formatDias(d.diasMant) + '</span></span>' +
+        cell(limpiarFecha(d.fComprometida||'')) +
         cell(d.nOT) + cell(d.nST) + cell(d.nNP) +
         makeEdit('estadoRep', d.estadoRep) +
         makeEdit('motivoDemora', d.motivoDemora) +
