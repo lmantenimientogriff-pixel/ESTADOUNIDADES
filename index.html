@@ -1333,6 +1333,7 @@ tbody td { padding: 7px 10px; font-size: 12px; white-space: nowrap; }
                   <th data-col="diasMant">Días Mant.<span class="sort-icon"></span></th>
                   <th data-col="tipoTaller">Taller<span class="sort-icon"></span></th>
                   <th data-col="nombreTaller">Nombre Taller<span class="sort-icon"></span></th>
+                  <th data-col="fComprometida">F. Comprometida<span class="sort-icon"></span></th>
                   <th data-col="nOT">N° OT<span class="sort-icon"></span></th>
                   <th data-col="nST">N° ST<span class="sort-icon"></span></th>
                   <th data-col="nNP">N° NP<span class="sort-icon"></span></th>
@@ -2359,6 +2360,7 @@ function renderDescuentoTab(datos) {
     tr.appendChild(tdDias);
     tr.appendChild(td(d.tipoTaller));
     tr.appendChild(td(d.nombreTaller));
+    tr.appendChild(td(limpiarFecha(d.fComprometida||'')));
     tr.appendChild(td(d.motivoBaja));
     tr.appendChild(tdMotivoDemora);
 
@@ -2470,6 +2472,7 @@ function _renderLote(tbody, desde, cantidad) {
       '<td>' + formatDias(d.diasMant) + '</td>' +
       '<td>' + editPopup('tipoTaller', d.tipoTaller) + '</td>' +
       '<td>' + editField('nombreTaller', d.nombreTaller) + '</td>' +
+      '<td>' + limpiarFecha(d.fComprometida||'') + '</td>' +
       '<td>' + editField('nOT', d.nOT) + '</td>' +
       '<td>' + editField('nST', d.nST) + '</td>' +
       '<td>' + editField('nNP', d.nNP) + '</td>' +
@@ -2801,8 +2804,9 @@ function renderMantenimiento(datos) {
     {label:'Interno',       w:'100px'}, {label:'Patente',       w:'95px'},
     {label:'Tipo',          w:'130px'}, {label:'Taller',        w:'75px'},
     {label:'Nombre Taller', w:'160px'}, {label:'Días',          w:'55px'},
-    {label:'N° OT',         w:'90px'},  {label:'N° ST',         w:'90px'},
-    {label:'N° NP',         w:'90px'},  {label:'Estado Rep.',   w:'130px'},
+    {label:'F. Comprometida',w:'95px'}, {label:'N° OT',         w:'90px'},
+    {label:'N° ST',         w:'90px'},  {label:'N° NP',         w:'90px'},
+    {label:'Estado Rep.',   w:'130px'},
     {label:'Motivo Demora', w:'1fr'},   {label:'Motivo Baja',   w:'1fr'}
   ];
   const GRID_MANT = COLS_MANT.map(c => c.w).join(' ');
@@ -3368,14 +3372,14 @@ async function renderReporte() {
     { label:'Tipo', key:'tipo' }, { label:'Centro Costo', key:'centroCosto' },
     { label:'Unidad Negocio', key:'unNegocio' }, { label:'Estado', key:'estado', pill:true },
     { label:'F. Baja', key:'fBaja' }, { label:'Días Trab.', key:'diasTrabajo' },
-    { label:'Días Mant.', key:'diasMant' }, { label:'Motivo Baja', key:'motivoBaja' },
+    { label:'Días Mant.', key:'diasMant' }, { label:'F. Comprometida', key:'fComprometida' }, { label:'Motivo Baja', key:'motivoBaja' },
     { label:'Taller', key:'tipoTaller' }, { label:'Nombre Taller', key:'nombreTaller' },
     { label:'Motivo Demora', key:'motivoDemora' },
     { label:'Usuario Alta', key:'_usuarioAlta' }, { label:'F. Alta', key:'fUltimaAlta' }
   ];
 
   const COLS_BACKUP = ['interno','patente','tipo','centroCosto','unNegocio','estado','diasTrabajo','motivoBaja','_usuarioAlta','fUltimaAlta'];
-  const COLS_MANT   = ['interno','patente','tipo','centroCosto','unNegocio','estado','fBaja','diasMant','motivoBaja','tipoTaller','nombreTaller','motivoDemora'];
+  const COLS_MANT   = ['interno','patente','tipo','centroCosto','unNegocio','estado','fBaja','diasMant','fComprometida','motivoBaja','tipoTaller','nombreTaller','motivoDemora'];
   const COLS_OP     = ['interno','patente','tipo','centroCosto','unNegocio','estado','diasTrabajo','_usuarioAlta','fUltimaAlta'];
 
   const grupos = [
