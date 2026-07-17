@@ -1379,6 +1379,7 @@ tbody td { padding: 7px 10px; font-size: 12px; white-space: nowrap; }
                 <th style="background:var(--negro);color:white;padding:9px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;text-align:left;">Días Mant.</th>
                 <th style="background:var(--negro);color:white;padding:9px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;text-align:left;">Taller</th>
                 <th style="background:var(--negro);color:white;padding:9px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;text-align:left;">Nombre Taller</th>
+                <th style="background:var(--negro);color:white;padding:9px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;text-align:left;">F. Comprometida</th>
                 <th style="background:var(--negro);color:white;padding:9px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;text-align:left;">Motivo Baja</th>
                 <th style="background:var(--negro);color:white;padding:9px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;text-align:left;">Motivo Demora</th>
               </tr>
@@ -2850,12 +2851,12 @@ function renderMantenimiento(datos) {
   const GRID_MANT = COLS_MANT.map(c => c.w).join(' ');
 
   const COLS_DESC = [
-    {label:'Interno',       w:'100px'}, {label:'Patente',       w:'95px'},
-    {label:'Tipo',          w:'130px'}, {label:'Centro Costo',  w:'180px'},
-    {label:'Unidad Neg.',   w:'160px'}, {label:'Estado',        w:'130px'},
-    {label:'Días Mant.',    w:'70px'},  {label:'Taller',        w:'75px'},
-    {label:'Nombre Taller', w:'150px'}, {label:'Motivo Baja',   w:'200px'},
-    {label:'Motivo Demora', w:'200px'}
+    {label:'Interno',       w:'90px'},  {label:'Patente',       w:'85px'},
+    {label:'Tipo',          w:'120px'}, {label:'Centro Costo',  w:'160px'},
+    {label:'Unidad Neg.',   w:'140px'}, {label:'Estado',        w:'120px'},
+    {label:'Días Mant.',    w:'60px'},  {label:'Taller',        w:'65px'},
+    {label:'Nombre Taller', w:'130px'}, {label:'Motivo Baja',   w:'220px'},
+    {label:'Motivo Demora', w:'220px'}
   ];
   const GRID_DESC = COLS_DESC.map(c => c.w).join(' ');
 
