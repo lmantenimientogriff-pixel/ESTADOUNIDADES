@@ -1345,6 +1345,7 @@ tbody td { padding: 7px 10px; font-size: 12px; white-space: nowrap; }
                   <th data-col="nNP">N° NP<span class="sort-icon"></span></th>
                   <th data-col="estadoRep">Estado Rep.<span class="sort-icon"></span></th>
                   <th data-col="motivoDemora">Motivo Demora<span class="sort-icon"></span></th>
+                  <th data-col="motivoBaja">Motivo Baja<span class="sort-icon"></span></th>
                   <th data-col="semiTractor">Semi/Tractor<span class="sort-icon"></span></th>
                 </tr>
               </thead>
@@ -2508,6 +2509,7 @@ function _renderLote(tbody, desde, cantidad) {
       '<td>' + editField('nNP', d.nNP) + '</td>' +
       '<td>' + editPopup('estadoRep', d.estadoRep) + '</td>' +
       '<td>' + editField('motivoDemora', d.motivoDemora) + '</td>' +
+      '<td>' + editField('motivoBaja', d.motivoBaja) + '</td>' +
       '<td>' + editField('semiTractor', d.semiTractor) + '</td>';
 
     frag.appendChild(tr);
@@ -2978,7 +2980,7 @@ function renderMantenimiento(datos) {
         cell(d.nOT) + cell(d.nST) + cell(d.nNP) +
         makeEdit('estadoRep', d.estadoRep) +
         makeEdit('motivoDemora', d.motivoDemora) +
-        cell(d.motivoBaja);
+        makeEdit('motivoBaja', d.motivoBaja);
 
       return row;
     };
