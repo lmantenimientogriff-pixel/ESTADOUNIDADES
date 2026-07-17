@@ -1489,6 +1489,13 @@ tbody td { padding: 7px 10px; font-size: 12px; white-space: nowrap; }
       <label id="confirm-fecha-label">Fecha</label>
       <input type="date" id="confirm-fecha">
     </div>
+    <div id="confirm-motivo-wrap" style="display:none;margin-top:10px">
+      <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px">Motivo de Baja</label>
+      <textarea id="confirm-motivo" rows="3" placeholder="Ingresá el motivo de baja..."
+        style="width:100%;border:1.5px solid var(--gris-borde);border-radius:6px;padding:8px;
+        font-size:13px;font-family:var(--font);resize:vertical;outline:none;box-sizing:border-box"
+        onfocus="this.style.borderColor='var(--rojo)'" onblur="this.style.borderColor='var(--gris-borde)'"></textarea>
+    </div>
     <div class="confirm-actions">
       <button class="confirm-cancel" id="confirm-cancel-btn">Cancelar</button>
       <button id="confirm-ok-btn" class="confirm-ok-baja">Confirmar</button>
@@ -3275,6 +3282,8 @@ function formatearFechaParaSheet(dateVal) {
 
 function abrirConfirmBaja(interno, patente) {
   document.getElementById('confirm-title').textContent = '🔴 Dar de Baja';
+  document.getElementById('confirm-motivo-wrap').style.display = 'block';
+  document.getElementById('confirm-motivo').value = '';
   document.getElementById('confirm-msg').innerHTML =
     `Unidad <span class="confirm-interno">${interno}</span> (${patente})<br>
      Se registrará como <strong>MANTENIMIENTO</strong> con la fecha de baja indicada.`;
@@ -3289,6 +3298,8 @@ function abrirConfirmBaja(interno, patente) {
 
 function abrirConfirmAlta(interno, patente) {
   document.getElementById('confirm-title').textContent = '🟢 Dar de Alta';
+  document.getElementById('confirm-motivo-wrap').style.display = 'none';
+  document.getElementById('confirm-motivo').value = '';
   document.getElementById('confirm-msg').innerHTML =
     `Unidad <span class="confirm-interno">${interno}</span> (${patente})<br>
      Se copiará el registro al historial y la unidad quedará <strong>OPERATIVA</strong>.`;
@@ -3618,13 +3629,15 @@ document.getElementById('confirm-cancel-btn').addEventListener('click', () => {
 
 async function ejecutarBaja(interno, patente) {
   const fechaRaw = document.getElementById('confirm-fecha').value;
-  if (!fechaRaw) { toast('Seleccioná una fecha y hora de baja.', 'err'); return; }
+  if (!fechaRaw) { toast('Seleccioná una fecha de baja.', 'err'); return; }
   const fecha = formatearFechaParaSheet(fechaRaw);
+  const motivoBaja = document.getElementById('confirm-motivo').value.trim();
   document.getElementById('confirm-overlay').style.display = 'none';
 
   // ── PASO 1: Actualizar memoria ──
   actualizarFila(interno, 'estado', 'MANTENIMIENTO');
   actualizarFila(interno, 'fBaja', fecha);
+  if (motivoBaja) actualizarFila(interno, 'motivoBaja', motivoBaja);
 
   // ── PASO 2: Agregar al LOG_CACHE local inmediatamente ──
   const ts = new Date().toLocaleString('es-AR');
@@ -3663,7 +3676,7 @@ async function ejecutarBaja(interno, patente) {
   toast(`✓ ${interno} → MANTENIMIENTO`, 'ok');
 
   // ── PASO 5: Sincronizar con Sheet en background ──
-  const params = new URLSearchParams({ action: 'darBaja', interno, fechaBaja: fecha });
+  const params = new URLSearchParams({ action: 'darBaja', interno, fechaBaja: fecha, motivoBaja });
   fetch(`${API_URL}?${params}`, { cache: 'no-store' })
     .then(r => r.json())
     .then(d => {
