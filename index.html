@@ -2854,8 +2854,8 @@ function renderMantenimiento(datos) {
     {label:'Tipo',          w:'130px'}, {label:'Centro Costo',  w:'180px'},
     {label:'Unidad Neg.',   w:'160px'}, {label:'Estado',        w:'130px'},
     {label:'Días Mant.',    w:'70px'},  {label:'Taller',        w:'75px'},
-    {label:'Nombre Taller', w:'150px'}, {label:'Motivo Baja',   w:'1fr'},
-    {label:'Motivo Demora', w:'1fr'}
+    {label:'Nombre Taller', w:'150px'}, {label:'Motivo Baja',   w:'200px'},
+    {label:'Motivo Demora', w:'200px'}
   ];
   const GRID_DESC = COLS_DESC.map(c => c.w).join(' ');
 
@@ -2905,6 +2905,8 @@ function renderMantenimiento(datos) {
     const udsDesc = [...enDesc].sort((a,b) => parseDias(b.diasMant) - parseDias(a.diasMant));
 
     const buildDescRow = (d, idx) => {
+      const puedoEditar = SESSION && (SESSION.rol === 'Admin' || SESSION.rol === 'Operador' ||
+        SESSION.rol === 'Propietario' || SESSION.rol === 'Jefe de Taller');
       const row = document.createElement('div');
       const bgRow = idx%2===0 ? 'white' : '#fafafa';
       row.style.cssText = 'display:grid;grid-template-columns:' + GRID_DESC + ';padding:8px 12px;border-bottom:1px solid #f0f0f0;font-size:12px;align-items:start;background:' + bgRow + ';';
@@ -2914,13 +2916,18 @@ function renderMantenimiento(datos) {
       const cell = (val, bold) => '<span style="' + (bold?'font-weight:700;':'') + 'word-break:break-word;white-space:normal;line-height:1.4;color:#374151">' + (val||'—') + '</span>';
       const estadoHTML = '<span class="estado-pill ' + estadoPillClass(d.estado) + '" style="font-size:10px">' + (d.estado||'—') + '</span>';
 
+      const makeEditDesc = (campo, valor) => {
+        if (!puedoEditar || !d.interno) return '<span style="word-break:break-word;white-space:normal;line-height:1.4;color:#374151">' + (valor||'—') + '</span>';
+        return '<span class="editable-field" data-interno="' + d.interno + '" data-patente="' + d.patente + '" data-campo="' + campo + '" data-valor="' + (valor||'') + '" style="word-break:break-word;white-space:normal;line-height:1.4">' + (valor||'—') + '</span>';
+      };
+
       row.innerHTML =
         cell(d.interno, true) + cell(d.patente) + cell(d.tipo) +
         cell(d.centroCosto) + cell(d.unNegocio) +
         '<span>' + estadoHTML + '</span>' +
         '<span><span class="dias-badge ' + getDiasClass(d.diasMant) + '">' + formatDias(d.diasMant) + '</span></span>' +
         cell(d.tipoTaller) + cell(d.nombreTaller) +
-        cell(d.motivoBaja) + cell(d.motivoDemora);
+        makeEditDesc('motivoBaja', d.motivoBaja) + makeEditDesc('motivoDemora', d.motivoDemora);
 
       return row;
     };
