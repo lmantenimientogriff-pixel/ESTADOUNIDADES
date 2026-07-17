@@ -2851,12 +2851,12 @@ function renderMantenimiento(datos) {
   const GRID_MANT = COLS_MANT.map(c => c.w).join(' ');
 
   const COLS_DESC = [
-    {label:'Interno',       w:'90px'},  {label:'Patente',       w:'85px'},
-    {label:'Tipo',          w:'120px'}, {label:'Centro Costo',  w:'160px'},
-    {label:'Unidad Neg.',   w:'140px'}, {label:'Estado',        w:'120px'},
-    {label:'Días Mant.',    w:'60px'},  {label:'Taller',        w:'65px'},
-    {label:'Nombre Taller', w:'130px'}, {label:'Motivo Baja',   w:'220px'},
-    {label:'Motivo Demora', w:'220px'}
+    {label:'Interno',       w:'90px'},   {label:'Patente',       w:'85px'},
+    {label:'Tipo',          w:'120px'},  {label:'Centro Costo',  w:'200px'},
+    {label:'Unidad Neg.',   w:'160px'},  {label:'Estado',        w:'120px'},
+    {label:'Días Mant.',    w:'60px'},   {label:'Taller',        w:'65px'},
+    {label:'Nombre Taller', w:'130px'},  {label:'F. Comprometida', w:'95px'},
+    {label:'Motivo Baja',   w:'200px'},  {label:'Motivo Demora', w:'200px'}
   ];
   const GRID_DESC = COLS_DESC.map(c => c.w).join(' ');
 
@@ -2928,6 +2928,7 @@ function renderMantenimiento(datos) {
         '<span>' + estadoHTML + '</span>' +
         '<span><span class="dias-badge ' + getDiasClass(d.diasMant) + '">' + formatDias(d.diasMant) + '</span></span>' +
         cell(d.tipoTaller) + cell(d.nombreTaller) +
+        cell(limpiarFecha(d.fComprometida||'')) +
         makeEditDesc('motivoBaja', d.motivoBaja) + makeEditDesc('motivoDemora', d.motivoDemora);
 
       return row;
